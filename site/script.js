@@ -2,7 +2,7 @@
   'use strict';
 
   // ---------- Countdown ----------
-  const LAUNCH = new Date('2026-10-19T12:00:00-05:00').getTime();
+  const LAUNCH = new Date('2026-11-19T12:00:00-05:00').getTime();
   const d = document.getElementById('count-days');
   const h = document.getElementById('count-hours');
   const m = document.getElementById('count-minutes');

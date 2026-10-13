@@ -434,6 +434,71 @@ a:hover { color: #f0c040; }
 }
 
 /* ===========================================================
+   COUNTDOWN
+   =========================================================== */
+.countdown-section {
+  background: #0d0b08;
+  border-top: 1px solid #1a1510;
+  border-bottom: 1px solid #1a1510;
+  padding: 56px 0;
+}
+.countdown-date {
+  color: #f5f0e8;
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin: 6px 0 28px;
+}
+.countdown-grid {
+  display: flex;
+  gap: clamp(10px, 2.4vw, 32px);
+  justify-content: center;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.countdown-cell { text-align: center; min-width: 72px; }
+.countdown-num {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(2.4rem, 6vw, 4.8rem);
+  font-weight: 900;
+  color: #f0c040;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  min-width: 2ch;
+  display: inline-block;
+  text-shadow: 0 0 24px rgba(240, 192, 64, 0.18);
+}
+.countdown-label {
+  color: #c9a227;
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-top: 10px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+}
+.countdown-sep {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(2rem, 5vw, 4rem);
+  color: #6b5a30;
+  line-height: 1;
+  padding-top: 4px;
+}
+.countdown-footnote {
+  color: #7a6a5a;
+  font-size: 0.85rem;
+  margin: 24px 0 0;
+  font-family: 'Inter', sans-serif;
+  font-style: italic;
+}
+@media (max-width: 480px) {
+  .countdown-sep { display: none; }
+  .countdown-grid { gap: 18px 24px; }
+  .countdown-cell { min-width: 64px; }
+}
+
+/* ===========================================================
    HEADER (desktop baseline + mobile hamburger)
    =========================================================== */
 html, body { overflow-x: hidden; }
