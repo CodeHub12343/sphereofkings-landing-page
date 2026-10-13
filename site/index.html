@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sphere of Kings 7-in-1 — Coming to Kickstarter October 19, 2026</title>
+<meta name="description" content="A revolutionary 360° board game where strategy, creativity, and imagination collide. Launching on Kickstarter October 19, 2026.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+
+
+
+<!-- ═══════════════════════════════════════════════════
+     1. STICKY HEADER
+     ═══════════════════════════════════════════════════ -->
+<header class="site-header">
+  <div class="wrap site-header-row">
+    <a href="#hero" aria-label="Sphere of Kings — back to top" class="site-logo">
+      <img src="assets/images/b17be116-af38-47af-9813-ffa3c2aec5e7.jpg" alt="Sphere of Kings 7 in 1">
+    </a>
+    <button type="button" class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+    </button>
+    <nav id="site-nav" class="site-nav" aria-label="Page sections">
+      <a href="#story" class="nav-link">Story</a>
+      <a href="#different" class="nav-link">Why It's Different</a>
+      <a href="#showcase" class="nav-link">7-in-1</a>
+      <a href="#tiers" class="nav-link">Tiers</a>
+      <a href="#video" class="nav-link">Video</a>
+    </nav>
+    <a href="#signup" class="btn-gold btn-gold-sm site-cta">Notify Me</a>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════
+     2. HERO
+     ═══════════════════════════════════════════════════ -->
+<section id="hero" style="background: linear-gradient(160deg, #0a0a0a 0%, #0e0c08 60%, #0a0a0a 100%); padding: var(--section-pad) 0; min-height: 88vh; display: flex; align-items: center;">
+  <div class="wrap" style="display: flex; gap: 48px; align-items: center; flex-wrap: wrap; width: 100%;">
+
+    <!-- Left: headline + form -->
+    <div style="flex: 1 1 340px; min-width: 0;">
+      <div class="label-tag">Launching on Kickstarter · October 19, 2026</div>
+      <h1 class="gold-title" style="font-size: clamp(2rem, 4.5vw, 3.6rem); line-height: 1.12; margin: 0 0 18px; font-weight: 900; letter-spacing: -0.01em;">
+        The Future of Strategic Royalty is Coming.
+      </h1>
+      <p style="font-size: clamp(1rem, 1.4vw, 1.2rem); color: #a89880; line-height: 1.72; margin: 0 0 36px; max-width: 520px;">
+        A revolutionary 360° board game where strategy, creativity, and imagination collide. Paint your kingdom. Conquer the sphere.
+      </p>
+
+      <!-- Hero sign-up form -->
+      <div id="signup">
+        <div class="form-state" data-form="hero" data-state="success" hidden>
+          <div class="success-box">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-bottom: 10px;"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 11 15 16 9"></polyline></svg>
+            <p style="color: #f5f0e8; font-family: 'Cinzel', serif; margin: 0 0 6px; font-size: 1.1rem;">Welcome to the Kingdom!</p>
+            <p style="color: #a89880; margin: 0; font-size: 0.9rem; line-height: 1.5;">We'll email you on launch day, October 19, 2026.</p>
+          </div>
+        </div>
+        <div class="form-state" data-form="hero" data-state="loading" hidden>
+          <div class="loading-box">
+            <p style="color: #c9a227; font-family: 'Cinzel', serif; font-size: 1rem; margin: 0; letter-spacing: 0.08em;">Joining the Kingdom…</p>
+          </div>
+        </div>
+        <div class="form-state" data-form="hero" data-state="idle">
+          <div>
+            <div style="display: flex; flex-direction: column; gap: 10px; max-width: 480px;">
+              <input type="text" class="inp" placeholder="First name (optional)" value="" aria-label="First name, optional" autocomplete="given-name" data-field="name">
+              <input type="email" class="inp" placeholder="Your email address" value="" aria-label="Email address, required" aria-required="true" autocomplete="email" data-field="email">
+              <div class="form-error" data-form="hero" hidden>
+                <p style="color: #f87171; font-size: 0.83rem; margin: 0; line-height: 1.4;" role="alert"></p>
+              </div>
+              <button type="button" class="btn-gold" data-submit="hero" style="width: 100%; padding: 16px; font-size: 1rem;">
+                Notify Me at Launch
+              </button>
+            </div>
+            <p style="color: #4a3c2c; font-size: 0.78rem; margin: 10px 0 0; max-width: 480px; line-height: 1.5;">
+              Be first to know when we launch on Kickstarter on October 19. No spam, unsubscribe anytime.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: sphere image -->
+    <div style="flex: 1 1 280px; min-width: 0; display: flex; justify-content: center; align-items: center;">
+      <img src="assets/images/d846e954-7329-421e-9b42-85a07f82d117.jpg" alt="Sphere of Kings — Royal Checkers spherical game board, red and black" class="orb-float" loading="lazy" width="480" height="480" style="width: 100%; max-width: 460px; border-radius: 14px; box-shadow: 0 0 80px rgba(201,162,39,0.14), 0 24px 64px rgba(0,0,0,0.7); object-fit: cover;">
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     3. COUNTDOWN TIMER
+     ═══════════════════════════════════════════════════ -->
+<section style="background: #0d0b08; border-top: 1px solid #1a1510; border-bottom: 1px solid #1a1510; padding: 56px 0;">
+  <div class="wrap" style="text-align: center;">
+    <p class="section-eyebrow">Kickstarter Launches In</p>
+    <div style="display: flex; gap: clamp(12px, 3vw, 40px); justify-content: center; flex-wrap: wrap; align-items: flex-start; margin-top: 8px;">
+
+      <div style="text-align: center; min-width: 72px;">
+        <div style="font-family: 'Cinzel', serif; font-size: clamp(2.4rem, 6vw, 4.8rem); font-weight: 900; color: #f0c040; line-height: 1; letter-spacing: -0.02em; min-width: 2ch; display: inline-block;"><span id="count-days">--</span></div>
+        <div style="color: #5a4a38; font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; margin-top: 8px; font-family: 'Inter', sans-serif;">Days</div>
+      </div>
+      <div style="font-family: 'Cinzel', serif; font-size: clamp(2rem, 5vw, 4rem); color: #2e2618; line-height: 1; padding-top: 4px;">:</div>
+
+      <div style="text-align: center; min-width: 72px;">
+        <div style="font-family: 'Cinzel', serif; font-size: clamp(2.4rem, 6vw, 4.8rem); font-weight: 900; color: #f0c040; line-height: 1; letter-spacing: -0.02em; min-width: 2ch; display: inline-block;"><span id="count-hours">--</span></div>
+        <div style="color: #5a4a38; font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; margin-top: 8px; font-family: 'Inter', sans-serif;">Hours</div>
+      </div>
+      <div style="font-family: 'Cinzel', serif; font-size: clamp(2rem, 5vw, 4rem); color: #2e2618; line-height: 1; padding-top: 4px;">:</div>
+
+      <div style="text-align: center; min-width: 72px;">
+        <div style="font-family: 'Cinzel', serif; font-size: clamp(2.4rem, 6vw, 4.8rem); font-weight: 900; color: #f0c040; line-height: 1; letter-spacing: -0.02em; min-width: 2ch; display: inline-block;"><span id="count-minutes">--</span></div>
+        <div style="color: #5a4a38; font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; margin-top: 8px; font-family: 'Inter', sans-serif;">Minutes</div>
+      </div>
+      <div style="font-family: 'Cinzel', serif; font-size: clamp(2rem, 5vw, 4rem); color: #2e2618; line-height: 1; padding-top: 4px;">:</div>
+
+      <div style="text-align: center; min-width: 72px;">
+        <div style="font-family: 'Cinzel', serif; font-size: clamp(2.4rem, 6vw, 4.8rem); font-weight: 900; color: #f0c040; line-height: 1; letter-spacing: -0.02em; min-width: 2ch; display: inline-block;"><span id="count-seconds">--</span></div>
+        <div style="color: #5a4a38; font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; margin-top: 8px; font-family: 'Inter', sans-serif;">Seconds</div>
+      </div>
+    </div>
+    <p style="color: #2e2618; font-size: 0.75rem; margin: 18px 0 0; font-family: 'Inter', sans-serif;">October 19, 2026 at 12:00 PM EST</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     4. WHY IT'S DIFFERENT
+     ═══════════════════════════════════════════════════ -->
+<section id="different" style="padding: var(--section-pad) 0; background: var(--bg);">
+  <div class="wrap">
+    <p class="section-eyebrow">Experience strategy like never before</p>
+    <h2 class="gold-title" style="text-align: center; font-size: clamp(1.7rem, 3.5vw, 2.7rem); margin: 0 0 52px; font-weight: 900; letter-spacing: -0.01em;">Why Sphere of Kings Is Different</h2>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 20px;">
+
+      <!-- Card 1 -->
+      <div class="feature-card">
+        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #1a1405, #2e2410); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 18px;" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9a227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            <path d="M2 12h20"></path>
+          </svg>
+        </div>
+        <h3 style="font-family: 'Cinzel', serif; color: #f5f0e8; font-size: 1rem; margin: 0 0 10px; font-weight: 700;">360° Gameplay</h3>
+        <p style="color: #a89880; font-size: 0.92rem; line-height: 1.65; margin: 0;">Experience strategy from every direction on a revolutionary spherical board.</p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="feature-card">
+        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #1a1405, #2e2410); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 18px;" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9a227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+          </svg>
+        </div>
+        <h3 style="font-family: 'Cinzel', serif; color: #f5f0e8; font-size: 1rem; margin: 0 0 10px; font-weight: 700;">Customizable Boards</h3>
+        <p style="color: #a89880; font-size: 0.92rem; line-height: 1.65; margin: 0;">Paint and personalize your board to create a one-of-a-kind game set.</p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="feature-card">
+        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #1a1405, #2e2410); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 18px;" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9a227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <h3 style="font-family: 'Cinzel', serif; color: #f5f0e8; font-size: 1rem; margin: 0 0 10px; font-weight: 700;">Family-Friendly Fun</h3>
+        <p style="color: #a89880; font-size: 0.92rem; line-height: 1.65; margin: 0;">Simple rules make it easy to learn, yet deep strategy keeps every match exciting.</p>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="feature-card">
+        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #1a1405, #2e2410); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 18px;" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9a227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+        </div>
+        <h3 style="font-family: 'Cinzel', serif; color: #f5f0e8; font-size: 1rem; margin: 0 0 10px; font-weight: 700;">Collector Quality</h3>
+        <p style="color: #a89880; font-size: 0.92rem; line-height: 1.65; margin: 0;">Designed with premium materials and craftsmanship for lasting enjoyment.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     5. THE STORY
+     ═══════════════════════════════════════════════════ -->
+<section id="story" style="padding: var(--section-pad) 0; background: var(--bg2);">
+  <div class="wrap">
+    <div style="display: flex; gap: 56px; align-items: center; flex-wrap: wrap;">
+
+      <div style="flex: 1 1 280px; min-width: 0;">
+        <img src="assets/images/e732ab4d-acf4-43fd-b4b1-a1708e5bf027.jpg" alt="Complete 7-in-1 Sphere of Kings game showing all game modes and accessories" loading="lazy" width="560" height="560" style="width: 100%; border-radius: 14px; box-shadow: 0 20px 56px rgba(0,0,0,0.55); object-fit: cover;">
+      </div>
+
+      <div style="flex: 1 1 340px; min-width: 0;">
+        <p style="color: #c9a227; font-family: 'Cinzel', serif; font-size: 0.78rem; letter-spacing: 0.22em; text-transform: uppercase; margin: 0 0 10px;">The Story Behind</p>
+        <h2 class="gold-title" style="font-size: clamp(1.7rem, 3.5vw, 2.7rem); margin: 0 0 24px; font-weight: 900;">Sphere of Kings</h2>
+        <p style="color: #c8b898; font-size: 1rem; line-height: 1.8; margin: 0 0 18px;">
+          Sphere of Kings reimagines the classic strategy board game with a completely new perspective. Instead of a flat board, players compete on a fully spherical battlefield, where strategy unfolds in every direction.
+        </p>
+        <p style="color: #c8b898; font-size: 1rem; line-height: 1.8; margin: 0 0 18px;">
+          Inspired by the timeless challenge of games like checkers and tactical battle games, Sphere of Kings introduces dynamic gameplay where positioning, foresight, and creativity determine the winner.
+        </p>
+        <p style="color: #c8b898; font-size: 1rem; line-height: 1.8; margin: 0;">
+          But the experience doesn't stop at strategy. Each board can be customized and painted, turning every set into a unique piece of art. Whether you're a family looking for fun game nights, kids exploring creativity, or strategy enthusiasts seeking a fresh challenge, Sphere of Kings delivers a truly unique experience.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     6. 7-IN-1 SHOWCASE
+     ═══════════════════════════════════════════════════ -->
+<section id="showcase" style="padding: var(--section-pad) 0; background: var(--bg);">
+  <div class="wrap">
+    <p class="section-eyebrow">One Board. Seven Worlds.</p>
+    <h2 class="gold-title" style="text-align: center; font-size: clamp(1.7rem, 3.5vw, 2.7rem); margin: 0 0 12px; font-weight: 900;">7-in-1 Showcase</h2>
+    <p style="text-align: center; color: #a89880; max-width: 600px; margin: 0 auto 44px; font-size: 0.98rem; line-height: 1.65;">One spherical board transforms into seven distinct experiences. Choose your game, or master them all.</p>
+
+    <div style="display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap;">
+
+      <!-- Tab list -->
+      <div role="tablist" aria-label="Select a game mode" style="flex: 0 0 200px; display: flex; flex-direction: column; gap: 4px;">
+        <button role="tab" aria-selected="true" data-game-index="0" type="button" class="tab-btn">Royal Checkers</button>
+        <button role="tab" aria-selected="false" data-game-index="1" type="button" class="tab-btn">Imperial Kings</button>
+        <button role="tab" aria-selected="false" data-game-index="2" type="button" class="tab-btn">Spherical Puzzle</button>
+        <button role="tab" aria-selected="false" data-game-index="3" type="button" class="tab-btn">DIY Puzzle Kit</button>
+        <button role="tab" aria-selected="false" data-game-index="4" type="button" class="tab-btn">Custom Upload Puzzle</button>
+        <button role="tab" aria-selected="false" data-game-index="5" type="button" class="tab-btn">DIY Checkers Kit</button>
+        <button role="tab" aria-selected="false" data-game-index="6" type="button" class="tab-btn">DIY Imperial Kings</button>
+      </div>
+
+      <!-- Tab panels -->
+      <div style="flex: 1 1 360px; min-width: 0; background: #0e0c09; border: 1px solid #1e1a12; border-radius: 10px; padding: 28px; min-height: 280px;">
+
+        <div class="game-panel" data-panel-index="0">
+          <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start;">
+            <div style="display: flex; flex-direction: column; gap: 12px; flex-shrink: 0;">
+              <img src="assets/images/d846e954-7329-421e-9b42-85a07f82d117.jpg" alt="Royal Checkers spherical game board — red and black" loading="lazy" width="180" height="180" style="width: 180px; height: 180px; object-fit: cover; border-radius: 8px;">
+              <img src="assets/images/6c2ef074-f40f-41cb-b1cd-ff5add971a7b.jpg" alt="Royal Checkers game pieces — red and black discs" loading="lazy" width="180" height="100" style="width: 180px; height: 100px; object-fit: cover; border-radius: 8px;">
+            </div>
+            <div style="flex: 1 1 200px; min-width: 0;">
+              <h3 style="font-family: 'Cinzel', serif; color: #f0c040; margin: 0 0 10px; font-size: 1.1rem; font-weight: 700;">Royal Checkers</h3>
+              <p style="color: #c8b898; line-height: 1.72; margin: 0; font-size: 0.95rem;">The timeless game of checkers, reimagined on a 360° spherical board. Strategy unfolds in every direction — no edge, no escape. The perfect entry point into spherical gameplay for all ages.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-panel" data-panel-index="1" hidden>
+          <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start;">
+            <img src="assets/images/63cafa47-367f-478a-b35d-01d19733f0e2.jpg" alt="Imperial Kings spherical chess board — white and black" loading="lazy" width="180" height="180" style="width: 180px; height: 180px; object-fit: cover; border-radius: 8px; flex-shrink: 0;">
+            <div style="flex: 1 1 200px; min-width: 0;">
+              <h3 style="font-family: 'Cinzel', serif; color: #f0c040; margin: 0 0 10px; font-size: 1.1rem; font-weight: 700;">Imperial Kings</h3>
+              <p style="color: #c8b898; line-height: 1.72; margin: 0 0 12px; font-size: 0.95rem;">Chess-inspired tactical battle on the sphere. The spherical board adds a whole new dimension of attack, defense, and surprise — no blind spots, no safe corners. Outthink your opponent from all angles.</p>
+              <p style="color: #5a4a38; font-size: 0.82rem; font-style: italic;">Full rules and detailed gameplay — revealed at launch.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-panel" data-panel-index="2" hidden>
+          <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start;">
+            <img src="assets/images/07f00190-4d22-466d-a5af-f0d872e1c195.jpg" alt="Spherical puzzle pieces" loading="lazy" width="180" height="180" style="width: 180px; height: 180px; object-fit: cover; border-radius: 8px; flex-shrink: 0;">
+            <div style="flex: 1 1 200px; min-width: 0;">
+              <h3 style="font-family: 'Cinzel', serif; color: #f0c040; margin: 0 0 10px; font-size: 1.1rem; font-weight: 700;">Spherical Puzzle</h3>
+              <p style="color: #c8b898; line-height: 1.72; margin: 0; font-size: 0.95rem;">Assemble a beautifully designed spherical puzzle that becomes a stunning display piece when complete. A calming yet satisfying challenge for puzzle lovers of all ages.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-panel" data-panel-index="3" hidden>
+          <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start;">
+            <img src="assets/images/03dd966c-144e-4718-9252-17548b3778e7.jpg" alt="Creator's Edition — DIY puzzle kit with unpainted sphere and all pieces" loading="lazy" width="180" height="180" style="width: 180px; height: 180px; object-fit: cover; border-radius: 8px; flex-shrink: 0;">
+            <div style="flex: 1 1 200px; min-width: 0;">
+              <h3 style="font-family: 'Cinzel', serif; color: #f0c040; margin: 0 0 10px; font-size: 1.1rem; font-weight: 700;">DIY Puzzle Kit</h3>
+              <p style="color: #c8b898; line-height: 1.72; margin: 0; font-size: 0.95rem;">Start with a blank sphere and make the puzzle entirely your own. Paint the pieces, design your pattern, and assemble a truly unique creation. Perfect for young makers and creative families.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-panel" data-panel-index="4" hidden>
+          <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start;">
+            <img src="assets/images/0426fb4f-6550-4e4d-b8c2-42ce56f2a2ef.jpg" alt="Custom Upload Puzzle — a photo converted into a spherical puzzle" loading="lazy" width="180" height="180" style="width: 180px; height: 180px; object-fit: cover; border-radius: 8px; flex-shrink: 0;">
+            <div style="flex: 1 1 200px; min-width: 0;">
+              <h3 style="font-family: 'Cinzel', serif; color: #f0c040; margin: 0 0 10px; font-size: 1.1rem; font-weight: 700;">Custom Upload Puzzle</h3>
+              <p style="color: #c8b898; line-height: 1.72; margin: 0 0 14px; font-size: 0.95rem;">Upload a photo — your family, your pet, your favorite place — and it becomes a custom spherical puzzle. A gift like no other.</p>
+              <div style="background: #1a1510; border: 1px solid #2e2618; border-radius: 6px; padding: 10px 14px;">
+                <p style="color: #5a4a38; font-size: 0.78rem; line-height: 1.55; margin: 0; font-style: italic;">Note: Uploaded images are converted to a simplified 3D printable model with fewer colors and lower detail. The final puzzle will not look exactly like the original photo, but keeps its main shapes, colors, and design.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-panel" data-panel-index="5" hidden>
+          <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start;">
+            <img src="assets/images/6c2ef074-f40f-41cb-b1cd-ff5add971a7b.jpg" alt="DIY Checkers Kit — red and black checker pieces on a spherical board" loading="lazy" width="180" height="180" style="width: 180px; height: 180px; object-fit: cover; border-radius: 8px; flex-shrink: 0;">
+            <div style="flex: 1 1 200px; min-width: 0;">
+              <h3 style="font-family: 'Cinzel', serif; color: #f0c040; margin: 0 0 10px; font-size: 1.1rem; font-weight: 700;">DIY Checkers Kit</h3>
+              <p style="color: #c8b898; line-height: 1.72; margin: 0; font-size: 0.95rem;">Design and paint your own checkers board from scratch. Choose your colors, create your patterns, and then play your very own custom Royal Checkers game. Every set becomes a one-of-a-kind heirloom.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-panel" data-panel-index="6" hidden>
+          <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start;">
+            <img src="assets/images/63cafa47-367f-478a-b35d-01d19733f0e2.jpg" alt="DIY Imperial Kings board — spherical chess board to paint and customize" loading="lazy" width="180" height="180" style="width: 180px; height: 180px; object-fit: cover; border-radius: 8px; flex-shrink: 0;">
+            <div style="flex: 1 1 200px; min-width: 0;">
+              <h3 style="font-family: 'Cinzel', serif; color: #f0c040; margin: 0 0 10px; font-size: 1.1rem; font-weight: 700;">DIY Imperial Kings</h3>
+              <p style="color: #c8b898; line-height: 1.72; margin: 0; font-size: 0.95rem;">Craft your own Imperial Kings battle board. Paint your royal colors, customize the grid, and create a uniquely personalized tactical sphere — a creative activity and a collectible all in one.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     7. KICKSTARTER VIDEO
+     ═══════════════════════════════════════════════════ -->
+<section id="video" style="padding: var(--section-pad) 0; background: var(--bg2);">
+  <div class="wrap" style="text-align: center;">
+    <h2 class="gold-title" style="font-size: clamp(1.7rem, 3.5vw, 2.7rem); margin: 0 0 12px; font-weight: 900;">See the Sphere in Action</h2>
+    <p style="color: #a89880; margin: 0 auto 36px; max-width: 520px; font-size: 0.98rem; line-height: 1.65;">Watch the official Kickstarter campaign video and see every game mode come to life.</p>
+    <div style="max-width: 800px; margin: 0 auto; background: #0e0c09; border: 1px solid #1e1a12; border-radius: 12px; overflow: hidden; aspect-ratio: 16/9; box-shadow: 0 20px 56px rgba(0,0,0,0.55);">
+      <video
+        controls
+        preload="metadata"
+        playsinline
+        poster="assets/images/d846e954-7329-421e-9b42-85a07f82d117.jpg"
+        style="width: 100%; height: 100%; display: block; background: #000;">
+        <source src="https://res.cloudinary.com/dctvil2gu/video/upload/v1791922144/WhatsApp_Video_2026-10-13_at_7.03.01_PM_itshl0.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+        <a href="https://res.cloudinary.com/dctvil2gu/video/upload/v1791922144/WhatsApp_Video_2026-10-13_at_7.03.01_PM_itshl0.mp4">Watch the video</a>.
+      </video>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     8. PLEDGE TIERS PREVIEW
+     ═══════════════════════════════════════════════════ -->
+<section id="tiers" style="padding: var(--section-pad) 0; background: var(--bg);">
+  <div class="wrap">
+    <p class="section-eyebrow">Kickstarter Pledge Tiers</p>
+    <h2 class="gold-title" style="text-align: center; font-size: clamp(1.7rem, 3.5vw, 2.7rem); margin: 0 0 10px; font-weight: 900;">Choose Your Kingdom</h2>
+    <p style="text-align: center; color: #5a4a38; font-size: 0.82rem; margin: 0 0 44px; font-style: italic;">Preview only — pricing revealed at launch. Tiers subject to change.</p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 18px;">
+
+      <!-- Tier 1: Kingdom Supporter -->
+      <div class="tier-card">
+        <img src="assets/images/c298caf6-a7af-4121-9b95-3cb1f16fab72.jpg" alt="Kingdom Supporter pledge tier" loading="lazy" width="300" height="225" style="width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block;">
+        <div style="padding: 18px;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+            <h3 style="font-family: 'Cinzel', serif; color: #f5f0e8; font-size: 0.95rem; margin: 0; font-weight: 700;">Kingdom Supporter</h3>
+            <span style="color: #f0c040; font-family: 'Cinzel', serif; font-weight: 700; font-size: 1rem; white-space: nowrap;">$5</span>
+          </div>
+          <p style="color: #5a4a38; font-size: 0.82rem; line-height: 1.55; margin: 0;">Show your early support and be recognized as a founding backer of the Kingdom.</p>
+        </div>
+      </div>
+
+      <!-- Tier 2: Royal Triple Pack -->
+      <div class="tier-card">
+        <img src="assets/images/b537bf89-3632-4281-aab5-1d928a83effd.jpg" alt="Royal Triple Pack — 3 complete 7-in-1 Sphere of Kings game boards" loading="lazy" width="300" height="225" style="width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block;">
+        <div style="padding: 18px;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+            <h3 style="font-family: 'Cinzel', serif; color: #f5f0e8; font-size: 0.95rem; margin: 0; font-weight: 700;">Royal Triple Pack</h3>
+            <span style="color: #5a4a38; font-size: 0.78rem; font-style: italic; white-space: nowrap;">Price at launch</span>
+          </div>
+          <p style="color: #5a4a38; font-size: 0.82rem; line-height: 1.55; margin: 0;">3 complete 7-in-1 Sphere of Kings sets. Perfect for gifting or a family collection.</p>
+        </div>
+      </div>
+
+      <!-- Tier 3: Kingdom 5-Pack -->
+      <div class="tier-card">
+        <img src="assets/images/08c0600b-f713-4ca9-9dd7-b792d0b9a0bc.jpg" alt="Kingdom 5-Pack — 5 complete Sphere of Kings game boards" loading="lazy" width="300" height="225" style="width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block;">
+        <div style="padding: 18px;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+            <h3 style="font-family: 'Cinzel', serif; color: #f5f0e8; font-size: 0.95rem; margin: 0; font-weight: 700;">Kingdom 5-Pack</h3>
+            <span style="color: #5a4a38; font-size: 0.78rem; font-style: italic; white-space: nowrap;">Price at launch</span>
+          </div>
+          <p style="color: #5a4a38; font-size: 0.82rem; line-height: 1.55; margin: 0;">5 complete sets for game clubs, classrooms, or the ultimate collector.</p>
+        </div>
+      </div>
+
+      <!-- Tier 4: Grandmaster 10-Pack -->
+      <div class="tier-card">
+        <img src="assets/images/de6dcdb2-d872-4b9d-8451-b21622f9ec9e.jpg" alt="Grandmaster 10-Pack — 10 complete Sphere of Kings game boards" loading="lazy" width="300" height="225" style="width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block;">
+        <div style="padding: 18px;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+            <h3 style="font-family: 'Cinzel', serif; color: #f5f0e8; font-size: 0.95rem; margin: 0; font-weight: 700;">Grandmaster 10-Pack</h3>
+            <span style="color: #5a4a38; font-size: 0.78rem; font-style: italic; white-space: nowrap;">Price at launch</span>
+          </div>
+          <p style="color: #5a4a38; font-size: 0.82rem; line-height: 1.55; margin: 0;">10 complete sets — ideal for schools, game cafes, or bulk gift orders.</p>
+        </div>
+      </div>
+
+    </div>
+    <p style="text-align: center; color: #2e2618; font-size: 0.76rem; margin: 20px 0 0;">Sales open only after the Kickstarter campaign concludes.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     9. FINAL CTA
+     ═══════════════════════════════════════════════════ -->
+<section style="padding: var(--section-pad) 0; background: linear-gradient(180deg, #0d0b08 0%, #0a0805 100%);">
+  <div class="wrap" style="text-align: center;">
+    <p class="section-eyebrow">Your Throne Awaits</p>
+    <h2 class="gold-title" style="font-size: clamp(1.7rem, 3.5vw, 2.7rem); margin: 0 0 14px; font-weight: 900;">Join the Kingdom Before Day One</h2>
+    <p style="color: #a89880; max-width: 520px; margin: 0 auto 36px; font-size: 0.98rem; line-height: 1.65;">Early subscribers are the first to know when the campaign goes live on Kickstarter on October 19, 2026.</p>
+
+    <div style="max-width: 460px; margin: 0 auto;">
+      <div class="form-state" data-form="final" data-state="success" hidden>
+        <div class="success-box">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-bottom: 10px;"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 11 15 16 9"></polyline></svg>
+          <p style="color: #f5f0e8; font-family: 'Cinzel', serif; margin: 0 0 6px; font-size: 1.1rem;">Welcome to the Kingdom!</p>
+          <p style="color: #a89880; margin: 0; font-size: 0.9rem; line-height: 1.5;">We'll email you on launch day, October 19, 2026.</p>
+        </div>
+      </div>
+      <div class="form-state" data-form="final" data-state="loading" hidden>
+        <div class="loading-box">
+          <p style="color: #c9a227; font-family: 'Cinzel', serif; font-size: 1rem; margin: 0; letter-spacing: 0.08em;">Joining the Kingdom…</p>
+        </div>
+      </div>
+      <div class="form-state" data-form="final" data-state="idle">
+        <div>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <input type="text" class="inp" placeholder="First name (optional)" value="" aria-label="First name, optional" autocomplete="given-name" data-field="name">
+            <input type="email" class="inp" placeholder="Your email address" value="" aria-label="Email address, required" aria-required="true" autocomplete="email" data-field="email">
+            <div class="form-error" data-form="final" hidden>
+              <p style="color: #f87171; font-size: 0.83rem; margin: 0; text-align: left; line-height: 1.4;" role="alert"></p>
+            </div>
+            <button type="button" class="btn-gold" data-submit="final" style="width: 100%; padding: 16px; font-size: 1rem;">
+              Notify Me at Launch
+            </button>
+          </div>
+          <p style="color: #2e2618; font-size: 0.76rem; margin: 10px 0 0; line-height: 1.5;">No spam. Unsubscribe anytime.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     10. FOOTER
+     ═══════════════════════════════════════════════════ -->
+<footer style="background: #060504; border-top: 1px solid #161210; padding: 52px 0 28px;">
+  <div class="wrap">
+    <div style="display: flex; gap: 40px; flex-wrap: wrap; justify-content: space-between; margin-bottom: 40px;">
+
+      <!-- Brand -->
+      <div style="flex: 1 1 240px; min-width: 0;">
+        <img src="assets/images/b17be116-af38-47af-9813-ffa3c2aec5e7.jpg" alt="Sphere of Kings 7 in 1" loading="lazy" style="height: 38px; object-fit: contain; margin-bottom: 14px; display: block;">
+        <p style="color: #3a2c1c; font-size: 0.84rem; line-height: 1.6; margin: 0 0 12px; max-width: 260px;">
+          A revolutionary 360° board game. Launching on Kickstarter October 19, 2026.
+        </p>
+        <p style="color: #2a1e10; font-size: 0.78rem; font-style: italic; margin: 0;">Sales open after the Kickstarter campaign concludes.</p>
+      </div>
+
+      <!-- Explore -->
+      <div style="flex: 0 1 140px;">
+        <h4 style="font-family: 'Cinzel', serif; color: #5a4a38; font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; margin: 0 0 14px; font-weight: 700;">Explore</h4>
+        <div style="display: flex; flex-direction: column; gap: 9px;">
+          <a href="#story" style="color: #3a2c1c; text-decoration: none; font-size: 0.83rem;">Story</a>
+          <a href="#different" style="color: #3a2c1c; text-decoration: none; font-size: 0.83rem;">Why It's Different</a>
+          <a href="#showcase" style="color: #3a2c1c; text-decoration: none; font-size: 0.83rem;">7-in-1 Showcase</a>
+          <a href="#tiers" style="color: #3a2c1c; text-decoration: none; font-size: 0.83rem;">Pledge Tiers</a>
+          <a href="#video" style="color: #3a2c1c; text-decoration: none; font-size: 0.83rem;">Video</a>
+        </div>
+      </div>
+
+      <!-- Connect -->
+      <div style="flex: 0 1 160px;">
+        <h4 style="font-family: 'Cinzel', serif; color: #5a4a38; font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; margin: 0 0 14px; font-weight: 700;">Connect</h4>
+        <div style="display: flex; flex-direction: column; gap: 9px;">
+          <!-- TODO: Replace # with real social media URLs -->
+          <a href="#" aria-label="Follow Sphere of Kings on Instagram" style="color: #3a2c1c; text-decoration: none; font-size: 0.83rem;">Instagram</a>
+          <a href="#" aria-label="Follow Sphere of Kings on Facebook" style="color: #3a2c1c; text-decoration: none; font-size: 0.83rem;">Facebook</a>
+          <a href="#" aria-label="Follow Sphere of Kings on TikTok" style="color: #3a2c1c; text-decoration: none; font-size: 0.83rem;">TikTok</a>
+          <!-- TODO: Replace with real contact email address -->
+          <a href="mailto:hello@sphereofkings.com" style="color: #3a2c1c; text-decoration: none; font-size: 0.83rem;">Contact Us</a>
+        </div>
+      </div>
+
+    </div>
+
+    <hr class="divider">
+    <div style="padding-top: 22px; display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; align-items: center;">
+      <p style="color: #1e160c; font-size: 0.74rem; margin: 0;">© 2026 Sphere of Kings. All rights reserved. Sphere of Kings 7-in-1™</p>
+      <div style="display: flex; gap: 18px; flex-wrap: wrap;">
+        <!-- TODO: Replace # with real privacy policy and terms URLs -->
+        <a href="#" style="color: #1e160c; font-size: 0.74rem; text-decoration: none;">Privacy Policy</a>
+        <a href="#" style="color: #1e160c; font-size: 0.74rem; text-decoration: none;">Terms of Service</a>
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+
+
+
+
+
+<script src="script.js"></script>
+</body>
+</html>

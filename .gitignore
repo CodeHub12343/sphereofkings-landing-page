@@ -1,0 +1,9 @@
+# Intermediate extraction artifacts from converting the original bundled design
+extracted/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
