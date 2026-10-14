@@ -115,14 +115,18 @@
   wireForm('hero');
   wireForm('final');
 
-  // ---------- Subscriber counter (live) ----------
+  // ---------- Subscriber counter (live, truthful) ----------
   const COUNTER_NS  = 'sphereofkings';
   const COUNTER_KEY = 'subscribers';
-  const BASELINE    = 247; // fallback shown if the counter API is unreachable
-  const counterEls  = document.querySelectorAll('[data-sub-counter] [data-count]');
+  const counterBoxes = document.querySelectorAll('[data-sub-counter]');
+  const counterEls   = document.querySelectorAll('[data-sub-counter] [data-count]');
 
   function paintCount(n) {
     counterEls.forEach((el) => { el.textContent = n.toLocaleString(); });
+    counterBoxes.forEach((b) => b.removeAttribute('hidden'));
+  }
+  function hideCounter() {
+    counterBoxes.forEach((b) => b.setAttribute('hidden', ''));
   }
   async function fetchCount() {
     try {
@@ -130,9 +134,10 @@
       if (!r.ok) throw new Error('bad');
       const d = await r.json();
       if (typeof d.value === 'number') paintCount(d.value);
-      else paintCount(BASELINE);
+      else hideCounter();
     } catch (_) {
-      paintCount(BASELINE);
+      // Don't show a fake number if the counter API is unreachable.
+      hideCounter();
     }
   }
   async function bumpCount() {
@@ -143,6 +148,8 @@
       if (typeof d.value === 'number') paintCount(d.value);
     } catch (_) { /* ignore */ }
   }
+  // Hide by default until a real number comes back from the API.
+  hideCounter();
   fetchCount();
 
   // Hook into the hero/final submit buttons: when a submit succeeds, bump the counter.
