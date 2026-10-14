@@ -115,6 +115,102 @@
   wireForm('hero');
   wireForm('final');
 
+  // ---------- Subscriber counter (live) ----------
+  const COUNTER_NS  = 'sphereofkings';
+  const COUNTER_KEY = 'subscribers';
+  const BASELINE    = 247; // fallback shown if the counter API is unreachable
+  const counterEls  = document.querySelectorAll('[data-sub-counter] [data-count]');
+
+  function paintCount(n) {
+    counterEls.forEach((el) => { el.textContent = n.toLocaleString(); });
+  }
+  async function fetchCount() {
+    try {
+      const r = await fetch(`https://abacus.jasoncameron.dev/get/${COUNTER_NS}/${COUNTER_KEY}`);
+      if (!r.ok) throw new Error('bad');
+      const d = await r.json();
+      if (typeof d.value === 'number') paintCount(d.value);
+      else paintCount(BASELINE);
+    } catch (_) {
+      paintCount(BASELINE);
+    }
+  }
+  async function bumpCount() {
+    try {
+      const r = await fetch(`https://abacus.jasoncameron.dev/hit/${COUNTER_NS}/${COUNTER_KEY}`);
+      if (!r.ok) return;
+      const d = await r.json();
+      if (typeof d.value === 'number') paintCount(d.value);
+    } catch (_) { /* ignore */ }
+  }
+  fetchCount();
+
+  // Hook into the hero/final submit buttons: when a submit succeeds, bump the counter.
+  // We detect success by observing when the success div for either form becomes visible.
+  ['hero', 'final'].forEach((name) => {
+    const success = document.querySelector(`.form-state[data-form="${name}"][data-state="success"]`);
+    if (!success) return;
+    const obs = new MutationObserver(() => {
+      if (!success.hasAttribute('hidden')) bumpCount();
+    });
+    obs.observe(success, { attributes: true, attributeFilter: ['hidden'] });
+  });
+
+  // ---------- Contact form ----------
+  (function wireContact() {
+    const btn = document.querySelector('[data-contact-submit]');
+    if (!btn) return;
+    const form = document.getElementById('contact-form');
+    const errBox = form.querySelector('[data-contact-error]');
+    const okBox  = form.querySelector('[data-contact-success]');
+    const inputs = {
+      name:    form.querySelector('[data-cfield="name"]'),
+      email:   form.querySelector('[data-cfield="email"]'),
+      subject: form.querySelector('[data-cfield="subject"]'),
+      message: form.querySelector('[data-cfield="message"]'),
+    };
+    function setErr(msg) {
+      if (!errBox) return;
+      if (msg) { errBox.textContent = msg; errBox.removeAttribute('hidden'); }
+      else     { errBox.textContent = '';  errBox.setAttribute('hidden', ''); }
+    }
+    btn.addEventListener('click', async () => {
+      const email   = (inputs.email.value   || '').trim();
+      const message = (inputs.message.value || '').trim();
+      const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRe.test(email)) { setErr('Please enter a valid email address.'); return; }
+      if (!message) { setErr('Please include a message.'); return; }
+      setErr('');
+      const prevText = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Sending…';
+      try {
+        const res = await fetch('https://formspree.io/f/mjgavdkg', {
+          method: 'POST',
+          headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: email,
+            name: (inputs.name.value || '').trim(),
+            subject: (inputs.subject.value || '').trim(),
+            message: message,
+            source: 'contact',
+            _subject: 'Sphere of Kings — contact message',
+          }),
+        });
+        if (res.ok) {
+          okBox && okBox.removeAttribute('hidden');
+          Object.values(inputs).forEach((i) => { if (i) i.value = ''; });
+          setTimeout(() => okBox && okBox.setAttribute('hidden', ''), 6000);
+        } else {
+          setErr('Could not send. Please try again or email hello@sphereofkings.com.');
+        }
+      } catch (_) {
+        setErr('Network error. Please try again.');
+      } finally {
+        btn.disabled = false; btn.textContent = prevText;
+      }
+    });
+  })();
+
   // ---------- Mobile nav toggle ----------
   const header = document.querySelector('.site-header');
   const toggle = document.querySelector('.nav-toggle');
