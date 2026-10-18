@@ -29,7 +29,7 @@ import { recordAuditEvent } from "@/lib/db/collections/audit";
 import { StoredAffiliate } from "@/lib/db/collections/affiliates";
 import { getQuoteByToken, markQuoteConsumed } from "@/lib/store/quotes-store";
 import { isExpired } from "@/lib/wholesale-checkout";
-import { WHOLESALE_TOKEN_COOKIE } from "@/app/wholesale-checkout/actions";
+import { WHOLESALE_TOKEN_COOKIE } from "@/lib/wholesale-cookie";
 import { adjustReservedUnits } from "@/lib/db/collections/products";
 
 export type OrderDraftLine = {

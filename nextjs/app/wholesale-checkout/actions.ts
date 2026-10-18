@@ -3,12 +3,10 @@
 import { cookies } from "next/headers";
 import { getQuoteByToken } from "@/lib/store/quotes-store";
 import { isExpired } from "@/lib/wholesale-checkout";
-
-export const WHOLESALE_TOKEN_COOKIE = "sok_wholesale";
-
-export type BeginResult =
-  | { ok: true }
-  | { ok: false; reason: "expired" | "consumed" | "revoked" | "not-found" };
+import {
+  WHOLESALE_TOKEN_COOKIE,
+  BeginResult,
+} from "@/lib/wholesale-cookie";
 
 /**
  * Drops the wholesale token cookie so the next hit to the checkout
