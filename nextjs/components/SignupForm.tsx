@@ -166,6 +166,12 @@ const INITIAL: SignupState = { kind: "idle" };
 // app-side subscribers store either way.
 const FORMSPREE_URL = "https://formspree.io/f/mjgavdkg";
 
+// Public live counter — hit on every successful signup so the
+// SubscriberCounter card can show a real growing number. Namespace +
+// key must match the ones SubscriberCounter reads from.
+const COUNTER_HIT_URL =
+  "https://abacus.jasoncameron.dev/hit/sphereofkings/subscribers";
+
 export default function SignupForm({
   source,
   maxWidth,
@@ -180,11 +186,21 @@ export default function SignupForm({
   const [name, setName] = useState("");
   const [copied, setCopied] = useState(false);
 
-  // Fire the SUBSCRIBED_EVENT so the counter refreshes, and ping
-  // Formspree once per successful submission.
+  // On a successful signup:
+  //   1. bump the public abacus counter so the SubscriberCounter card
+  //      refreshes with a real +1,
+  //   2. ping Formspree so the signup lands in the operator's inbox,
+  //   3. dispatch SUBSCRIBED_EVENT so any listener re-reads the count.
   useEffect(() => {
     if (state.kind === "pending-confirm" && !state.resent) {
-      window.dispatchEvent(new Event(SUBSCRIBED_EVENT));
+      try {
+        void fetch(COUNTER_HIT_URL, { cache: "no-store" }).then(() => {
+          window.dispatchEvent(new Event(SUBSCRIBED_EVENT));
+        });
+      } catch {
+        // Counter is nice-to-have; a failure doesn't block the signup.
+        window.dispatchEvent(new Event(SUBSCRIBED_EVENT));
+      }
       try {
         void fetch(FORMSPREE_URL, {
           method: "POST",

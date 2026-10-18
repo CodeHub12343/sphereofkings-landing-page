@@ -4,11 +4,15 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { SUBSCRIBED_EVENT } from "./shared";
 
-// Reads the live consented-subscriber count from the app-side store via
-// /api/subscribers/count. SUBSCRIBED_EVENT (dispatched by SignupForm on
-// a successful signup) triggers a refetch so the number updates
-// optimistically — even though the subscriber starts as "pending-confirm"
-// and only counts after they confirm, the refetch stays correct.
+// Reads the live subscriber count from abacus.jasoncameron.dev — a
+// public free counter that SignupForm bumps on each successful signup.
+// Formspree receives each signup into the operator's inbox, but it
+// doesn't expose a public submission count, so abacus is the display
+// source. SUBSCRIBED_EVENT (dispatched by SignupForm after a signup)
+// triggers a refetch so the number ticks up live without a reload.
+
+const COUNTER_URL =
+  "https://abacus.jasoncameron.dev/get/sphereofkings/subscribers";
 
 const Box = styled.p`
   display: flex;
@@ -55,14 +59,13 @@ export default function SubscriberCounter() {
 
     async function fetchCount() {
       try {
-        const r = await fetch("/api/subscribers/count", {
-          cache: "no-store",
-        });
+        const r = await fetch(COUNTER_URL, { cache: "no-store" });
         if (!r.ok) return;
-        const d = (await r.json()) as { count?: unknown };
-        if (!cancelled && typeof d.count === "number") setCount(d.count);
+        const d = (await r.json()) as { value?: unknown };
+        if (!cancelled && typeof d.value === "number") setCount(d.value);
       } catch {
-        /* ignore */
+        // Keep the counter hidden rather than render a fabricated
+        // fallback when the public counter is unreachable.
       }
     }
 
