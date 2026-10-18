@@ -102,8 +102,10 @@ function toDashboardAffiliate(
     touch: r.touch,
     commissionAmountMinor: r.commissionAmountMinor,
   }));
-  const useLive = liveRows.length > 0;
-  if (!useLive && sa.code === SAMPLE_AFFILIATE.code) return SAMPLE_AFFILIATE;
+  // Production posture: never substitute the hardcoded SAMPLE_AFFILIATE
+  // demo rows for a real signed-in affiliate's missing data. Empty is
+  // honest; the dashboard already handles zero rows cleanly.
+  void SAMPLE_AFFILIATE;
   const nextThreshold =
     sa.tier === "Starter"
       ? 50
@@ -154,16 +156,12 @@ function toDashboardAffiliate(
     period: { label: "Last 30 days" },
     approvedPendingSync: true,
     referralUrl: `sphereofkings.com/r/${sa.code}`,
-    // Prefer live attribution rows when present; otherwise don't
-    // fabricate.
-    rows: useLive ? liveRows : [],
-    // When live rows exist, let their counts override the demo values.
-    eligibleSales: useLive
-      ? liveRows.filter((r) => r.status === "eligible").length
-      : sa.eligibleSales,
-    pendingOrders: useLive
-      ? liveRows.filter((r) => r.status === "pending").length
-      : sa.pendingOrders,
+    // Live attribution rows only — never fabricated.
+    rows: liveRows,
+    // Real counts from the live rows, overriding anything on the admin
+    // record that would have carried demo numbers.
+    eligibleSales: liveRows.filter((r) => r.status === "eligible").length,
+    pendingOrders: liveRows.filter((r) => r.status === "pending").length,
     // Money totals from the server page, when provided. These flow into
     // the dashboard KPI tiles.
     pendingCommissionMinor: totals?.pendingCommissionMinor,

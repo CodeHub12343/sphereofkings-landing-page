@@ -38,22 +38,19 @@ const AFFILIATES_PATH = path.join(DATA_DIR, "affiliates.json");
 
 let mongoSeedChecked = false;
 async function ensureMongoSeeded(): Promise<void> {
+  // Production posture: no demo affiliates are seeded. The affiliates
+  // collection stays empty until real people sign up through
+  // /affiliate/apply. SAMPLE_AFFILIATES / SEED_DEMO_PASSWORD are kept
+  // only as reference material. To re-enable sample seeding for a
+  // demo, flip the block below.
   if (!hasMongo() || mongoSeedChecked) return;
   mongoSeedChecked = true;
   const col = await getCollection<StoredAffiliate>(COLLECTION);
   await col.createIndex({ code: 1 }, { unique: true }).catch(() => {});
   await col.createIndex({ email: 1 }, { unique: true }).catch(() => {});
-  const count = await col.estimatedDocumentCount();
-  if (count === 0 && SAMPLE_AFFILIATES.length > 0) {
-    const seedHash = await hashPassword(SEED_DEMO_PASSWORD);
-    const docs = SAMPLE_AFFILIATES.map((a) => ({
-      ...a,
-      passwordHash: seedHash,
-    }));
-    await col.insertMany(docs).catch(() => {
-      mongoSeedChecked = false;
-    });
-  }
+  // Reference to keep the import linter quiet while demo seeding is off.
+  void SAMPLE_AFFILIATES;
+  void SEED_DEMO_PASSWORD;
 }
 
 /* -------------------------- File backend --------------------------- */

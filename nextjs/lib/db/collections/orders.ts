@@ -108,17 +108,14 @@ export async function listStoredOrders(): Promise<StoredOrder[]> {
   return fileReadAll();
 }
 
-// Returns real orders merged with the sample demo set. Real orders
-// override samples with the same ref so a saved record always wins.
+// Previously merged SAMPLE_ORDERS so the admin queue wasn't empty on
+// first boot. Production posture: real orders only. The function is
+// kept under its old name so every caller continues to compile; it now
+// simply returns listStoredOrders(). Keeping the SAMPLE_ORDERS import
+// alive is harmless and leaves the sample set available for tests.
 export async function listOrdersWithSamples(): Promise<StoredOrder[]> {
-  const real = await listStoredOrders();
-  const seen = new Set(real.map((o) => o.ref));
-  const samples = SAMPLE_ORDERS.filter((o) => !seen.has(o.ref));
-  // Real first (newest-first already), then samples by placed date desc.
-  return [
-    ...real,
-    ...samples.sort((a, b) => (a.placedISO < b.placedISO ? 1 : -1)),
-  ];
+  void SAMPLE_ORDERS;
+  return listStoredOrders();
 }
 
 export async function findOrderByRef(
@@ -131,15 +128,10 @@ export async function findOrderByRef(
       { ref } as Filter<StoredOrder>,
       { projection: { _id: 0 } },
     );
-    if (doc) return doc;
-  } else {
-    const all = await fileReadAll();
-    const found = all.find((o) => o.ref === ref);
-    if (found) return found;
+    return doc ?? undefined;
   }
-  // Fall back to the sample set so previously-wired links to e.g.
-  // SOK-004218 keep working while we're building out real data.
-  return SAMPLE_ORDERS.find((o) => o.ref === ref);
+  const all = await fileReadAll();
+  return all.find((o) => o.ref === ref);
 }
 
 /* -------------------------- Writes --------------------------------- */
@@ -255,8 +247,8 @@ export async function updateOrderFulfillment(
 /* -------------------------- Helpers -------------------------------- */
 
 async function nextOrderRef(): Promise<string> {
-  // Scan both the store and the sample set so a new order ref never
-  // collides with a demo-page link like /order/SOK-004218.
+  // Highest ref currently in the store, +1. Floor at 4000 so refs stay
+  // the same length as the ones already in production.
   const all = await (hasMongo()
     ? (async () => {
         const col = await getCollection<StoredOrder>(COLLECTION);
@@ -265,13 +257,8 @@ async function nextOrderRef(): Promise<string> {
           .toArray();
       })()
     : fileReadAll());
-
-  const refs = [
-    ...all.map((o) => o.ref),
-    ...SAMPLE_ORDERS.map((o) => o.ref),
-  ];
-  const highest = refs
-    .map((r) => Number.parseInt(r.replace(/^SOK-/, ""), 10))
+  const highest = all
+    .map((o) => Number.parseInt(o.ref.replace(/^SOK-/, ""), 10))
     .filter((n) => Number.isFinite(n))
     .reduce((a, b) => Math.max(a, b), 4000);
   return `SOK-${String(highest + 1).padStart(6, "0")}`;

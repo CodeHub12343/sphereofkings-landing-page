@@ -13,12 +13,12 @@ type Template = "launch" | "order" | "dispatch" | "payout";
 
 const Layout = styled.section`
   display: grid;
-  grid-template-columns: 220px 1fr;
+  grid-template-columns: 220px minmax(0, 1fr);
   gap: 20px;
   align-items: start;
 
   @media (max-width: 900px) {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 `;
 
@@ -79,6 +79,7 @@ const Pane = styled.article`
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 `;
 
 const Head = styled.header`
@@ -101,6 +102,8 @@ const Head = styled.header`
     font-family: "Inter", sans-serif;
     font-size: 0.78rem;
     color: #a89880;
+    /* Long subject lines wrap instead of pushing the card wide. */
+    word-break: break-word;
   }
 `;
 
@@ -126,11 +129,30 @@ const Btn = styled.button`
   }
 `;
 
-const Frame = styled.iframe`
+// Email templates are intentionally 600px-wide table layouts (Gmail +
+// Outlook compat). The iframe therefore CAN be wider than a phone
+// viewport. We wrap it in a horizontal-scroll container so the overflow
+// scrolls INSIDE the pane instead of pushing the whole admin page
+// sideways. Height drops on phones to keep the preview from eating the
+// whole screen.
+const FrameShell = styled.div`
   width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #0a0a0a;
+`;
+
+const Frame = styled.iframe`
+  display: block;
+  width: 100%;
+  min-width: 600px;
   min-height: 820px;
   border: 0;
   background: #0a0a0a;
+
+  @media (max-width: 720px) {
+    min-height: 560px;
+  }
 `;
 
 const TEMPLATES: Record<
@@ -350,11 +372,13 @@ export default function EmailPreview() {
           )}
         </TestBar>
 
-        <Frame
-          title={`${info.title} preview`}
-          srcDoc={html}
-          sandbox=""
-        />
+        <FrameShell>
+          <Frame
+            title={`${info.title} preview`}
+            srcDoc={html}
+            sandbox=""
+          />
+        </FrameShell>
       </Pane>
     </Layout>
   );

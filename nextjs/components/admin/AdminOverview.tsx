@@ -176,6 +176,82 @@ const RecentTable = styled.table`
       color: #f0c040;
     }
   }
+
+  /* Hand off to the stacked card list on phones. */
+  @media (max-width: 720px) {
+    display: none;
+  }
+`;
+
+/* ---- Mobile stacked recent-order cards ---- */
+
+const RecentCardList = styled.ul`
+  display: none;
+
+  @media (max-width: 720px) {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+`;
+
+const RecentCard = styled.li`
+  background: #1a1612;
+  border: 1px solid #2e2618;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const RecentTop = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+`;
+
+const RecentRefLink = styled(Link)`
+  font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #f5f0e8;
+  text-decoration: none;
+
+  &:hover {
+    color: #f0c040;
+  }
+`;
+
+const RecentCust = styled.div`
+  font-family: "Inter", sans-serif;
+  font-size: 0.88rem;
+  color: #f5f0e8;
+  font-weight: 600;
+  line-height: 1.3;
+`;
+
+const RecentFoot = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #2e2618;
+  font-family: "Inter", sans-serif;
+  font-size: 0.78rem;
+  color: #a89880;
+
+  .total {
+    font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #f5f0e8;
+  }
 `;
 
 const PaymentTag = styled.span<{ $tone: string }>`
@@ -358,41 +434,67 @@ export default function AdminOverview({ stats }: { stats: OverviewStats }) {
             {stats.recentOrders.length === 0 ? (
               <Empty>No orders yet. First checkout will land here.</Empty>
             ) : (
-              <RecentTable>
-                <thead>
-                  <tr>
-                    <th>Order</th>
-                    <th>Customer</th>
-                    <th>Placed</th>
-                    <th style={{ textAlign: "right" }}>Total</th>
-                    <th>Payment</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.recentOrders.map((o) => (
-                    <tr key={o.ref}>
-                      <td>
-                        <Mono>
-                          <Link href={`/admin/orders/${o.ref}`}>{o.ref}</Link>
-                        </Mono>
-                      </td>
-                      <td>{o.customerName}</td>
-                      <td style={{ color: "#a89880" }}>
-                        {new Date(o.placedISO).toLocaleString("en-US", {
-                          dateStyle: "short",
-                          timeStyle: "short",
-                        })}
-                      </td>
-                      <td style={{ textAlign: "right" }}>
-                        <Mono>{o.totalDisplay}</Mono>
-                      </td>
-                      <td>
-                        <PaymentTag $tone={o.payment}>{o.payment}</PaymentTag>
-                      </td>
+              <>
+                <RecentTable>
+                  <thead>
+                    <tr>
+                      <th>Order</th>
+                      <th>Customer</th>
+                      <th>Placed</th>
+                      <th style={{ textAlign: "right" }}>Total</th>
+                      <th>Payment</th>
                     </tr>
+                  </thead>
+                  <tbody>
+                    {stats.recentOrders.map((o) => (
+                      <tr key={o.ref}>
+                        <td>
+                          <Mono>
+                            <Link href={`/admin/orders/${o.ref}`}>{o.ref}</Link>
+                          </Mono>
+                        </td>
+                        <td>{o.customerName}</td>
+                        <td style={{ color: "#a89880" }}>
+                          {new Date(o.placedISO).toLocaleString("en-US", {
+                            dateStyle: "short",
+                            timeStyle: "short",
+                          })}
+                        </td>
+                        <td style={{ textAlign: "right" }}>
+                          <Mono>{o.totalDisplay}</Mono>
+                        </td>
+                        <td>
+                          <PaymentTag $tone={o.payment}>{o.payment}</PaymentTag>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </RecentTable>
+
+                {/* Mobile card list — same data, phone-friendly. */}
+                <RecentCardList>
+                  {stats.recentOrders.map((o) => (
+                    <RecentCard key={`m-${o.ref}`}>
+                      <RecentTop>
+                        <RecentRefLink href={`/admin/orders/${o.ref}`}>
+                          {o.ref}
+                        </RecentRefLink>
+                        <PaymentTag $tone={o.payment}>{o.payment}</PaymentTag>
+                      </RecentTop>
+                      <RecentCust>{o.customerName}</RecentCust>
+                      <RecentFoot>
+                        <span>
+                          {new Date(o.placedISO).toLocaleString("en-US", {
+                            dateStyle: "short",
+                            timeStyle: "short",
+                          })}
+                        </span>
+                        <span className="total">{o.totalDisplay}</span>
+                      </RecentFoot>
+                    </RecentCard>
                   ))}
-                </tbody>
-              </RecentTable>
+                </RecentCardList>
+              </>
             )}
           </Card>
 

@@ -44,19 +44,16 @@ const QUOTES_PATH = path.join(DATA_DIR, "quotes.json");
 
 let mongoSeedChecked = false;
 async function ensureMongoSeeded(): Promise<void> {
+  // Production posture: no demo rows are seeded. Admin wholesale queue
+  // stays empty until a real buyer submits an inquiry through
+  // /wholesale. The SAMPLE_QUOTES module is kept only as reference
+  // material for tests. To re-enable sample seeding during a demo,
+  // flip the block below.
   if (mongoSeedChecked) return;
   mongoSeedChecked = true;
-  const col = await getCollection<StoredQuote>(COLLECTION);
-  const count = await col.estimatedDocumentCount();
-  if (count === 0) {
-    const seed: StoredQuote[] = SAMPLE_QUOTES.map((q) => ({
-      ...q,
-      isUserSubmitted: false,
-    }));
-    if (seed.length > 0) {
-      await col.insertMany(seed);
-    }
-  }
+  // Reference to keep the import linter from flagging the sample set
+  // while we're not actively seeding from it.
+  void SAMPLE_QUOTES;
 }
 
 async function mongoList(): Promise<StoredQuote[]> {

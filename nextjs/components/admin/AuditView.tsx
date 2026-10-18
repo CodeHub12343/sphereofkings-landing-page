@@ -149,6 +149,98 @@ const F = styled.button<{ $on: boolean }>`
   }
 `;
 
+const TableWrap = styled.div`
+  @media (max-width: 720px) {
+    display: none;
+  }
+`;
+
+/* ---- Mobile stacked audit cards ---- */
+
+const CardList = styled.ul`
+  display: none;
+
+  @media (max-width: 720px) {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    list-style: none;
+    padding: 12px;
+    margin: 0;
+    background: #0a0a0a;
+  }
+`;
+
+const AuditCard = styled.li`
+  background: #0e0c09;
+  border: 1px solid #1e1a12;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid #c9a227;
+    outline-offset: 2px;
+  }
+`;
+
+const AuditTop = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+`;
+
+const AuditWhen = styled.span`
+  font-family: "Inter", sans-serif;
+  font-size: 0.72rem;
+  color: #a89880;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 700;
+`;
+
+const AuditActorRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Inter", sans-serif;
+  font-size: 0.82rem;
+  color: #a89880;
+
+  .n {
+    color: #f5f0e8;
+    font-weight: 600;
+  }
+  .r {
+    font-size: 0.68rem;
+    color: #a89880;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+`;
+
+const AuditTarget = styled.div`
+  font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  color: #a89880;
+  word-break: break-all;
+`;
+
+const AuditSummary = styled.div`
+  font-family: "Inter", sans-serif;
+  font-size: 0.88rem;
+  color: #f5f0e8;
+  line-height: 1.5;
+  padding-top: 8px;
+  border-top: 1px solid #1a1510;
+  word-break: break-word;
+`;
+
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
@@ -470,24 +562,74 @@ export default function AuditView({ events }: { events: AuditEvent[] }) {
             quote, closes a month, or edits a product.
           </Empty>
         ) : (
-          <Table>
-            <thead>
-              <tr>
-                <th>When</th>
-                <th>Actor</th>
-                <th>Action</th>
-                <th>Target</th>
-                <th>Summary</th>
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            <TableWrap>
+              <Table>
+                <thead>
+                  <tr>
+                    <th>When</th>
+                    <th>Actor</th>
+                    <th>Action</th>
+                    <th>Target</th>
+                    <th>Summary</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((e) => {
+                    const cat = category(e);
+                    return (
+                      <tr
+                        key={e.id}
+                        onClick={() => setOpenId(e.id)}
+                        tabIndex={0}
+                        onKeyDown={(ev) => {
+                          if (ev.key === "Enter" || ev.key === " ") {
+                            ev.preventDefault();
+                            setOpenId(e.id);
+                          }
+                        }}
+                      >
+                        <td>
+                          <When>{formatTimestamp(e.timestampISO)}</When>
+                        </td>
+                        <td>
+                          <ActorCell>
+                            <Ava $kind={e.actor.kind} aria-hidden="true">
+                              {actorInitials(e.actor)}
+                            </Ava>
+                            <div>
+                              <ActorName>{actorLabel(e.actor)}</ActorName>
+                              {e.actor.role && (
+                                <ActorRole>{e.actor.role}</ActorRole>
+                              )}
+                            </div>
+                          </ActorCell>
+                        </td>
+                        <td>
+                          <ActionPill $cat={cat}>{actionLabel(e.action)}</ActionPill>
+                        </td>
+                        <td>
+                          <Target>
+                            {e.target.collection}/{e.target.id}
+                          </Target>
+                        </td>
+                        <td>{e.summary}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </Table>
+            </TableWrap>
+
+            {/* Mobile card list — same data, phone-friendly layout. */}
+            <CardList>
               {rows.map((e) => {
                 const cat = category(e);
                 return (
-                  <tr
-                    key={e.id}
-                    onClick={() => setOpenId(e.id)}
+                  <AuditCard
+                    key={`m-${e.id}`}
                     tabIndex={0}
+                    onClick={() => setOpenId(e.id)}
                     onKeyDown={(ev) => {
                       if (ev.key === "Enter" || ev.key === " ") {
                         ev.preventDefault();
@@ -495,36 +637,32 @@ export default function AuditView({ events }: { events: AuditEvent[] }) {
                       }
                     }}
                   >
-                    <td>
-                      <When>{formatTimestamp(e.timestampISO)}</When>
-                    </td>
-                    <td>
-                      <ActorCell>
-                        <Ava $kind={e.actor.kind} aria-hidden="true">
-                          {actorInitials(e.actor)}
-                        </Ava>
-                        <div>
-                          <ActorName>{actorLabel(e.actor)}</ActorName>
-                          {e.actor.role && (
-                            <ActorRole>{e.actor.role}</ActorRole>
-                          )}
-                        </div>
-                      </ActorCell>
-                    </td>
-                    <td>
-                      <ActionPill $cat={cat}>{actionLabel(e.action)}</ActionPill>
-                    </td>
-                    <td>
-                      <Target>
-                        {e.target.collection}/{e.target.id}
-                      </Target>
-                    </td>
-                    <td>{e.summary}</td>
-                  </tr>
+                    <AuditTop>
+                      <AuditWhen>{formatTimestamp(e.timestampISO)}</AuditWhen>
+                      <ActionPill $cat={cat}>
+                        {actionLabel(e.action)}
+                      </ActionPill>
+                    </AuditTop>
+                    <AuditActorRow>
+                      <Ava $kind={e.actor.kind} aria-hidden="true">
+                        {actorInitials(e.actor)}
+                      </Ava>
+                      <div>
+                        <div className="n">{actorLabel(e.actor)}</div>
+                        {e.actor.role && (
+                          <div className="r">{e.actor.role}</div>
+                        )}
+                      </div>
+                    </AuditActorRow>
+                    <AuditTarget>
+                      {e.target.collection}/{e.target.id}
+                    </AuditTarget>
+                    <AuditSummary>{e.summary}</AuditSummary>
+                  </AuditCard>
                 );
               })}
-            </tbody>
-          </Table>
+            </CardList>
+          </>
         )}
         <Foot>
           <span>
