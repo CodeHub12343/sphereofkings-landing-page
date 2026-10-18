@@ -13,8 +13,11 @@ import {
 export type DispatchNoticeProps = {
   firstName?: string;
   orderRef: string;
-  carrier: string; // e.g. "DHL Express"
-  trackingNumber: string;
+  // Carrier + tracking are optional. When unknown the email ships
+  // without a tracking row rather than inventing one — the fulfillment
+  // page doesn't persist those inputs yet.
+  carrier?: string; // e.g. "DHL Express"
+  trackingNumber?: string;
   trackingUrl?: string;
   shipTo: string;
   itemsSummary: string; // "1 × Complete 7-in-1 · 2 × Royal Checkers refill"
@@ -31,7 +34,13 @@ export default function DispatchNotice({
 }: DispatchNoticeProps) {
   const greeting = firstName ? `Hello, ${firstName}.` : "Hello.";
   return (
-    <EmailShell previewText={`Your Sphere of Kings has left the workshop. Tracking: ${trackingNumber}`}>
+    <EmailShell
+      previewText={
+        trackingNumber
+          ? `Your Sphere of Kings has left the workshop. Tracking: ${trackingNumber}`
+          : "Your Sphere of Kings has left the workshop."
+      }
+    >
       <EyebrowBar tone="royal">Dispatched</EyebrowBar>
       <h1 style={H1}>Your Sphere is on its way.</h1>
       <p style={Lead}>
