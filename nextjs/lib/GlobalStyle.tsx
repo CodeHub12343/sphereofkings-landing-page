@@ -19,6 +19,14 @@ export const GlobalStyle = createGlobalStyle`
 
   html, body { overflow-x: hidden; }
 
+  /* Keep in-page anchor jumps (e.g. #story) from landing under the
+     now-fixed site header. 70px matches HeaderSpacer on desktop; 64px
+     on phones. */
+  html { scroll-padding-top: 70px; }
+  @media (max-width: 720px) {
+    html { scroll-padding-top: 64px; }
+  }
+
   body {
     margin: 0;
     font-family: 'Inter', system-ui, sans-serif;

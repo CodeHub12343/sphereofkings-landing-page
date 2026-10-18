@@ -6,13 +6,26 @@ import { BtnGoldLink, Wrap } from "./shared";
 import CartIcon from "./cart/CartIcon";
 
 const HeaderEl = styled.header`
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
   background: rgba(10, 10, 10, 0.97);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid #1a1510;
+`;
+
+// Spacer that reserves vertical room equal to the fixed header so page
+// content never slides under it. The height mirrors the Row heights
+// below — keep them in sync.
+const HeaderSpacer = styled.div`
+  height: 70px;
+
+  @media (max-width: 720px) {
+    height: 64px;
+  }
 `;
 
 const Row = styled.div`
@@ -237,8 +250,10 @@ export default function Header() {
   }, [open]);
 
   return (
-    <HeaderEl>
-      <Wrap>
+    <>
+      <HeaderSpacer aria-hidden="true" />
+      <HeaderEl>
+        <Wrap>
         <Row>
           <Logo href="/" aria-label="Sphere of Kings — back to top">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -288,6 +303,7 @@ export default function Header() {
           Notify Me
         </DrawerCta>
       </Drawer>
-    </HeaderEl>
+      </HeaderEl>
+    </>
   );
 }
