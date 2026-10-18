@@ -1,10 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import Link from "next/link";
 import {
-  SAMPLE_ORDERS,
   SampleOrder,
   OrderOrigin,
   PaymentState,
@@ -65,6 +64,110 @@ const Filter = styled.button<{ $on: boolean }>`
 
 const TableWrap = styled.div`
   overflow-x: auto;
+
+  /* Hide the table on phones — the stacked card list below takes over,
+     which fits a narrow viewport without any horizontal scrolling. */
+  @media (max-width: 720px) {
+    display: none;
+  }
+`;
+
+/* ---- Mobile stacked cards ---- */
+
+const CardList = styled.ul`
+  display: none;
+
+  @media (max-width: 720px) {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    list-style: none;
+    padding: 12px;
+    margin: 0;
+    background: #0a0a0a;
+  }
+`;
+
+const CardItem = styled.li`
+  background: #0e0c09;
+  border: 1px solid #1e1a12;
+  border-radius: 10px;
+  padding: 14px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+`;
+
+const CardTop = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+`;
+
+const CardRefLink = styled(Link)`
+  font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #f5f0e8;
+  text-decoration: none;
+
+  &:hover {
+    color: #f0c040;
+  }
+`;
+
+const CardCust = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: "Inter", sans-serif;
+
+  .n {
+    color: #f5f0e8;
+    font-weight: 600;
+    font-size: 0.9rem;
+    line-height: 1.3;
+  }
+  .e {
+    color: #5a4a38;
+    font-size: 0.72rem;
+  }
+`;
+
+const CardMetaRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+`;
+
+const CardFoot = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #1a1510;
+
+  .total {
+    font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+    font-weight: 700;
+    font-size: 1rem;
+    color: #f5f0e8;
+  }
+  .when {
+    font-family: "Inter", sans-serif;
+    font-size: 0.72rem;
+    color: #a89880;
+  }
+`;
+
+const CardItems = styled.div`
+  font-family: "Inter", sans-serif;
+  font-size: 0.85rem;
+  color: #a89880;
 `;
 
 const Table = styled.table`
@@ -198,10 +301,15 @@ const Tick = styled.span<{ $state: "off" | "on" | "active" }>`
         : "#1e1a12"};
 `;
 
-const Kebab = styled.button`
-  background: transparent;
-  border: 1px solid #1e1a12;
-  color: #a89880;
+const KebabWrap = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
+const Kebab = styled.button<{ $open?: boolean }>`
+  background: ${(p) => (p.$open ? "rgba(201, 162, 39, 0.08)" : "transparent")};
+  border: 1px solid ${(p) => (p.$open ? "#c9a227" : "#1e1a12")};
+  color: ${(p) => (p.$open ? "#f0c040" : "#a89880")};
   width: 28px;
   height: 28px;
   border-radius: 6px;
@@ -211,6 +319,55 @@ const Kebab = styled.button`
     color: #f0c040;
     border-color: #c9a227;
   }
+`;
+
+const Menu = styled.div`
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 180px;
+  background: #0e0c09;
+  border: 1px solid #2e2618;
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+  z-index: 20;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+`;
+
+const menuItemCss = `
+  font-family: "Inter", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #f5f0e8;
+  background: transparent;
+  border: 0;
+  padding: 9px 12px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 6px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:hover,
+  &:focus-visible {
+    background: rgba(201, 162, 39, 0.08);
+    color: #f0c040;
+    outline: 0;
+  }
+`;
+
+const MenuItem = styled.button`
+  ${menuItemCss}
+`;
+const MenuLink = styled(Link)`
+  ${menuItemCss}
+`;
+const MenuAnchor = styled.a`
+  ${menuItemCss}
 `;
 
 const Foot = styled.footer`
@@ -333,23 +490,60 @@ function matchesFilter(o: SampleOrder, f: FilterKey): boolean {
   return o.origin === f;
 }
 
-export default function OrderQueue() {
+export default function OrderQueue({
+  orders = [],
+}: {
+  orders?: SampleOrder[];
+}) {
+  const source = orders;
   const [filter, setFilter] = useState<FilterKey>("all");
+  const [openRef, setOpenRef] = useState<string | null>(null);
+  // One container for the whole queue (table + mobile card list). Any
+  // click outside it closes the open row menu, so the handler works
+  // identically on desktop and mobile.
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  // Close the open row menu on outside click or Escape.
+  useEffect(() => {
+    if (!openRef) return;
+    const onDoc = (e: MouseEvent) => {
+      if (!containerRef.current) return;
+      if (!containerRef.current.contains(e.target as Node)) setOpenRef(null);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpenRef(null);
+    };
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [openRef]);
+
+  const copyRef = async (ref: string) => {
+    try {
+      await navigator.clipboard.writeText(ref);
+    } catch {
+      // ignore — browsers without clipboard access just skip the copy
+    }
+    setOpenRef(null);
+  };
 
   const counts = useMemo(() => {
     return {
-      all: SAMPLE_ORDERS.length,
-      "early-bird": SAMPLE_ORDERS.filter((o) => o.origin === "early-bird").length,
-      kickstarter: SAMPLE_ORDERS.filter((o) => o.origin === "kickstarter").length,
-      wholesale: SAMPLE_ORDERS.filter((o) => o.origin === "wholesale").length,
-      attention: SAMPLE_ORDERS.filter((o) => matchesFilter(o, "attention")).length,
+      all: source.length,
+      "early-bird": source.filter((o) => o.origin === "early-bird").length,
+      kickstarter: source.filter((o) => o.origin === "kickstarter").length,
+      wholesale: source.filter((o) => o.origin === "wholesale").length,
+      attention: source.filter((o) => matchesFilter(o, "attention")).length,
     };
-  }, []);
+  }, [source]);
 
-  const rows = SAMPLE_ORDERS.filter((o) => matchesFilter(o, filter));
+  const rows = source.filter((o) => matchesFilter(o, filter));
 
   return (
-    <Card>
+    <Card ref={containerRef}>
       <Head>
         <h2>Order queue</h2>
         <Filters role="group" aria-label="Filter orders">
@@ -401,7 +595,7 @@ export default function OrderQueue() {
             {rows.map((o) => (
               <tr key={o.ref}>
                 <td>
-                  <RefLink href={`/order/${o.ref}`}>{o.ref}</RefLink>
+                  <RefLink href={`/admin/orders/${o.ref}`}>{o.ref}</RefLink>
                 </td>
                 <td>
                   <When>{formatRelative(o.placedISO)}</When>
@@ -426,19 +620,150 @@ export default function OrderQueue() {
                   <FulfillmentTicks f={o.fulfillment} />
                 </td>
                 <Right>
-                  <Kebab type="button" aria-label={`Actions for ${o.ref}`}>
-                    ⋯
-                  </Kebab>
+                  <KebabWrap>
+                    <Kebab
+                      type="button"
+                      $open={openRef === o.ref}
+                      aria-label={`Actions for ${o.ref}`}
+                      aria-haspopup="menu"
+                      aria-expanded={openRef === o.ref}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenRef((cur) => (cur === o.ref ? null : o.ref));
+                      }}
+                    >
+                      ⋯
+                    </Kebab>
+                    {openRef === o.ref && (
+                      <Menu role="menu" aria-label={`Actions for ${o.ref}`}>
+                        <MenuLink
+                          href={`/admin/orders/${o.ref}`}
+                          onClick={() => setOpenRef(null)}
+                        >
+                          View order
+                        </MenuLink>
+                        <MenuLink
+                          href={`/order/${o.ref}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={() => setOpenRef(null)}
+                        >
+                          Customer view ↗
+                        </MenuLink>
+                        <MenuLink
+                          href={`/admin/fulfillment?ref=${encodeURIComponent(o.ref)}`}
+                          onClick={() => setOpenRef(null)}
+                        >
+                          Open in fulfillment
+                        </MenuLink>
+                        <MenuAnchor
+                          href={`mailto:?subject=Order ${o.ref}`}
+                          onClick={() => setOpenRef(null)}
+                        >
+                          Email customer
+                        </MenuAnchor>
+                        <MenuItem
+                          type="button"
+                          onClick={() => copyRef(o.ref)}
+                        >
+                          Copy order ref
+                        </MenuItem>
+                      </Menu>
+                    )}
+                  </KebabWrap>
                 </Right>
               </tr>
             ))}
           </tbody>
         </Table>
       </TableWrap>
+
+      {/* Mobile card list — same data, phone-friendly layout. */}
+      <CardList>
+        {rows.map((o) => (
+          <CardItem key={`m-${o.ref}`}>
+            <CardTop>
+              <CardRefLink href={`/admin/orders/${o.ref}`}>
+                {o.ref}
+              </CardRefLink>
+              <PaymentPill p={o.payment} />
+            </CardTop>
+            <CardCust>
+              <span className="n">{o.customerName}</span>
+              <span className="e">{o.customerEmailMasked}</span>
+            </CardCust>
+            <CardMetaRow>
+              <OriginPill o={o.origin} code={o.affiliateCode} />
+            </CardMetaRow>
+            <CardItems>{o.itemSummary}</CardItems>
+            <CardFoot>
+              <div>
+                <span className="total">{o.totalDisplay}</span>
+                <span className="when" style={{ marginLeft: 10 }}>
+                  {formatRelative(o.placedISO)}
+                </span>
+              </div>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: 10 }}
+              >
+                <FulfillmentTicks f={o.fulfillment} />
+                <KebabWrap>
+                  <Kebab
+                    type="button"
+                    $open={openRef === o.ref}
+                    aria-label={`Actions for ${o.ref}`}
+                    aria-haspopup="menu"
+                    aria-expanded={openRef === o.ref}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenRef((cur) => (cur === o.ref ? null : o.ref));
+                    }}
+                  >
+                    ⋯
+                  </Kebab>
+                  {openRef === o.ref && (
+                    <Menu role="menu" aria-label={`Actions for ${o.ref}`}>
+                      <MenuLink
+                        href={`/admin/orders/${o.ref}`}
+                        onClick={() => setOpenRef(null)}
+                      >
+                        View order
+                      </MenuLink>
+                      <MenuLink
+                        href={`/order/${o.ref}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={() => setOpenRef(null)}
+                      >
+                        Customer view ↗
+                      </MenuLink>
+                      <MenuLink
+                        href={`/admin/fulfillment?ref=${encodeURIComponent(o.ref)}`}
+                        onClick={() => setOpenRef(null)}
+                      >
+                        Open in fulfillment
+                      </MenuLink>
+                      <MenuAnchor
+                        href={`mailto:?subject=Order ${o.ref}`}
+                        onClick={() => setOpenRef(null)}
+                      >
+                        Email customer
+                      </MenuAnchor>
+                      <MenuItem type="button" onClick={() => copyRef(o.ref)}>
+                        Copy order ref
+                      </MenuItem>
+                    </Menu>
+                  )}
+                </KebabWrap>
+              </div>
+            </CardFoot>
+          </CardItem>
+        ))}
+      </CardList>
       <Foot>
         <span>
-          Showing {rows.length} of {SAMPLE_ORDERS.length} sample order
-          {SAMPLE_ORDERS.length === 1 ? "" : "s"}
+          Showing {rows.length} of {source.length} order
+          {source.length === 1 ? "" : "s"}
         </span>
         <span>
           Totals read as <Mono>$—</Mono> while product pricing is pending.

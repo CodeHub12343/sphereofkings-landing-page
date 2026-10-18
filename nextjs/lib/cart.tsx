@@ -23,6 +23,7 @@ type Action =
   | { type: "set"; slug: string; qty: number }
   | { type: "remove"; slug: string }
   | { type: "clear" }
+  | { type: "replace"; lines: CartLine[] }
   | { type: "hydrate"; lines: CartLine[] };
 
 const STORAGE_KEY = "sok.cart.v1";
@@ -56,10 +57,25 @@ function reduce(state: CartLine[], action: Action): CartLine[] {
       return state.filter((l) => l.slug !== action.slug);
     case "clear":
       return [];
+    case "replace":
+      // Dedupe by slug + cap per line, in case a caller passes a noisy list.
+      return action.lines
+        .filter((l) => typeof l.slug === "string" && l.qty > 0)
+        .reduce<CartLine[]>((acc, l) => {
+          const existing = acc.find((x) => x.slug === l.slug);
+          if (existing) {
+            existing.qty = Math.min(MAX_PER_LINE, existing.qty + l.qty);
+          } else {
+            acc.push({ slug: l.slug, qty: Math.min(MAX_PER_LINE, l.qty) });
+          }
+          return acc;
+        }, []);
     default:
       return state;
   }
 }
+
+type Toast = { id: number; message: string } | null;
 
 type CartContextValue = {
   lines: HydratedLine[];
@@ -68,10 +84,15 @@ type CartContextValue = {
   setQty: (slug: string, qty: number) => void;
   removeItem: (slug: string) => void;
   clear: () => void;
+  // Replace the whole cart with the given lines. Used by the one-click
+  // wholesale checkout to seed the cart from an approved quote.
+  replaceCart: (lines: CartLine[]) => void;
   isOpen: boolean;
   open: () => void;
   close: () => void;
   hasUnapprovedPrice: boolean;
+  toast: Toast;
+  dismissToast: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -80,6 +101,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [lines, dispatch] = useReducer(reduce, []);
   const [isOpen, setIsOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const [toast, setToast] = useState<Toast>(null);
 
   // Hydrate from localStorage once on mount. We swallow parse errors — a
   // corrupt cart falls back to empty rather than crashing the app.
@@ -116,10 +138,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const addItem = useCallback(
     (slug: string, qty = 1) => {
       dispatch({ type: "add", slug, qty });
-      setIsOpen(true);
+      const product = PRODUCTS.find((p) => p.slug === slug);
+      const label = product?.name ?? "Item";
+      setToast({ id: Date.now(), message: `${label} added to cart` });
     },
     [],
   );
+  const dismissToast = useCallback(() => setToast(null), []);
+
+  // Auto-dismiss toast after a short beat so the user has time to read.
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 2800);
+    return () => clearTimeout(t);
+  }, [toast]);
   const setQty = useCallback(
     (slug: string, qty: number) => dispatch({ type: "set", slug, qty }),
     [],
@@ -129,6 +161,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [],
   );
   const clear = useCallback(() => dispatch({ type: "clear" }), []);
+  const replaceCart = useCallback(
+    (next: CartLine[]) => dispatch({ type: "replace", lines: next }),
+    [],
+  );
   const open = useCallback(() => setIsOpen(true), []);
   const close = useCallback(() => setIsOpen(false), []);
 
@@ -154,10 +190,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setQty,
     removeItem,
     clear,
+    replaceCart,
     isOpen,
     open,
     close,
     hasUnapprovedPrice,
+    toast,
+    dismissToast,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

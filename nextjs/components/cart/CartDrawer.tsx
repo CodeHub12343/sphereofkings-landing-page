@@ -8,9 +8,12 @@ import { useCart } from "@/lib/cart";
 const Scrim = styled.div<{ $open: boolean }>`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  /* Opaque-enough base so the drawer never bleeds through even when
+     backdrop-filter isn't supported (older iOS / older Firefox). */
+  background: rgba(0, 0, 0, 0.72);
   backdrop-filter: blur(4px);
-  z-index: 200;
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1000;
   opacity: ${(p) => (p.$open ? 1 : 0)};
   pointer-events: ${(p) => (p.$open ? "auto" : "none")};
   transition: opacity 0.25s ease;
@@ -20,16 +23,26 @@ const Panel = styled.aside<{ $open: boolean }>`
   position: fixed;
   top: 0;
   right: 0;
-  bottom: 0;
-  z-index: 201;
+  /* Full dynamic viewport on mobile (handles iOS Safari URL bar). The
+     100vh fallback covers browsers without 100dvh support. */
+  height: 100vh;
+  height: 100dvh;
+  z-index: 1001;
   width: min(420px, 100vw);
   background: #0a0a0a;
+  background-color: #0a0a0a;
   border-left: 1px solid #1a1510;
   box-shadow: -20px 0 50px rgba(0, 0, 0, 0.6);
   transform: translateX(${(p) => (p.$open ? "0" : "100%")});
   transition: transform 0.3s ease;
   display: flex;
   flex-direction: column;
+  /* Safe-area insets so the close button and the primary CTA clear
+     notches and the home indicator on iOS. */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  /* Clip anything that tries to escape the panel bounds. */
+  overflow: hidden;
 
   @media (prefers-reduced-motion: reduce) {
     transition: none;
@@ -42,6 +55,10 @@ const Head = styled.header`
   align-items: center;
   padding: 20px 22px;
   border-bottom: 1px solid #1a1510;
+  /* Explicit opaque background on each section so the Panel bg always
+     shows regardless of flex-child paint quirks. */
+  background: #0a0a0a;
+  flex-shrink: 0;
 
   h2 {
     font-family: "Cinzel", serif;
@@ -71,12 +88,15 @@ const CloseBtn = styled.button`
 `;
 
 const Body = styled.div`
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 18px 22px;
   display: flex;
   flex-direction: column;
   gap: 14px;
+  background: #0a0a0a;
 `;
 
 const Empty = styled.div`
@@ -242,6 +262,8 @@ const Foot = styled.footer`
   display: flex;
   flex-direction: column;
   gap: 12px;
+  background: #0a0a0a;
+  flex-shrink: 0;
 `;
 
 const Totals = styled.dl`

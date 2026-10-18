@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import styled from "styled-components";
 import { PRODUCTS } from "@/lib/products";
+import { submitQuoteAction, QuoteFormState } from "@/app/wholesale/actions";
 
 type Row = { slug: string; qty: number };
 type DiscountTier = "auto" | "40";
-type Status = "idle" | "submitting" | "pending-wire";
+const initialState: QuoteFormState = { kind: "idle" };
 
 const Layout = styled.div`
   display: grid;
@@ -400,14 +401,22 @@ export default function WholesaleInquiry() {
   const [tier, setTier] = useState<DiscountTier>("auto");
   const [neededBy, setNeededBy] = useState("");
   const [notes, setNotes] = useState("");
-  const [status, setStatus] = useState<Status>("idle");
+  const [state, formAction, pending] = useActionState(
+    submitQuoteAction,
+    initialState,
+  );
 
   const totalUnits = rows.reduce((n, r) => n + (Number.isFinite(r.qty) ? r.qty : 0), 0);
   const auto = autoTierFor(totalUnits);
   const effective = tier === "40" ? 40 : auto;
 
   const emailOk = /.+@.+\..+/.test(email);
-  const canSubmit = biz.trim() && contactName.trim() && emailOk && totalUnits > 0;
+  const canSubmit =
+    !pending &&
+    !!biz.trim() &&
+    !!contactName.trim() &&
+    emailOk &&
+    totalUnits > 0;
 
   const addRow = () => {
     const next = purchasable.find((p) => !rows.some((r) => r.slug === p.slug));
@@ -417,25 +426,7 @@ export default function WholesaleInquiry() {
   const updateRow = (i: number, patch: Partial<Row>) =>
     setRows(rows.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
 
-  const submit = () => {
-    if (!canSubmit) return;
-    setStatus("submitting");
-    setTimeout(() => setStatus("pending-wire"), 400);
-  };
-
-  const reset = () => {
-    setStatus("idle");
-    setBiz("");
-    setContactName("");
-    setEmail("");
-    setPhone("");
-    setRows(purchasable[0] ? [{ slug: purchasable[0].slug, qty: 24 }] : []);
-    setTier("auto");
-    setNeededBy("");
-    setNotes("");
-  };
-
-  if (status === "pending-wire") {
+  if (state.kind === "ok") {
     return (
       <Success role="status">
         <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
@@ -448,22 +439,27 @@ export default function WholesaleInquiry() {
           />
         </svg>
         <div>
-          <h3>Thanks — your inquiry is captured locally.</h3>
+          <h3>
+            Thanks — your inquiry is in the queue as{" "}
+            <strong style={{ color: "#f0c040" }}>{state.ref}</strong>.
+          </h3>
           <p>
-            For <strong style={{ color: "#f5f0e8" }}>{biz}</strong>:{" "}
-            {totalUnits} unit{totalUnits === 1 ? "" : "s"} across {rows.length}{" "}
-            product{rows.length === 1 ? "" : "s"}, requesting{" "}
-            <strong style={{ color: "#f5f0e8" }}>
-              {tier === "40" ? "40% (owner review)" : `${auto}% automatic`}
-            </strong>
-            . We did not email anyone — the wholesale backend is not yet
-            wired, so no record was sent.
+            For <strong style={{ color: "#f5f0e8" }}>{state.business}</strong>:{" "}
+            {state.totalUnits} unit{state.totalUnits === 1 ? "" : "s"}. The
+            owner reviews new requests within two business days and sends a
+            decision email with next steps.
           </p>
           <p>
-            Wire up the admin quote queue and the owner's email relay to turn
-            this into a real request.
+            Email delivery isn't wired yet, so no confirmation has been sent —
+            but the quote is saved and visible in the admin console.
           </p>
-          <button type="button" onClick={reset}>
+          <button
+            type="button"
+            onClick={() => {
+              // Reload — useActionState doesn't expose a reset.
+              window.location.reload();
+            }}
+          >
             Submit another inquiry
           </button>
         </div>
@@ -510,11 +506,38 @@ export default function WholesaleInquiry() {
         </Note>
       </Card>
 
-      <Card>
+      <Card as="form" action={formAction} noValidate>
         <div>
           <Eye>Request a quote</Eye>
           <Title style={{ marginTop: 6 }}>Wholesale inquiry</Title>
         </div>
+        {state.kind === "error" && (
+          <Note
+            style={{
+              borderLeftColor: "#c62b44",
+              color: "#ff6b7a",
+              background: "rgba(185,28,28,0.08)",
+            }}
+          >
+            {state.message}
+          </Note>
+        )}
+        <input type="hidden" name="requestedTier" value={tier} />
+        <input type="hidden" name="autoTierPct" value={String(auto)} />
+        {rows.map((r, i) => {
+          const product = purchasable.find((p) => p.slug === r.slug);
+          return (
+            <div key={`hidden-${i}`} style={{ display: "none" }}>
+              <input type="hidden" name="line.slug" value={r.slug} />
+              <input
+                type="hidden"
+                name="line.name"
+                value={product?.name ?? r.slug}
+              />
+              <input type="hidden" name="line.qty" value={String(r.qty)} />
+            </div>
+          );
+        })}
         <Row2>
           <Row>
             <Label $req htmlFor="ws-biz">
@@ -523,6 +546,7 @@ export default function WholesaleInquiry() {
             <Field>
               <input
                 id="ws-biz"
+                name="business"
                 value={biz}
                 onChange={(e) => setBiz(e.target.value)}
                 placeholder="Northside Toys Ltd."
@@ -536,6 +560,7 @@ export default function WholesaleInquiry() {
             <Field>
               <input
                 id="ws-cn"
+                name="contactName"
                 value={contactName}
                 onChange={(e) => setContactName(e.target.value)}
                 placeholder="Full name"
@@ -551,6 +576,7 @@ export default function WholesaleInquiry() {
             <Field>
               <input
                 id="ws-em"
+                name="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -563,6 +589,7 @@ export default function WholesaleInquiry() {
             <Field>
               <input
                 id="ws-ph"
+                name="phone"
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
@@ -646,6 +673,7 @@ export default function WholesaleInquiry() {
             <Field>
               <input
                 id="ws-nd"
+                name="neededBy"
                 type="text"
                 value={neededBy}
                 onChange={(e) => setNeededBy(e.target.value)}
@@ -660,6 +688,7 @@ export default function WholesaleInquiry() {
           <Field>
             <textarea
               id="ws-no"
+              name="notes"
               rows={3}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -688,14 +717,15 @@ export default function WholesaleInquiry() {
         </Summary>
 
         <Actions>
-          <BtnGhost type="button">Save as draft</BtnGhost>
+          <BtnGhost type="button" disabled>
+            Save as draft
+          </BtnGhost>
           <BtnPrimary
-            type="button"
+            type="submit"
             $tone={tier === "40" ? "review" : "primary"}
-            disabled={!canSubmit || status === "submitting"}
-            onClick={submit}
+            disabled={!canSubmit}
           >
-            {status === "submitting"
+            {pending
               ? "Submitting…"
               : tier === "40"
               ? "Submit for owner review"

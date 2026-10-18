@@ -4,8 +4,11 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { SUBSCRIBED_EVENT } from "./shared";
 
-const NS = "sphereofkings";
-const KEY = "subscribers";
+// Reads the live consented-subscriber count from the app-side store via
+// /api/subscribers/count. SUBSCRIBED_EVENT (dispatched by SignupForm on
+// a successful signup) triggers a refetch so the number updates
+// optimistically — even though the subscriber starts as "pending-confirm"
+// and only counts after they confirm, the refetch stays correct.
 
 const Box = styled.p`
   display: flex;
@@ -52,31 +55,22 @@ export default function SubscriberCounter() {
 
     async function fetchCount() {
       try {
-        const r = await fetch(`https://abacus.jasoncameron.dev/get/${NS}/${KEY}`);
+        const r = await fetch("/api/subscribers/count", {
+          cache: "no-store",
+        });
         if (!r.ok) return;
-        const d = await r.json();
-        if (!cancelled && typeof d.value === "number") setCount(d.value);
-      } catch {
-        /* ignore */
-      }
-    }
-
-    async function bumpCount() {
-      try {
-        const r = await fetch(`https://abacus.jasoncameron.dev/hit/${NS}/${KEY}`);
-        if (!r.ok) return;
-        const d = await r.json();
-        if (!cancelled && typeof d.value === "number") setCount(d.value);
+        const d = (await r.json()) as { count?: unknown };
+        if (!cancelled && typeof d.count === "number") setCount(d.count);
       } catch {
         /* ignore */
       }
     }
 
     fetchCount();
-    window.addEventListener(SUBSCRIBED_EVENT, bumpCount);
+    window.addEventListener(SUBSCRIBED_EVENT, fetchCount);
     return () => {
       cancelled = true;
-      window.removeEventListener(SUBSCRIBED_EVENT, bumpCount);
+      window.removeEventListener(SUBSCRIBED_EVENT, fetchCount);
     };
   }, []);
 
@@ -86,7 +80,15 @@ export default function SubscriberCounter() {
     <Box aria-live="polite">
       <Dot />
       <span>
-        <strong>{count.toLocaleString()}</strong> early supporters have joined the Kingdom
+        {count === 0 ? (
+          <>Be the first supporter to join the Kingdom.</>
+        ) : (
+          <>
+            <strong>{count.toLocaleString()}</strong>{" "}
+            {count === 1 ? "supporter has" : "supporters have"} joined the
+            Kingdom
+          </>
+        )}
       </span>
     </Box>
   );

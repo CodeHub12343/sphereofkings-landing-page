@@ -24,12 +24,23 @@ const Bar = styled.div`
   }
 `;
 
+type Props = {
+  // When set, replaces the default "sample rows shown" copy with a
+  // page-specific message. Pages whose backing collection has no demo
+  // fallback (subscribers, quotes, expenses) should supply their own
+  // wording so the note doesn't lie about "seeded demo records".
+  title?: string;
+  message?: React.ReactNode;
+};
+
 /**
- * The admin area is not yet auth-gated and uses sample records so the UI can
- * be reviewed and iterated on. We flag that honestly at the top of each
- * admin page so no operator confuses this with the real console.
+ * Rendered only when a page's backing collection is still empty. The
+ * caller passes nothing here when real rows exist. The default copy
+ * speaks to pages that fall back to seeded demos (orders, affiliates,
+ * products). Other pages can override `title` + `message` to tell the
+ * truth about THEIR empty state.
  */
-export default function DemoBanner() {
+export default function DemoBanner({ title, message }: Props = {}) {
   return (
     <Bar role="note">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -42,11 +53,14 @@ export default function DemoBanner() {
         />
       </svg>
       <span>
-        <strong>Demo data.</strong> Access is gated by a single HTTP Basic
-        password (<code style={{ fontFamily: "monospace" }}>ADMIN_USER</code> /{" "}
-        <code style={{ fontFamily: "monospace" }}>ADMIN_PASSWORD</code>). Rows
-        below are sample records — connect a real data source and a proper
-        auth system before onboarding more operators.
+        <strong>{title ?? "Sample rows shown."}</strong>{" "}
+        {message ?? (
+          <>
+            The backing collection is empty, so this view falls back to seeded
+            demo records. Real activity (orders, quotes, applications,
+            expenses) replaces them automatically as it arrives.
+          </>
+        )}
       </span>
     </Bar>
   );

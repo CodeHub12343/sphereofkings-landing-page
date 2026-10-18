@@ -12,6 +12,15 @@ export type PaymentState =
   | "refunded";
 export type FulfillmentState = "none" | "produced" | "packed" | "dispatched";
 
+export type ShipTo = {
+  name: string;
+  line1: string;
+  line2?: string;
+  city: string;
+  postal: string;
+  country: string;
+};
+
 export type SampleOrder = {
   ref: string;
   placedISO: string;
@@ -23,7 +32,13 @@ export type SampleOrder = {
   totalDisplay: string; // "$—" while prices unapproved; a tabular value otherwise
   payment: PaymentState;
   fulfillment: FulfillmentState;
+  shipTo?: ShipTo;
 };
+
+export function formatShipTo(s: ShipTo): string {
+  const lines = [s.name, s.line1, s.line2, `${s.city} ${s.postal}`.trim(), s.country];
+  return lines.filter(Boolean).join("\n");
+}
 
 export const SAMPLE_ORDERS: SampleOrder[] = [
   {
@@ -48,6 +63,14 @@ export const SAMPLE_ORDERS: SampleOrder[] = [
     totalDisplay: "$—",
     payment: "paid",
     fulfillment: "produced",
+    shipTo: {
+      name: "Benjamin Osei",
+      line1: "12 Grove Lane",
+      line2: "Flat 3",
+      city: "Lagos",
+      postal: "101233",
+      country: "Nigeria",
+    },
   },
   {
     ref: "SOK-004210",
@@ -93,6 +116,13 @@ export const SAMPLE_ORDERS: SampleOrder[] = [
     totalDisplay: "$—",
     payment: "paid",
     fulfillment: "produced",
+    shipTo: {
+      name: "Kingsley Hamid",
+      line1: "48 Ridgeway",
+      city: "Birmingham",
+      postal: "B17 9HG",
+      country: "United Kingdom",
+    },
   },
   {
     ref: "SOK-004150",
@@ -104,6 +134,14 @@ export const SAMPLE_ORDERS: SampleOrder[] = [
     totalDisplay: "$—",
     payment: "paid",
     fulfillment: "dispatched",
+    shipTo: {
+      name: "Aisha Rahman",
+      line1: "202 Baker Street",
+      line2: "Suite 4",
+      city: "London",
+      postal: "NW1 6XE",
+      country: "United Kingdom",
+    },
   },
 ];
 

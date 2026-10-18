@@ -1,9 +1,10 @@
 "use client";
 
 import styled from "styled-components";
+import Link from "next/link";
 import { useCart } from "@/lib/cart";
 
-const Btn = styled.button`
+const Btn = styled(Link)`
   position: relative;
   background: transparent;
   border: 1px solid #2e2618;
@@ -14,6 +15,7 @@ const Btn = styled.button`
   cursor: pointer;
   display: inline-grid;
   place-items: center;
+  text-decoration: none;
   transition: color 0.2s, border-color 0.2s;
 
   &:hover {
@@ -45,15 +47,14 @@ const Dot = styled.span`
 `;
 
 /**
- * Cart affordance for the Header. Opens the CartDrawer and shows a live
- * count badge from the cart context.
+ * Cart affordance for the Header. Navigates to the full /cart page and
+ * shows a live count badge from the cart context.
  */
 export default function CartIcon() {
-  const { itemCount, open } = useCart();
+  const { itemCount } = useCart();
   return (
     <Btn
-      type="button"
-      onClick={open}
+      href="/cart"
       aria-label={itemCount > 0 ? `Cart — ${itemCount} items` : "Cart — empty"}
     >
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">

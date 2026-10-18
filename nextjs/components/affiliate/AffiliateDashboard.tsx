@@ -1,13 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
+import QRCode from "qrcode";
 import {
   SAMPLE_AFFILIATE,
   TIER_LADDER,
   AttributedStatus,
   Affiliate,
 } from "@/lib/affiliate";
+import { openAffiliatePosterPrintWindow } from "./PosterPrint";
 
 type Filter = "all" | "eligible" | "pending" | "refund";
 
@@ -138,12 +140,12 @@ const KpiUp = styled.span`
 
 const Layout = styled.div`
   display: grid;
-  grid-template-columns: 0.85fr 1.15fr;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
   gap: 16px;
   align-items: start;
 
   @media (max-width: 980px) {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 `;
 
@@ -151,6 +153,7 @@ const Col = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-width: 0;
 `;
 
 const Card = styled.section`
@@ -161,6 +164,11 @@ const Card = styled.section`
   display: flex;
   flex-direction: column;
   gap: 12px;
+  /* Guard inner content (mono URLs, poster previews) from forcing the
+     card wider than its grid column — that's the usual source of
+     horizontal overflow on phones. */
+  min-width: 0;
+  overflow: hidden;
 `;
 
 const CardHead = styled.div`
@@ -192,6 +200,12 @@ const Url = styled.div`
   border: 1px solid #2e2618;
   border-radius: 8px;
   padding: 10px 12px;
+  min-width: 0;
+
+  @media (max-width: 540px) {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
 `;
 
 const UrlMono = styled.span`
@@ -200,9 +214,18 @@ const UrlMono = styled.span`
   font-weight: 700;
   color: #f5f0e8;
   flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  /* On phones, let the full URL wrap instead of truncating with "…".
+     Affiliates often want to see or screenshot the whole code. */
+  @media (max-width: 540px) {
+    flex-basis: 100%;
+    white-space: normal;
+    word-break: break-all;
+  }
 `;
 
 const Copy = styled.button`
@@ -240,23 +263,38 @@ const QrRow = styled.div`
   grid-template-columns: auto 1fr;
   gap: 14px;
   align-items: center;
+  min-width: 0;
+
+  @media (max-width: 540px) {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
 `;
 
 const Qr = styled.div`
-  width: 112px;
-  height: 112px;
+  width: 128px;
+  height: 128px;
   background: #FBF9F4;
   padding: 6px;
   border-radius: 8px;
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  grid-template-rows: repeat(10, 1fr);
-  gap: 1px;
   flex-shrink: 0;
+  display: grid;
+  place-items: center;
 
-  span {
-    background: #15110A;
+  img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    image-rendering: pixelated;
   }
+`;
+
+const QrPending = styled.div`
+  font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.68rem;
+  color: #5a4a38;
+  letter-spacing: 0.1em;
 `;
 
 const DlRow = styled.div`
@@ -301,6 +339,12 @@ const PosterRow = styled.div`
   grid-template-columns: 120px 1fr;
   gap: 14px;
   align-items: center;
+  min-width: 0;
+
+  @media (max-width: 540px) {
+    grid-template-columns: 100px 1fr;
+    gap: 12px;
+  }
 `;
 
 const Poster = styled.div`
@@ -377,6 +421,7 @@ const PosterFoot = styled.div`
 const ShareRow = styled.div`
   display: flex;
   gap: 6px;
+  flex-wrap: wrap;
 `;
 
 const TierMini = styled.div`
@@ -560,6 +605,23 @@ const Amount = styled.span<{ $neg?: boolean }>`
   color: ${(p) => (p.$neg ? "#ff6b7a" : "#f5f0e8")};
 `;
 
+const SharePill = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 6px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-family: "Inter", sans-serif;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(127, 163, 255, 0.14);
+  color: #7fa3ff;
+  white-space: nowrap;
+`;
+
 const TableFoot = styled.footer`
   display: flex;
   justify-content: space-between;
@@ -580,6 +642,16 @@ const pillStyles: Record<PillTone, string> = {
   cnc: "background: #1a1612; color: #5a4a38;",
   prov: "background: rgba(224,169,74,0.14); color: #e0a94a;",
 };
+
+function triggerDownload(url: string, filename: string) {
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.rel = "noopener";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
 
 function StatusPill({ s }: { s: AttributedStatus }) {
   switch (s) {
@@ -626,6 +698,29 @@ export default function AffiliateDashboard({
 }) {
   const [filter, setFilter] = useState<Filter>("all");
   const [copied, setCopied] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState<string>("");
+
+  // Generate a real QR for the referral link. Lives in state so the card
+  // can render before the browser's draw cycle completes.
+  useEffect(() => {
+    let cancelled = false;
+    const absolute = `https://${affiliate.referralUrl}`;
+    QRCode.toDataURL(absolute, {
+      margin: 0,
+      scale: 6,
+      errorCorrectionLevel: "M",
+      color: { dark: "#15110A", light: "#FBF9F4" },
+    })
+      .then((d) => {
+        if (!cancelled) setQrDataUrl(d);
+      })
+      .catch(() => {
+        if (!cancelled) setQrDataUrl("");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [affiliate.referralUrl]);
 
   const counts = useMemo(() => {
     return {
@@ -649,6 +744,44 @@ export default function AffiliateDashboard({
         // best-effort; cart isn't an error-blocking surface
       },
     );
+  };
+
+  const onDownloadPdf = () => {
+    openAffiliatePosterPrintWindow({
+      affiliateName: affiliate.firstName,
+      code: affiliate.code,
+      referralUrl: affiliate.referralUrl,
+    }).catch(() => {
+      // Pop-up blocked or qrcode failed — nothing to do beyond logging.
+    });
+  };
+
+  const onDownloadQr = async (format: "png" | "svg") => {
+    const absolute = `https://${affiliate.referralUrl}`;
+    try {
+      if (format === "png") {
+        const url = await QRCode.toDataURL(absolute, {
+          margin: 1,
+          scale: 10,
+          errorCorrectionLevel: "M",
+          color: { dark: "#15110A", light: "#FBF9F4" },
+        });
+        triggerDownload(url, `sok-${affiliate.code}-qr.png`);
+      } else {
+        const svg = await QRCode.toString(absolute, {
+          type: "svg",
+          margin: 1,
+          errorCorrectionLevel: "M",
+          color: { dark: "#15110A", light: "#FBF9F4" },
+        });
+        const blob = new Blob([svg], { type: "image/svg+xml" });
+        const url = URL.createObjectURL(blob);
+        triggerDownload(url, `sok-${affiliate.code}-qr.svg`);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+    } catch {
+      // best-effort
+    }
   };
 
   const toNext = affiliate.nextThreshold - affiliate.eligibleSales;
@@ -683,18 +816,43 @@ export default function AffiliateDashboard({
         </Kpi>
         <Kpi>
           <KpiK>Pending commission</KpiK>
-          <KpiV>$—</KpiV>
+          <KpiV>
+            {affiliate.pendingCommissionMinor != null
+              ? affiliate.pendingCommissionMinor > 0
+                ? `$${(affiliate.pendingCommissionMinor / 100).toFixed(2)}`
+                : "$0.00"
+              : "$—"}
+          </KpiV>
           <KpiD>{affiliate.pendingOrders} orders awaiting webhook</KpiD>
         </Kpi>
         <Kpi>
           <KpiK>Approved commission</KpiK>
-          <KpiVMuted>— — —</KpiVMuted>
-          <KpiD>Syncing with finance</KpiD>
+          {affiliate.approvedCommissionMinor != null ? (
+            <KpiV>
+              {`$${(affiliate.approvedCommissionMinor / 100).toFixed(2)}`}
+            </KpiV>
+          ) : (
+            <KpiVMuted>— — —</KpiVMuted>
+          )}
+          <KpiD>
+            {affiliate.approvedCommissionMinor != null
+              ? "Confirmed, unpaid balance"
+              : "Syncing with finance"}
+          </KpiD>
         </Kpi>
         <Kpi $stale>
           <KpiK>Paid out · lifetime</KpiK>
-          <KpiV>$—</KpiV>
-          <KpiD>Payout schedule pending</KpiD>
+          <KpiV>
+            {affiliate.paidOutCommissionMinor != null
+              ? `$${(affiliate.paidOutCommissionMinor / 100).toFixed(2)}`
+              : "$—"}
+          </KpiV>
+          <KpiD>
+            {affiliate.paidOutCommissionMinor != null &&
+            affiliate.paidOutCommissionMinor > 0
+              ? "Payouts recorded"
+              : "Payout schedule pending"}
+          </KpiD>
         </Kpi>
       </KPIs>
 
@@ -750,24 +908,31 @@ export default function AffiliateDashboard({
             </CardHead>
             <QrRow>
               <Qr aria-hidden="true">
-                {[...Array(100)].map((_, i) => (
-                  <span
-                    key={i}
-                    style={{
-                      // Deterministic pseudo-random pattern — a visual
-                      // placeholder, not a real QR. Replace with the real
-                      // generator in production.
-                      background: (i * 11 + 7) % 3 === 0 ? "transparent" : undefined,
-                    }}
+                {qrDataUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={qrDataUrl}
+                    alt={`QR code for ${affiliate.referralUrl}`}
                   />
-                ))}
+                ) : (
+                  <QrPending>Generating…</QrPending>
+                )}
               </Qr>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 <Note style={{ color: "#f5f0e8", fontSize: "0.78rem" }}>
-                  Prints clean at 1 inch (2.5 cm) and larger.
+                  Encodes <code
+                    style={{
+                      fontFamily:
+                        "SFMono-Regular, Menlo, Consolas, monospace",
+                      color: "#f0c040",
+                    }}
+                  >
+                    https://{affiliate.referralUrl}
+                  </code>
+                  . Prints clean at 1 inch (2.5 cm) and larger.
                 </Note>
                 <DlRow>
-                  <BtnSec>
+                  <BtnSec type="button" onClick={() => onDownloadQr("png")}>
                     <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                       <path
                         d="M6 1v7m-3-3 3 3 3-3M2 11h8"
@@ -779,8 +944,9 @@ export default function AffiliateDashboard({
                     </svg>
                     PNG
                   </BtnSec>
-                  <BtnSec>SVG</BtnSec>
-                  <BtnSec>EPS</BtnSec>
+                  <BtnSec type="button" onClick={() => onDownloadQr("svg")}>
+                    SVG
+                  </BtnSec>
                 </DlRow>
               </div>
             </QrRow>
@@ -808,7 +974,7 @@ export default function AffiliateDashboard({
                 </PosterFoot>
               </Poster>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                <BtnDl>
+                <BtnDl type="button" onClick={onDownloadPdf}>
                   <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                     <path
                       d="M6 1v7m-3-3 3 3 3-3M2 11h8"
@@ -820,10 +986,12 @@ export default function AffiliateDashboard({
                   </svg>
                   Download PDF
                 </BtnDl>
-                <BtnSec>Reprint with current offer</BtnSec>
+                <BtnSec type="button" onClick={onDownloadPdf}>
+                  Reprint with current offer
+                </BtnSec>
                 <Note>
-                  Generated per affiliate — the file and QR are unique to{" "}
-                  {affiliate.code}.
+                  Opens a print-ready poster — pick <strong style={{ color: "#f5f0e8" }}>Save as PDF</strong>{" "}
+                  from the print dialog. The QR encodes <strong style={{ color: "#f5f0e8" }}>{affiliate.code}</strong>.
                 </Note>
               </div>
             </PosterRow>
@@ -942,10 +1110,35 @@ export default function AffiliateDashboard({
                         </Right>
                         <td>
                           <StatusPill s={r.status} />
+                          {(r.sharePct ?? 100) < 100 && (
+                            <SharePill
+                              title={
+                                r.touch === "first"
+                                  ? "Credit split — you got first-touch share"
+                                  : r.touch === "last"
+                                  ? "Credit split — you got last-touch share"
+                                  : "Credit shared with another affiliate"
+                              }
+                            >
+                              {r.touch === "first"
+                                ? "First"
+                                : r.touch === "last"
+                                ? "Last"
+                                : "Shared"}{" "}
+                              · {r.sharePct}%
+                            </SharePill>
+                          )}
                         </td>
                         <Right>
                           <Amount $neg={neg}>
-                            {neg ? "− $—" : "$—"}
+                            {r.commissionAmountMinor != null &&
+                            r.commissionAmountMinor > 0
+                              ? `${neg ? "− " : ""}$${(
+                                  r.commissionAmountMinor / 100
+                                ).toFixed(2)}`
+                              : neg
+                              ? "− $—"
+                              : "$—"}
                           </Amount>
                         </Right>
                       </tr>

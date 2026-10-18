@@ -4,7 +4,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import Link from "next/link";
 import DeliveryNotice from "./DeliveryNotice";
-import { Product, availability } from "@/lib/products";
+import { Product, availability, formatMoney } from "@/lib/products";
 import { useCart } from "@/lib/cart";
 
 const Crumbs = styled.nav`
@@ -490,7 +490,11 @@ export default function ProductDetail({ product }: { product: Product }) {
 
           <PricePanel>
             <PriceTop>
-              <PriceBig $muted={!product.priceApproved}>$—</PriceBig>
+              <PriceBig $muted={!product.priceApproved}>
+                {product.priceApproved && product.price
+                  ? formatMoney(product.price.amount, product.price.currency)
+                  : "$—"}
+              </PriceBig>
               <PriceNote>
                 {product.priceApproved
                   ? "Shipping and tax calculated at checkout"

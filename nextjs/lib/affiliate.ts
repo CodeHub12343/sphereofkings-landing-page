@@ -15,6 +15,19 @@ export type AttributedRow = {
   customer: string; // initial + surname
   units: number;
   status: AttributedStatus;
+  // Share of the commission THIS affiliate holds on this order. 100
+  // when they are the only attributed affiliate; less when the order
+  // was split (e.g. first-touch 50% / last-touch 50%). Undefined on
+  // older rows is treated as 100 by the UI.
+  sharePct?: number;
+  // Role in a split order — "sole" when sharePct is 100; "first" or
+  // "last" when there is a co-attributed affiliate. Rendered as the
+  // chip next to the status pill.
+  touch?: "first" | "last" | "sole";
+  // Dollar amount of commission on this row, in minor units (cents).
+  // Only set once the Stripe webhook has flipped the order to paid
+  // and we know the total.
+  commissionAmountMinor?: number;
 };
 
 export type Affiliate = {
@@ -35,6 +48,11 @@ export type Affiliate = {
   // production. Non-guessable.
   referralUrl: string;
   rows: AttributedRow[];
+  // Live money totals in minor units (cents) when derived from stored
+  // attributions. Optional for backward-compat with the demo sample.
+  pendingCommissionMinor?: number;    // orders not yet confirmed paid
+  approvedCommissionMinor?: number;   // paid, unpaid-out balance
+  paidOutCommissionMinor?: number;    // already paid out to the affiliate
 };
 
 export const SAMPLE_AFFILIATE: Affiliate = {

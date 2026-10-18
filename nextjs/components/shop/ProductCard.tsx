@@ -2,7 +2,7 @@
 
 import styled from "styled-components";
 import Link from "next/link";
-import { Product, availability } from "@/lib/products";
+import { Product, availability, formatMoney } from "@/lib/products";
 import { useCart } from "@/lib/cart";
 
 const Card = styled.article<{ $featured?: boolean }>`
@@ -263,7 +263,11 @@ export default function ProductCard({
       </Body>
       <Foot>
         <PriceRow>
-          <Price $muted={!product.priceApproved}>$—</Price>
+          <Price $muted={!product.priceApproved}>
+            {product.priceApproved && product.price
+              ? formatMoney(product.price.amount, product.price.currency)
+              : "$—"}
+          </Price>
           <PriceNote>
             {product.priceApproved
               ? `${sold.toLocaleString()} / ${cap.toLocaleString()} sold`

@@ -9,8 +9,14 @@ type Mode = {
   accent: "royal" | "crimson" | "gold";
   status: "approved" | "approved-partial" | "draft";
   short: string;
-  // Content when status !== "draft". For now this is set only for the two
-  // modes with owner-approved rules.
+  // Owner-approved narrative for the mode — tagline, what the game is,
+  // what it develops. Rendered above the rules sections. Rules remain
+  // separate so only owner-approved rules get published.
+  about?: {
+    tagline: string;
+    paragraphs: string[];
+    develops: string[];
+  };
   rules?: {
     headline: string;
     sections: Array<
@@ -23,10 +29,22 @@ type Mode = {
 const MODES: Mode[] = [
   {
     id: "royal-checkers",
-    name: "Royal Checkers",
+    name: "Royal Checkers™",
     accent: "royal",
     status: "approved-partial",
     short: "Regular checkers on a 14 × 8 spherical board.",
+    about: {
+      tagline: "Classic strategy. A whole new perspective.",
+      paragraphs: [
+        "Checkers has entertained generations of players. Royal Checkers brings that timeless strategy game onto a spherical playing surface — a new visual and spatial dimension built on the same rules you already know.",
+        "Players must think strategically, anticipate their opponent's movements, and adapt to the curved layout. The excitement of traditional checkers, preserved. The playing field, entirely different.",
+      ],
+      develops: [
+        "Strategic thinking",
+        "Spatial awareness",
+        "Pattern recognition",
+      ],
+    },
     rules: {
       headline: "Checkers, on a sphere.",
       sections: [
@@ -67,10 +85,22 @@ const MODES: Mode[] = [
   },
   {
     id: "imperial-kings",
-    name: "Imperial Kings",
+    name: "Imperial Kings™",
     accent: "crimson",
     status: "approved-partial",
     short: "Chess on the 14 × 8 spherical board.",
+    about: {
+      tagline: "Think like a strategist. Play like royalty.",
+      paragraphs: [
+        "Enter the world of Imperial Kings, our chess-inspired strategy experience. Every move matters, every decision creates new opportunities, every player must think ahead.",
+        "Imperial Kings brings strategic competition to the Sphere of Kings platform, challenging players to develop their skills while navigating a distinctive spherical board. A memorable alternative to flat-board gameplay for anyone who enjoys strategy, problem-solving, and competitive thinking.",
+      ],
+      develops: [
+        "Deep strategic thinking",
+        "Multi-move planning",
+        "Competitive reasoning",
+      ],
+    },
     rules: {
       headline: "Chess, elevated.",
       sections: [
@@ -116,38 +146,99 @@ const MODES: Mode[] = [
   },
   {
     id: "spherical-puzzle",
-    name: "Spherical Puzzle",
+    name: "Spherical Puzzle™",
     accent: "gold",
     status: "draft",
-    short: "A puzzle variant on the sphere.",
+    short: "A puzzle experience beyond the flat surface.",
+    about: {
+      tagline: "One sphere. Countless possibilities.",
+      paragraphs: [
+        "Traditional puzzles are usually assembled on tables. Sphere of Kings introduces a different challenge — assembling puzzle pieces around a curved playing surface.",
+        "Instead of completing a flat picture, you work with shapes, patterns, and images across a three-dimensional form. The planned collection includes multiple difficulty levels, from beginner-friendly challenges to more advanced designs.",
+      ],
+      develops: [
+        "Concentration",
+        "Patience",
+        "Spatial awareness",
+        "Creative problem-solving",
+      ],
+    },
   },
   {
-    id: "diy-puzzle-kit",
-    name: "DIY Puzzle Kit",
+    id: "diy-paintable",
+    name: "DIY Paintable Experience™",
     accent: "gold",
     status: "draft",
-    short: "Design your own puzzle for the sphere.",
+    short: "Your imagination becomes part of the game.",
+    about: {
+      tagline: "Create it. Paint it. Make it yours.",
+      paragraphs: [
+        "Why should every game board look the same? With the DIY Paintable Experience, players personalise compatible game components and create designs that reflect their imagination.",
+        "Children can express their creativity. Families can work together on artistic projects. Artists can develop their own unique designs. The goal is simple — combine the enjoyment of gaming with the excitement of artistic creation.",
+      ],
+      develops: [
+        "Artistic expression",
+        "Fine motor skills",
+        "Family collaboration",
+      ],
+    },
   },
   {
-    id: "custom-upload-puzzle",
-    name: "Custom Upload Puzzle",
+    id: "custom-sphere-upload",
+    name: "Custom Sphere Upload™",
     accent: "gold",
     status: "draft",
-    short: "Upload an image, we print it as a sphere.",
+    short: "Turn your favorite memories into a puzzle.",
+    about: {
+      tagline: "Your picture. Your puzzle. Your Sphere.",
+      paragraphs: [
+        "Transform a favorite family photograph into a spherical puzzle. Create one from your pet, a vacation memory, original artwork, or any meaningful personal image.",
+        "The planned Custom Sphere Upload lets customers submit their own images and convert them into compatible personalized puzzle designs — opening a new category of meaningful gifts: birthdays, anniversaries, weddings, holidays, school activities, corporate gifts, special memories.",
+      ],
+      develops: [
+        "Personalisation",
+        "Gift-giving creativity",
+        "Memory-making",
+      ],
+    },
   },
   {
-    id: "diy-checkers-kit",
-    name: "DIY Checkers Kit",
+    id: "expanded-challenges",
+    name: "Expanded Sphere Challenges™",
     accent: "royal",
     status: "draft",
-    short: "Build a Royal Checkers variant.",
+    short: "New challenges. New possibilities.",
+    about: {
+      tagline: "The challenge continues.",
+      paragraphs: [
+        "Our vision for Sphere of Kings extends beyond traditional gameplay. Expanded Sphere Challenges introduces additional puzzles that encourage players to explore new patterns, combinations, strategies, and creative solutions.",
+        "Challenge yourself individually, compete with friends, or work together to complete increasingly difficult objectives — the goal is simple: an entertainment platform that keeps you engaged long after your first game.",
+      ],
+      develops: [
+        "Problem-solving",
+        "Cooperative play",
+        "Progressive difficulty",
+      ],
+    },
   },
   {
-    id: "diy-imperial-kings",
-    name: "DIY Imperial Kings",
+    id: "creators-edition",
+    name: "Creator's Edition™",
     accent: "crimson",
     status: "draft",
-    short: "Build an Imperial Kings variant.",
+    short: "Become part of the creative experience.",
+    about: {
+      tagline: "Don't just play the game. Help shape it.",
+      paragraphs: [
+        "The Creator's Edition is designed to encourage players to experiment with new layouts, designs, and gameplay ideas using compatible components. Imagine creating your own challenges. Designing a new puzzle. Developing a family game night that is entirely unique.",
+        "Sphere of Kings is more than a product you buy — it's something you explore, personalise, and make your own.",
+      ],
+      develops: [
+        "Design thinking",
+        "Rule-making",
+        "Experimentation",
+      ],
+    },
   },
 ];
 
@@ -324,6 +415,71 @@ const AuxBtn = styled.button`
     color: #f0c040;
     border-color: #c9a227;
   }
+`;
+
+const About = styled.section`
+  background: #1a1612;
+  border: 1px solid #2e2618;
+  border-radius: 12px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const AboutTag = styled.div<{ $accent: "royal" | "crimson" | "gold" }>`
+  font-family: "Cinzel", serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  color: ${(p) =>
+    p.$accent === "royal"
+      ? "#7fa3ff"
+      : p.$accent === "crimson"
+      ? "#ff6b7a"
+      : "#f0c040"};
+`;
+
+const AboutP = styled.p`
+  font-family: "Inter", sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #f5f0e8;
+  margin: 0;
+
+  strong {
+    color: #f0c040;
+    font-weight: 700;
+  }
+`;
+
+const Develops = styled.div`
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+  border-top: 1px solid #2e2618;
+`;
+
+const DevelopsLabel = styled.span`
+  font-family: "Inter", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #a89880;
+  margin-right: 4px;
+  align-self: center;
+`;
+
+const DevelopsChip = styled.span`
+  font-family: "Inter", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(201, 162, 39, 0.1);
+  color: #f0c040;
+  border: 1px solid rgba(201, 162, 39, 0.3);
 `;
 
 const SectionBlock = styled.section`
@@ -514,6 +670,21 @@ export default function HowToPlay() {
           </Aux>
         </PaneHead>
 
+        {active.about && (
+          <About aria-label="About this mode">
+            <AboutTag $accent={active.accent}>“{active.about.tagline}”</AboutTag>
+            {active.about.paragraphs.map((p, i) => (
+              <AboutP key={i}>{p}</AboutP>
+            ))}
+            <Develops>
+              <DevelopsLabel>Develops</DevelopsLabel>
+              {active.about.develops.map((d) => (
+                <DevelopsChip key={d}>{d}</DevelopsChip>
+              ))}
+            </Develops>
+          </About>
+        )}
+
         {active.rules ? (
           <>
             {active.rules.sections.map((s) =>
@@ -565,6 +736,16 @@ export default function HowToPlay() {
               setup, how to move, captures, draws and win conditions — as each
               is confirmed. Nothing is invented in the meantime.
             </p>
+            <p
+              style={{
+                marginTop: 12,
+                fontSize: "0.85rem",
+                color: "#5a4a38",
+              }}
+            >
+              The "About this mode" copy above is owner-approved. The
+              "Draft" badge in the sidebar refers to the rules only.
+            </p>
           </DraftOnly>
         )}
 
@@ -573,7 +754,7 @@ export default function HowToPlay() {
             Only owner-approved rules are published. Nothing on this page is
             invented.
           </span>
-          <FootLink href="mailto:eadepoju16@gmail.com?subject=Rules%20correction">
+          <FootLink href="mailto:hello@sphereofkings.com?subject=Rules%20correction">
             Suggest a correction →
           </FootLink>
         </Foot>

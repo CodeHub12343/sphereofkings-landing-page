@@ -4,3 +4,6 @@ out
 .env*.local
 *.log
 .DS_Store
+# File-backed demo store (quotes, reservations). Lost on serverless cold
+# starts — replace with a real database before production.
+.data/

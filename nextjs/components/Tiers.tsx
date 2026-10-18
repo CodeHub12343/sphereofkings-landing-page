@@ -2,6 +2,7 @@
 
 import styled from "styled-components";
 import { Wrap, GoldTitle, SectionEyebrow } from "./shared";
+import SignupForm from "./SignupForm";
 
 type Tier = { title: string; price: string; priceIsItalic?: boolean; body: string; img: string; alt: string };
 
@@ -128,13 +129,43 @@ const BottomNote = styled.p`
   margin: 20px 0 0;
 `;
 
+const Intro = styled.p`
+  text-align: center;
+  color: #a89880;
+  font-family: "Inter", sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 580px;
+  margin: 0 auto 20px;
+`;
+
+const LaunchDate = styled.p`
+  text-align: center;
+  color: #c9a227;
+  font-family: "Cinzel", serif;
+  font-size: 0.84rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 0 0 36px;
+`;
+
+const SignupWrap = styled.div`
+  max-width: 480px;
+  margin: 36px auto 0;
+`;
+
 export default function Tiers() {
   return (
     <Section id="tiers">
       <Wrap>
-        <SectionEyebrow>Kickstarter Pledge Tiers</SectionEyebrow>
-        <Heading>Choose Your Kingdom</Heading>
-        <Preview>Preview only — pricing revealed at launch. Tiers subject to change.</Preview>
+        <SectionEyebrow>Kickstarter Chapter</SectionEyebrow>
+        <Heading>The Next Chapter of Sphere of Kings</Heading>
+        <Intro>
+          Follow the Sphere of Kings Kickstarter journey and be among the
+          first to hear about important campaign updates. The pledge tiers
+          below are a preview — they go live when the campaign opens.
+        </Intro>
+        <LaunchDate>Launching November 19, 2026</LaunchDate>
         <Grid>
           {TIERS.map((t) => (
             <Card key={t.title}>
@@ -150,7 +181,18 @@ export default function Tiers() {
             </Card>
           ))}
         </Grid>
-        <BottomNote>Sales open only after the Kickstarter campaign concludes.</BottomNote>
+        <BottomNote>
+          Kickstarter deliveries are expected around mid-December 2026 — an
+          expectation, not a guarantee. For in-stock Christmas delivery,
+          shop the Christmas Early Bird collection above.
+        </BottomNote>
+        <SignupWrap id="signup">
+          <SignupForm
+            source="kickstarter-chapter"
+            maxWidth="480px"
+            finePrint="Receive campaign announcements, product news and important updates from Sphere of Kings. Unsubscribe anytime."
+          />
+        </SignupWrap>
       </Wrap>
     </Section>
   );

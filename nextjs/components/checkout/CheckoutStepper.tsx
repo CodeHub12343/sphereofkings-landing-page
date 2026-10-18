@@ -1,10 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import styled from "styled-components";
 import Link from "next/link";
 import DeliveryNotice from "@/components/shop/DeliveryNotice";
 import { useCart } from "@/lib/cart";
+import { formatMoney } from "@/lib/products";
+import { AFF_ATTR_COOKIE } from "@/lib/affiliate-auth";
+import { resolveAffiliateAction } from "@/app/checkout/affiliate-actions";
+import {
+  createPaymentIntentAction,
+  createPendingOrderAction,
+  PaymentIntentResult,
+} from "@/app/checkout/actions";
+import StripePayment from "./StripePayment";
 
 type Step = "contact" | "shipping" | "review" | "pay";
 const STEP_ORDER: Step[] = ["contact", "shipping", "review", "pay"];
@@ -37,6 +46,10 @@ const Rail = styled.ol`
   list-style: none;
   padding: 0;
   margin: 0 0 24px;
+
+  @media (max-width: 540px) {
+    gap: 6px;
+  }
 `;
 
 const RailStep = styled.li<{ $state: "done" | "on" | "pending" }>`
@@ -53,6 +66,14 @@ const RailStep = styled.li<{ $state: "done" | "on" | "pending" }>`
   min-width: 0;
   background: ${(p) =>
     p.$state === "done" ? "rgba(201,162,39,0.08)" : "#0a0a0a"};
+
+  @media (max-width: 540px) {
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 6px;
+    text-align: center;
+    justify-content: center;
+  }
 `;
 
 const RailNo = styled.span<{ $state: "done" | "on" | "pending" }>`
@@ -87,8 +108,14 @@ const RailK = styled.span<{ $state: "done" | "on" | "pending" }>`
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-weight: 700;
+  white-space: nowrap;
   color: ${(p) =>
     p.$state === "pending" ? "#5a4a38" : "#f0c040"};
+
+  @media (max-width: 540px) {
+    font-size: 0.6rem;
+    letter-spacing: 0.06em;
+  }
 `;
 
 const RailV = styled.span`
@@ -507,6 +534,20 @@ export default function CheckoutStepper() {
   const { lines, hasUnapprovedPrice } = useCart();
   const [step, setStep] = useState<Step>("contact");
 
+  // Totals for the summary panel and the Pay CTA. We only sum lines
+  // with approved prices; `hasUnapprovedPrice` controls whether we
+  // show the amount or the "price pending" state.
+  const subtotal = lines.reduce((n, l) => {
+    if (!l.product.priceApproved || !l.product.price) return n;
+    return n + l.product.price.amount * l.qty;
+  }, 0);
+  const currency =
+    lines.find((l) => l.product.price)?.product.price?.currency ?? "USD";
+  const subtotalDisplay = hasUnapprovedPrice
+    ? "price pending"
+    : formatMoney(subtotal, currency);
+  const totalDisplay = hasUnapprovedPrice ? "$—" : formatMoney(subtotal, currency);
+
   const [contact, setContact] = useState({ email: "", phone: "" });
   const [ship, setShip] = useState({
     name: "",
@@ -517,6 +558,53 @@ export default function CheckoutStepper() {
     country: "United Kingdom",
   });
   const [terms, setTerms] = useState(false);
+  const [affiliateCode, setAffiliateCode] = useState<string | null>(null);
+  const [affiliateName, setAffiliateName] = useState<string | null>(null);
+  const [orderRef, setOrderRef] = useState<string | null>(null);
+  const [orderError, setOrderError] = useState<string | null>(null);
+  const [intentResult, setIntentResult] = useState<PaymentIntentResult | null>(
+    null,
+  );
+  const [, startTransition] = useTransition();
+
+  // When we land on the Pay step with an order ref, ask the server to
+  // create (or re-use) a Stripe payment intent. The result tells the
+  // UI whether to show the Payment Element, a "stripe not wired" note,
+  // or a price-pending note.
+  useEffect(() => {
+    if (step !== "pay" || !orderRef) return;
+    let cancelled = false;
+    startTransition(async () => {
+      const result = await createPaymentIntentAction(orderRef);
+      if (!cancelled) setIntentResult(result);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [step, orderRef]);
+
+  // Pick up a referral-attribution cookie if one was dropped by
+  // /r/[code] and resolve it against Mongo via a server action so BOTH
+  // the seeded sample codes AND self-signup SOV-xxx-xxxx codes
+  // surface here.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const match = document.cookie.match(
+      new RegExp(`(?:^|;\\s*)${AFF_ATTR_COOKIE}=([^;]+)`),
+    );
+    if (!match) return;
+    const raw = decodeURIComponent(match[1]);
+    let cancelled = false;
+    (async () => {
+      const resolved = await resolveAffiliateAction(raw).catch(() => null);
+      if (cancelled || !resolved) return;
+      setAffiliateCode(resolved.code);
+      setAffiliateName(resolved.displayName);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   if (lines.length === 0) {
     return (
@@ -762,6 +850,28 @@ export default function CheckoutStepper() {
                 Edit
               </button>
             </SummaryLine>
+            {affiliateCode && (
+              <SummaryLine>
+                <div>
+                  <dt>Attribution</dt>
+                  <dd>
+                    Affiliate · <strong style={{ color: "#f0c040" }}>{affiliateCode}</strong>
+                    {affiliateName ? ` · ${affiliateName}` : ""}
+                  </dd>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAffiliateCode(null);
+                    setAffiliateName(null);
+                    // Clear the cookie so a refresh doesn't bring it back.
+                    document.cookie = `${AFF_ATTR_COOKIE}=; path=/; max-age=0`;
+                  }}
+                >
+                  Clear
+                </button>
+              </SummaryLine>
+            )}
             <Terms>
               <input
                 type="checkbox"
@@ -776,11 +886,60 @@ export default function CheckoutStepper() {
                 </p>
               </div>
             </Terms>
+            {orderError && (
+              <p
+                role="alert"
+                style={{
+                  margin: 0,
+                  color: "#ff6b7a",
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: "0.85rem",
+                }}
+              >
+                {orderError}
+              </p>
+            )}
             <Foot>
               <Back type="button" onClick={back}>
                 ← Back to shipping
               </Back>
-              <Primary type="button" disabled={!terms} onClick={next}>
+              <Primary
+                type="button"
+                disabled={!terms}
+                onClick={() => {
+                  // Save a pending order first so the admin queue sees
+                  // the record even though Pay still blocks.
+                  setOrderError(null);
+                  startTransition(async () => {
+                    const result = await createPendingOrderAction({
+                      customerName: ship.name,
+                      customerEmail: contact.email,
+                      customerPhone: contact.phone || undefined,
+                      affiliateCode: affiliateCode ?? undefined,
+                      lines: lines.map((l) => ({
+                        slug: l.slug,
+                        name: l.product.name,
+                        qty: l.qty,
+                      })),
+                      totalDisplay,
+                      shipTo: {
+                        name: ship.name,
+                        line1: ship.line1,
+                        line2: ship.line2 || undefined,
+                        city: ship.city,
+                        postal: ship.postal,
+                        country: ship.country,
+                      },
+                    });
+                    if (!result.ok) {
+                      setOrderError(result.error);
+                      return;
+                    }
+                    setOrderRef(result.ref);
+                    next();
+                  });
+                }}
+              >
                 Continue to payment
               </Primary>
             </Foot>
@@ -791,7 +950,41 @@ export default function CheckoutStepper() {
           <>
             <Title>Payment</Title>
             <Sub>Stripe payment will appear here once pricing is approved.</Sub>
-            {hasUnapprovedPrice ? (
+            {orderRef && (
+              <p
+                style={{
+                  margin: 0,
+                  color: "#4fb07d",
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: "0.85rem",
+                }}
+              >
+                Order{" "}
+                <strong
+                  style={{
+                    fontFamily:
+                      "SFMono-Regular, Menlo, Consolas, monospace",
+                    color: "#f0c040",
+                  }}
+                >
+                  {orderRef}
+                </strong>{" "}
+                saved. We will finalise the charge once pricing is
+                approved and Stripe is wired.
+              </p>
+            )}
+            {intentResult && intentResult.ok ? (
+              <StripePayment
+                clientSecret={intentResult.clientSecret}
+                publishableKey={intentResult.publishableKey}
+                amountMinor={intentResult.amountMinor}
+                returnUrl={
+                  typeof window !== "undefined"
+                    ? `${window.location.origin}/order/${orderRef}`
+                    : `/order/${orderRef}`
+                }
+              />
+            ) : intentResult && !intentResult.ok ? (
               <PayBlock>
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
                   <circle cx="11" cy="11" r="9" stroke="currentColor" strokeWidth="1.6" />
@@ -803,40 +996,61 @@ export default function CheckoutStepper() {
                   />
                 </svg>
                 <div>
-                  <h3>Pay unlocks once prices are approved</h3>
-                  <p>
-                    The owner is finalising prices for the Christmas Early
-                    Bird products in your cart. Your selection and shipping
-                    details are saved — the Pay step will enable automatically.
-                  </p>
-                  <p>
-                    If you want to be the first to know when prices go live,
-                    join the launch list.
-                  </p>
-                  <NotifyLink href="/#signup">Notify me</NotifyLink>
+                  {intentResult.reason === "price-pending" ? (
+                    <>
+                      <h3>Pay unlocks once prices are approved</h3>
+                      <p>
+                        The owner is finalising prices for one of the items in
+                        your cart (<code
+                          style={{
+                            fontFamily:
+                              "SFMono-Regular, Menlo, Consolas, monospace",
+                            color: "#f0c040",
+                          }}
+                        >
+                          {intentResult.slug}
+                        </code>
+                        ). Your selection and shipping details are saved —
+                        this step enables automatically once the price is
+                        approved.
+                      </p>
+                      <NotifyLink href="/#signup">Notify me</NotifyLink>
+                    </>
+                  ) : intentResult.reason === "stripe-not-wired" ? (
+                    <>
+                      <h3>Stripe integration — not yet wired</h3>
+                      <p>
+                        Set <strong>STRIPE_SECRET_KEY</strong>,{" "}
+                        <strong>NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY</strong>,
+                        and <strong>STRIPE_WEBHOOK_SECRET</strong> in your
+                        environment to enable the real Payment Element and
+                        confirmation flow.
+                      </p>
+                    </>
+                  ) : intentResult.reason === "order-not-found" ? (
+                    <>
+                      <h3>Order not found</h3>
+                      <p>
+                        We couldn't locate the order record for this session.
+                        Go back a step and try again.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <h3>Something went wrong</h3>
+                      <p>{intentResult.message}</p>
+                    </>
+                  )}
                 </div>
               </PayBlock>
             ) : (
               <PayBlock>
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                  <rect
-                    x="2"
-                    y="6"
-                    width="18"
-                    height="12"
-                    rx="2"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                  />
-                  <path d="M2 10h18" stroke="currentColor" strokeWidth="1.6" />
+                  <circle cx="11" cy="11" r="9" stroke="currentColor" strokeWidth="1.6" />
                 </svg>
                 <div>
-                  <h3>Stripe integration — not yet wired</h3>
-                  <p>
-                    Prices are approved, but the Stripe keys and webhook have
-                    not been configured in this environment. Hook up Stripe to
-                    enable the real payment element and confirmation flow.
-                  </p>
+                  <h3>Preparing payment…</h3>
+                  <p>Loading the secure form from Stripe.</p>
                 </div>
               </PayBlock>
             )}
@@ -845,7 +1059,7 @@ export default function CheckoutStepper() {
                 ← Back to review
               </Back>
               <Primary type="button" disabled>
-                Pay $— now
+                Pay {totalDisplay} now
               </Primary>
             </Foot>
           </>
@@ -864,14 +1078,27 @@ export default function CheckoutStepper() {
               <ItemName>{l.product.name}</ItemName>
               <ItemMeta>Qty {l.qty} · Early Bird</ItemMeta>
             </ItemBody>
-            <ItemPrice $muted={!l.product.priceApproved}>$—</ItemPrice>
+            <ItemPrice $muted={!l.product.priceApproved}>
+              {l.product.priceApproved && l.product.price
+                ? formatMoney(
+                    l.product.price.amount * l.qty,
+                    l.product.price.currency,
+                  )
+                : "$—"}
+            </ItemPrice>
           </Item>
         ))}
         <Rows>
           <dt>Subtotal</dt>
           <dd className={hasUnapprovedPrice ? "muted" : ""}>
-            {hasUnapprovedPrice ? "price pending" : "$—"}
+            {subtotalDisplay}
           </dd>
+          {affiliateCode && (
+            <>
+              <dt>Affiliate · {affiliateCode}</dt>
+              <dd className="muted">applied at checkout</dd>
+            </>
+          )}
           <dt>Shipping</dt>
           <dd className="muted">calculated at checkout</dd>
           <dt>Tax</dt>
@@ -879,7 +1106,7 @@ export default function CheckoutStepper() {
         </Rows>
         <Total>
           <span>Total</span>
-          <span>$—</span>
+          <span>{totalDisplay}</span>
         </Total>
         <DeliveryNotice variant="early-bird" />
       </Side>

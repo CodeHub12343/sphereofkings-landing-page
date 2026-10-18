@@ -1,29 +1,39 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
-import Countdown from "@/components/Countdown";
+import KingdomCollection from "@/components/KingdomCollection";
+import ChristmasPanel from "@/components/ChristmasPanel";
 import Features from "@/components/Features";
 import Story from "@/components/Story";
 import Showcase from "@/components/Showcase";
 import Video from "@/components/Video";
+import BecomeKingdom from "@/components/BecomeKingdom";
 import Tiers from "@/components/Tiers";
-import FinalCTA from "@/components/FinalCTA";
+import Countdown from "@/components/Countdown";
+import DonateSection from "@/components/DonateSection";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import SmoothScroll from "@/components/SmoothScroll";
 
+// Section order (commerce-forward):
+// Hero → Collection → Early Bird promo → Features & Story → Seven-in-one
+// Showcase → Video → Join the Kingdom (affiliate/wholesale/donate) →
+// Kickstarter chapter + signup → Countdown → Contact.
 export default function Home() {
   return (
     <>
       <SmoothScroll />
       <Header />
       <Hero />
-      <Countdown />
+      <KingdomCollection />
+      <ChristmasPanel />
       <Features />
       <Story />
       <Showcase />
       <Video />
+      <BecomeKingdom />
       <Tiers />
-      <FinalCTA />
+      <Countdown />
+      <DonateSection />
       <Contact />
       <Footer />
     </>

@@ -102,6 +102,7 @@ const Legal = styled.div`
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
+  align-items: center;
 `;
 
 const LegalLink = styled.a`
@@ -112,6 +113,38 @@ const LegalLink = styled.a`
 
   &:hover {
     color: #f0c040;
+  }
+`;
+
+// Discreet "staff area" link. Points at /admin so middleware can send
+// signed-in operators straight through and bounce signed-out ones to
+// /admin/signin. Styled smaller + chip-like so it reads as "not for
+// shoppers" without hiding it.
+const StaffLink = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #8a7a60;
+  font-family: "Inter", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 5px 10px;
+  border: 1px solid #2e2618;
+  border-radius: 999px;
+  transition: color 0.18s, border-color 0.18s, background 0.18s;
+
+  &:hover,
+  &:focus-visible {
+    color: #f0c040;
+    border-color: #c9a227;
+    background: rgba(201, 162, 39, 0.06);
+  }
+
+  svg {
+    opacity: 0.8;
   }
 `;
 
@@ -168,6 +201,35 @@ export default function Footer() {
           <Legal>
             <LegalLink href="#">Privacy Policy</LegalLink>
             <LegalLink href="#">Terms of Service</LegalLink>
+            <StaffLink
+              href="/admin"
+              aria-label="Staff sign-in — admin console"
+              title="Staff only · sign in to the admin console"
+            >
+              <svg
+                width="11"
+                height="11"
+                viewBox="0 0 12 12"
+                fill="none"
+                aria-hidden="true"
+              >
+                <rect
+                  x="3"
+                  y="5.5"
+                  width="6"
+                  height="5"
+                  rx="1"
+                  stroke="currentColor"
+                  strokeWidth="1.3"
+                />
+                <path
+                  d="M4.5 5.5V3.75a1.5 1.5 0 0 1 3 0V5.5"
+                  stroke="currentColor"
+                  strokeWidth="1.3"
+                />
+              </svg>
+              Staff
+            </StaffLink>
           </Legal>
         </Bottom>
       </Wrap>

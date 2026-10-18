@@ -1,9 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import styled from "styled-components";
+import ExpenseEntryDrawer, { ExpenseFormValues } from "./ExpenseEntryDrawer";
+import type { ReconItem as RawReconItem, ReconResult } from "@/lib/finance/reconcile";
+import type { ClosedMonth } from "@/lib/store/finance-store";
+import {
+  closeMonthAction,
+  recordExpenseAction,
+  reopenMonthAction,
+} from "@/app/admin/finance/actions";
 
-type TxCategory =
+export type TxCategory =
   | "sales-early-bird"
   | "sales-wholesale"
   | "donations"
@@ -11,20 +19,34 @@ type TxCategory =
   | "expenses"
   | "payouts";
 
-type TxRow = {
+export type TxRow = {
   dateISO: string;
   ref: string;
   category: TxCategory;
   label: string;
   amountDisplay: string; // "$—" when source is price-pending; else a tabular string
+  amount?: number; // signed numeric when known (negative for expenses, refunds, payouts)
   signed?: "neg" | "pos";
   source: "stripe" | "manual";
+  receiptName?: string;
 };
+
+const EXPENSE_CATEGORIES = [
+  "Shipping",
+  "Printing",
+  "Marketing",
+  "Platform fees",
+  "Software",
+  "Travel",
+  "Office",
+] as const;
+export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number];
+export { EXPENSE_CATEGORIES };
 
 // Sample transactions for the design pass. Most are "$—" because product
 // prices remain unapproved; one real expense gives the dashboard a non-zero
 // value to anchor layout.
-const SAMPLE_TX: TxRow[] = [
+const INITIAL_TX: TxRow[] = [
   {
     dateISO: "2026-09-29",
     ref: "SOK-004218",
@@ -40,8 +62,10 @@ const SAMPLE_TX: TxRow[] = [
     category: "expenses",
     label: "Expenses · Shipping",
     amountDisplay: "− $214.80",
+    amount: -214.8,
     signed: "neg",
     source: "manual",
+    receiptName: "DHL-041-receipt.pdf",
   },
   {
     dateISO: "2026-09-28",
@@ -165,6 +189,25 @@ const BtnSec = styled.button`
   }
 `;
 
+const BtnPrimary = styled.button`
+  background: linear-gradient(135deg, #b8901e 0%, #f0c040 50%, #b8901e 100%);
+  color: #0a0a0a;
+  border: 0;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-family: "Inter", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  &:hover {
+    box-shadow: 0 0 20px rgba(240, 192, 64, 0.25);
+  }
+`;
+
 const KPIs = styled.section`
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -284,8 +327,81 @@ const F = styled.button<{ $on: boolean }>`
   }
 `;
 
+const TxCardList = styled.ul`
+  display: none;
+
+  @media (max-width: 720px) {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    list-style: none;
+    padding: 12px;
+    margin: 0;
+    background: #0a0a0a;
+  }
+`;
+
+const TxCard = styled.li`
+  background: #0e0c09;
+  border: 1px solid #1e1a12;
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const TxCardTop = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+`;
+
+const TxCardWhen = styled.span`
+  font-family: "Inter", sans-serif;
+  font-size: 0.72rem;
+  color: #a89880;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 700;
+`;
+
+const TxCardRef = styled.span`
+  font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #f5f0e8;
+  word-break: break-all;
+  text-align: right;
+  min-width: 0;
+`;
+
+const TxCardCategory = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Inter", sans-serif;
+  font-size: 0.88rem;
+  color: #f5f0e8;
+`;
+
+const TxCardFoot = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #1a1510;
+`;
+
 const TableWrap = styled.div`
   overflow-x: auto;
+
+  /* Hand off to the stacked card list on phones. */
+  @media (max-width: 720px) {
+    display: none;
+  }
 `;
 
 const Table = styled.table`
@@ -436,19 +552,169 @@ function matches(c: TxCategory, f: Filter): boolean {
   return true;
 }
 
-export default function FinanceDashboard() {
-  const [filter, setFilter] = useState<Filter>("all");
+export type CommissionSummary = {
+  // Dollar sum (as a positive number) of eligible commissions sitting
+  // unpaid — this is what the Finance KPI shows.
+  eligibleTotal: number;
+  eligibleCount: number;
+  paidOutTotal: number;
+  paidOutCount: number;
+};
 
-  const rows = useMemo(() => SAMPLE_TX.filter((r) => matches(r.category, filter)), [filter]);
+export default function FinanceDashboard({
+  initialTx,
+  reconciliation,
+  periodYear,
+  periodMonth,
+  periodLabel,
+  closedForPeriod,
+  closedMonths,
+  commissions = {
+    eligibleTotal: 0,
+    eligibleCount: 0,
+    paidOutTotal: 0,
+    paidOutCount: 0,
+  },
+}: {
+  // Transactions pulled from the Stripe adapter (plus any seed rows) on
+  // the server. The expense entry drawer appends to this list client-side
+  // until expense persistence is wired.
+  initialTx: TxRow[];
+  reconciliation: ReconResult;
+  periodYear: number;
+  periodMonth: number;
+  periodLabel: string;
+  closedForPeriod: ClosedMonth | null;
+  closedMonths: ClosedMonth[];
+  commissions?: CommissionSummary;
+}) {
+  const commissionsTotal = commissions.eligibleTotal;
+  const commissionsEligibleCount = commissions.eligibleCount;
+  const commissionsPaidOutCount = commissions.paidOutCount;
+  const [filter, setFilter] = useState<Filter>("all");
+  const [tx, setTx] = useState<TxRow[]>(
+    initialTx.length ? initialTx : INITIAL_TX,
+  );
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [closeNote, setCloseNote] = useState("");
+  const [confirmReopen, setConfirmReopen] = useState(false);
+  const [, startTransition] = useTransition();
+
+  const rows = useMemo(() => tx.filter((r) => matches(r.category, filter)), [tx, filter]);
   const counts = useMemo(() => {
     return {
-      all: SAMPLE_TX.length,
-      sales: SAMPLE_TX.filter((r) => matches(r.category, "sales")).length,
-      donations: SAMPLE_TX.filter((r) => matches(r.category, "donations")).length,
-      refunds: SAMPLE_TX.filter((r) => matches(r.category, "refunds")).length,
-      expenses: SAMPLE_TX.filter((r) => matches(r.category, "expenses")).length,
+      all: tx.length,
+      sales: tx.filter((r) => matches(r.category, "sales")).length,
+      donations: tx.filter((r) => matches(r.category, "donations")).length,
+      refunds: tx.filter((r) => matches(r.category, "refunds")).length,
+      expenses: tx.filter((r) => matches(r.category, "expenses")).length,
     };
-  }, []);
+  }, [tx]);
+
+  // Sum of all known expense amounts (negative numbers), displayed as a
+  // positive dollar figure in the KPI tile.
+  const expensesTotal = useMemo(() => {
+    return tx
+      .filter((r) => r.category === "expenses" && typeof r.amount === "number")
+      .reduce((n, r) => n + Math.abs(r.amount ?? 0), 0);
+  }, [tx]);
+  const expensesCount = tx.filter((r) => r.category === "expenses").length;
+
+  // Headline money totals from the real transaction stream — every
+  // amount is in dollars (already divided from Stripe's minor units).
+  // Rows without an `amount` (price pending) are skipped so revenue
+  // reflects only confirmed charges.
+  const kpis = useMemo(() => {
+    const sumBy = (predicate: (r: TxRow) => boolean) =>
+      tx
+        .filter((r) => predicate(r) && typeof r.amount === "number")
+        .reduce((n, r) => n + Math.abs(r.amount ?? 0), 0);
+    return {
+      revenue: sumBy(
+        (r) =>
+          r.category === "sales-early-bird" ||
+          r.category === "sales-wholesale",
+      ),
+      refunds: sumBy((r) => r.category === "refunds"),
+      donations: sumBy((r) => r.category === "donations"),
+      payouts: sumBy((r) => r.category === "payouts"),
+    };
+  }, [tx]);
+  const salesCount = useMemo(
+    () =>
+      tx.filter(
+        (r) =>
+          r.category === "sales-early-bird" ||
+          r.category === "sales-wholesale",
+      ).length,
+    [tx],
+  );
+  const refundCount = useMemo(
+    () => tx.filter((r) => r.category === "refunds").length,
+    [tx],
+  );
+  const donationCount = useMemo(
+    () => tx.filter((r) => r.category === "donations").length,
+    [tx],
+  );
+  const payoutCount = useMemo(
+    () => tx.filter((r) => r.category === "payouts").length,
+    [tx],
+  );
+  const fmt = (n: number) =>
+    n === 0 ? "$—" : `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+  const nextExpenseRef = () => {
+    const existing = tx
+      .filter((r) => r.ref.startsWith("EXP-"))
+      .map((r) => Number.parseInt(r.ref.slice(4), 10))
+      .filter((n) => Number.isFinite(n));
+    const max = existing.length ? Math.max(...existing) : 412;
+    return `EXP-${String(max + 1).padStart(5, "0")}`;
+  };
+
+  const addExpense = (v: ExpenseFormValues) => {
+    const amount = Number.parseFloat(v.amount);
+    if (!Number.isFinite(amount) || amount <= 0) return;
+    // Optimistic row for the dashboard — gets a real ref once the
+    // server action returns.
+    const tempRef = nextExpenseRef();
+    const optimistic: TxRow = {
+      dateISO: v.dateISO,
+      ref: tempRef,
+      category: "expenses",
+      label: `Expenses · ${v.category}`,
+      amountDisplay: `− $${amount.toFixed(2)}`,
+      amount: -amount,
+      signed: "neg",
+      source: "manual",
+      receiptName: v.receiptName || undefined,
+    };
+    setTx((prev) => [optimistic, ...prev]);
+    setDrawerOpen(false);
+    startTransition(async () => {
+      const result = await recordExpenseAction({
+        dateISO: v.dateISO,
+        vendor: v.vendor,
+        description: v.description,
+        category: v.category,
+        amount,
+        currency: v.currency,
+        receiptName: v.receiptName || undefined,
+      });
+      if (!result.ok) {
+        // Roll back the optimistic row on failure.
+        setTx((prev) => prev.filter((r) => r.ref !== tempRef));
+        return;
+      }
+      // Replace temp ref with real ref so a page refresh matches.
+      setTx((prev) =>
+        prev.map((r) =>
+          r.ref === tempRef ? { ...r, ref: result.expense.ref } : r,
+        ),
+      );
+    });
+  };
 
   return (
     <>
@@ -456,13 +722,19 @@ export default function FinanceDashboard() {
         <div>
           <Title>Finance</Title>
           <Sub>
-            September 2026 · All amounts in USD
-            <SubChip>Reconciling</SubChip>
+            {periodLabel} · All amounts in USD
+            {closedForPeriod ? (
+              <SubChip style={{ background: "rgba(79,176,125,0.14)", color: "#4fb07d" }}>
+                Closed
+              </SubChip>
+            ) : (
+              <SubChip>Reconciling</SubChip>
+            )}
           </Sub>
         </div>
         <Actions>
-          <Period type="button">
-            September 2026
+          <Period type="button" aria-label={`Period · ${periodLabel}`}>
+            {periodLabel}
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
               <path
                 d="M2 4l3 3 3-3"
@@ -473,16 +745,35 @@ export default function FinanceDashboard() {
               />
             </svg>
           </Period>
-          <BtnSec type="button">Export CSV</BtnSec>
-          <BtnSec type="button">Export PDF</BtnSec>
+          <BtnSec type="button" onClick={() => exportCsv(tx)}>
+            Export CSV
+          </BtnSec>
+          <BtnSec type="button" onClick={() => openPrintWindow(tx, periodLabel)}>
+            Export PDF
+          </BtnSec>
+          <BtnPrimary type="button" onClick={() => setDrawerOpen(true)}>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path
+                d="M6 2v8M2 6h8"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              />
+            </svg>
+            Add expense
+          </BtnPrimary>
         </Actions>
       </Head>
 
       <KPIs aria-label="Headline figures">
         <Kpi>
           <KpiK>Revenue</KpiK>
-          <KpiV $muted>$—</KpiV>
-          <KpiD>Pending prices</KpiD>
+          <KpiV $muted={kpis.revenue === 0}>{fmt(kpis.revenue)}</KpiV>
+          <KpiD>
+            {salesCount === 0
+              ? "No sales yet"
+              : `${salesCount} order${salesCount === 1 ? "" : "s"} this period`}
+          </KpiD>
           <KpiSpark viewBox="0 0 50 18" fill="none" aria-hidden="true">
             <polyline
               points="0,13 10,11 20,8 30,10 40,6 50,3"
@@ -494,8 +785,14 @@ export default function FinanceDashboard() {
         </Kpi>
         <Kpi>
           <KpiK>Refunds</KpiK>
-          <KpiV $muted>$—</KpiV>
-          <KpiD>No charges yet</KpiD>
+          <KpiV $muted={kpis.refunds === 0}>
+            {kpis.refunds === 0 ? "$—" : `− ${fmt(kpis.refunds)}`}
+          </KpiV>
+          <KpiD>
+            {refundCount === 0
+              ? "No refunds this period"
+              : `${refundCount} refund${refundCount === 1 ? "" : "s"}`}
+          </KpiD>
           <KpiSpark viewBox="0 0 50 18" fill="none" aria-hidden="true">
             <polyline
               points="0,15 10,14 20,15 30,13 40,14 50,13"
@@ -507,8 +804,12 @@ export default function FinanceDashboard() {
         </Kpi>
         <Kpi>
           <KpiK>Donations</KpiK>
-          <KpiV $muted>$—</KpiV>
-          <KpiD>Stripe not wired</KpiD>
+          <KpiV $muted={kpis.donations === 0}>{fmt(kpis.donations)}</KpiV>
+          <KpiD>
+            {donationCount === 0
+              ? "No donations this period"
+              : `${donationCount} gift${donationCount === 1 ? "" : "s"}`}
+          </KpiD>
           <KpiSpark viewBox="0 0 50 18" fill="none" aria-hidden="true">
             <polyline
               points="0,13 10,12 20,13 30,9 40,8 50,6"
@@ -518,10 +819,15 @@ export default function FinanceDashboard() {
             />
           </KpiSpark>
         </Kpi>
-        <Kpi $stale>
+        <Kpi $stale={expensesTotal > 0}>
           <KpiK>Expenses</KpiK>
-          <KpiV>$214.80</KpiV>
-          <KpiD>1 entry · last sync 6h ago</KpiD>
+          <KpiV $muted={expensesTotal === 0}>
+            {expensesTotal === 0 ? "$—" : `$${expensesTotal.toFixed(2)}`}
+          </KpiV>
+          <KpiD>
+            {expensesCount} entr{expensesCount === 1 ? "y" : "ies"} ·{" "}
+            {expensesTotal > 0 ? "last sync 6h ago" : "no entries"}
+          </KpiD>
           <KpiSpark viewBox="0 0 50 18" fill="none" aria-hidden="true">
             <polyline
               points="0,10 10,11 20,8 30,12 40,11 50,13"
@@ -533,8 +839,12 @@ export default function FinanceDashboard() {
         </Kpi>
         <Kpi>
           <KpiK>Commissions</KpiK>
-          <KpiV $muted>$—</KpiV>
-          <KpiD>Pending approval</KpiD>
+          <KpiV $muted={commissionsTotal === 0}>{fmt(commissionsTotal)}</KpiV>
+          <KpiD>
+            {commissionsEligibleCount === 0
+              ? "No eligible commissions"
+              : `${commissionsEligibleCount} eligible · ${commissionsPaidOutCount} paid out`}
+          </KpiD>
           <KpiSpark viewBox="0 0 50 18" fill="none" aria-hidden="true">
             <polyline
               points="0,13 10,11 20,9 30,8 40,6 50,4"
@@ -546,8 +856,14 @@ export default function FinanceDashboard() {
         </Kpi>
         <Kpi>
           <KpiK>Payouts</KpiK>
-          <KpiV $muted>$—</KpiV>
-          <KpiD>1 scheduled</KpiD>
+          <KpiV $muted={kpis.payouts === 0}>
+            {kpis.payouts === 0 ? "$—" : `− ${fmt(kpis.payouts)}`}
+          </KpiV>
+          <KpiD>
+            {payoutCount === 0
+              ? "No payouts this period"
+              : `${payoutCount} transfer${payoutCount === 1 ? "" : "s"}`}
+          </KpiD>
           <KpiSpark viewBox="0 0 50 18" fill="none" aria-hidden="true">
             <polyline
               points="0,12 10,12 20,11 30,11 40,8 50,6"
@@ -621,28 +937,69 @@ export default function FinanceDashboard() {
               </tbody>
             </Table>
           </TableWrap>
+
+          {/* Mobile card list — same transactions, phone-friendly layout. */}
+          <TxCardList>
+            {rows.map((r) => (
+              <TxCard key={`m-${r.ref}`}>
+                <TxCardTop>
+                  <TxCardWhen>
+                    {new Date(r.dateISO).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </TxCardWhen>
+                  <TxCardRef>{r.ref}</TxCardRef>
+                </TxCardTop>
+                <TxCardCategory>
+                  <CatDot $tone={r.category} aria-hidden="true" />
+                  {r.label}
+                </TxCardCategory>
+                <TxCardFoot>
+                  <SourceCell $src={r.source}>{r.source}</SourceCell>
+                  <Amount $signed={r.signed}>{r.amountDisplay}</Amount>
+                </TxCardFoot>
+              </TxCard>
+            ))}
+          </TxCardList>
         </Card>
 
         <Card>
           <CardHead>
             <CardTitle>Reconciliation</CardTitle>
-            <span style={{ fontSize: "0.68rem", color: "#e0a94a", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-              3 open
+            <span
+              style={{
+                fontSize: "0.68rem",
+                color:
+                  reconciliation.items.length > 0 ? "#e0a94a" : "#4fb07d",
+                fontWeight: 800,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+              }}
+            >
+              {reconciliation.items.length === 0
+                ? "All clear"
+                : `${reconciliation.items.length} open`}
             </span>
           </CardHead>
           <Recon>
-            <ReconItem $tone="warn">
-              Unmatched Stripe charge <strong>ch_3P… 821</strong> — no SOK
-              order found. Investigate.
-            </ReconItem>
-            <ReconItem $tone="warn">
-              Refund <strong>REF-00019</strong> expected on Stripe — not yet
-              confirmed.
-            </ReconItem>
-            <ReconItem $tone="warn">
-              Payout <strong>PAY-00007</strong> — awaiting bank confirmation.
-            </ReconItem>
-            <ReconItem $tone="ok">14 charges reconciled.</ReconItem>
+            {reconciliation.items.map((item) => (
+              <ReconItem key={reconKey(item)} $tone="warn">
+                {renderReconLine(item)}
+              </ReconItem>
+            ))}
+            {reconciliation.matched > 0 && (
+              <ReconItem $tone="ok">
+                {reconciliation.matched} charge
+                {reconciliation.matched === 1 ? "" : "s"} reconciled.
+              </ReconItem>
+            )}
+            {reconciliation.items.length === 0 &&
+              reconciliation.matched === 0 && (
+                <ReconItem $tone="ok">
+                  No Stripe activity in this period.
+                </ReconItem>
+              )}
           </Recon>
         </Card>
       </Split>
@@ -661,11 +1018,409 @@ export default function FinanceDashboard() {
         </BtnSec>
       </Fresh>
 
+      <CloseBlock role="region" aria-label="Month-close">
+        <CloseHead>
+          <div>
+            <CloseEye>Month-close · {periodLabel}</CloseEye>
+            <CloseStatus $closed={!!closedForPeriod}>
+              {closedForPeriod ? (
+                <>
+                  <StatusDot $tone="ok" aria-hidden="true" />
+                  Closed on{" "}
+                  {new Date(closedForPeriod.closedAtISO).toLocaleDateString(
+                    undefined,
+                    { year: "numeric", month: "short", day: "numeric" },
+                  )}{" "}
+                  by {closedForPeriod.closedBy}
+                </>
+              ) : (
+                <>
+                  <StatusDot $tone="warn" aria-hidden="true" />
+                  Open — totals move as new transactions arrive
+                </>
+              )}
+            </CloseStatus>
+          </div>
+          {closedForPeriod ? (
+            confirmReopen ? (
+              <div style={{ display: "flex", gap: 8 }}>
+                <BtnSec
+                  type="button"
+                  onClick={() => setConfirmReopen(false)}
+                >
+                  Cancel
+                </BtnSec>
+                <BtnPrimary
+                  type="button"
+                  onClick={() =>
+                    startTransition(async () => {
+                      await reopenMonthAction(periodYear, periodMonth);
+                      setConfirmReopen(false);
+                    })
+                  }
+                >
+                  Confirm re-open
+                </BtnPrimary>
+              </div>
+            ) : (
+              <BtnSec type="button" onClick={() => setConfirmReopen(true)}>
+                Re-open month…
+              </BtnSec>
+            )
+          ) : (
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <input
+                value={closeNote}
+                onChange={(e) => setCloseNote(e.target.value)}
+                placeholder="Optional note for the audit log"
+                aria-label="Close month note"
+                style={{
+                  background: "#1a1612",
+                  border: "1px solid #2e2618",
+                  borderRadius: 6,
+                  padding: "7px 10px",
+                  color: "#f5f0e8",
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: "0.82rem",
+                  width: 220,
+                }}
+              />
+              <BtnPrimary
+                type="button"
+                onClick={() =>
+                  startTransition(async () => {
+                    await closeMonthAction({
+                      year: periodYear,
+                      month: periodMonth,
+                      closedAtISO: new Date().toISOString(),
+                      closedBy: "Owner",
+                      totalsMinor: snapshotTotals(tx),
+                      note: closeNote.trim() || undefined,
+                    });
+                    setCloseNote("");
+                  })
+                }
+              >
+                Close {periodLabel}
+              </BtnPrimary>
+            </div>
+          )}
+        </CloseHead>
+        {closedForPeriod?.note && (
+          <ClosedNote>
+            <strong>Note from close:</strong> {closedForPeriod.note}
+          </ClosedNote>
+        )}
+        {closedMonths.length > 0 && (
+          <ClosedList>
+            <ClosedListH>Previously closed</ClosedListH>
+            <ul>
+              {closedMonths.map((m) => (
+                <li key={`${m.year}-${m.month}`}>
+                  <span className="k">
+                    {monthLabel(m.month)} {m.year}
+                  </span>
+                  <span className="v">
+                    closed{" "}
+                    {new Date(m.closedAtISO).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                    })}{" "}
+                    by {m.closedBy}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </ClosedList>
+        )}
+      </CloseBlock>
+
       <Audit>
         This view supports reconciliation and recordkeeping. It is not a
-        substitute for formal accounting or tax advice. Every export is
-        recorded in the audit log once the backend is wired.
+        substitute for formal accounting or tax advice. CSV exports produce
+        the real file; PDF exports open a print window. Transactions dated
+        inside a closed month should carry an audit note when edited.
       </Audit>
+
+      <ExpenseEntryDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        onSave={addExpense}
+      />
     </>
   );
 }
+
+// ---------- helpers kept inline so the file stays self-contained ----------
+
+function reconKey(item: RawReconItem): string {
+  if (item.kind === "unmatched-charge") return `uc:${item.chargeId}`;
+  if (item.kind === "refund-pending") return `rp:${item.refundId}`;
+  return `pp:${item.payoutId}`;
+}
+
+function renderReconLine(item: RawReconItem): React.ReactNode {
+  if (item.kind === "unmatched-charge") {
+    return (
+      <>
+        Unmatched Stripe charge <strong>{item.chargeId}</strong> — no SOK
+        order found. Investigate.
+      </>
+    );
+  }
+  if (item.kind === "refund-pending") {
+    return (
+      <>
+        Refund <strong>{item.refundId}</strong>
+        {item.orderRef ? (
+          <>
+            {" "}
+            for order <strong>{item.orderRef}</strong>
+          </>
+        ) : null}{" "}
+        expected on Stripe — not yet confirmed.
+      </>
+    );
+  }
+  return (
+    <>
+      Payout{" "}
+      <strong>{item.payoutRef ?? item.payoutId}</strong> — awaiting bank
+      confirmation.
+    </>
+  );
+}
+
+function monthLabel(month: number): string {
+  return new Date(2000, month - 1, 1).toLocaleDateString(undefined, {
+    month: "long",
+  });
+}
+
+function snapshotTotals(rows: TxRow[]) {
+  const sum = (predicate: (r: TxRow) => boolean) =>
+    rows
+      .filter(predicate)
+      .reduce((n, r) => n + (typeof r.amount === "number" ? r.amount : 0), 0);
+  return {
+    revenue: Math.round(100 * sum((r) => r.category.startsWith("sales"))),
+    refunds: Math.round(100 * sum((r) => r.category === "refunds")),
+    donations: Math.round(100 * sum((r) => r.category === "donations")),
+    expenses: Math.round(100 * sum((r) => r.category === "expenses")),
+  };
+}
+
+function csvEscape(v: unknown): string {
+  const s = v === null || v === undefined ? "" : String(v);
+  if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+  return s;
+}
+
+function exportCsv(rows: TxRow[]) {
+  const header = ["Date", "Reference", "Category", "Label", "Amount", "Source"];
+  const body = rows
+    .slice()
+    .sort((a, b) => (a.dateISO < b.dateISO ? 1 : -1))
+    .map((r) => [
+      r.dateISO,
+      r.ref,
+      r.category,
+      r.label,
+      typeof r.amount === "number" ? r.amount.toFixed(2) : r.amountDisplay,
+      r.source,
+    ]);
+  const csv = [header, ...body].map((row) => row.map(csvEscape).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const today = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = `sok-finance-${today}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function openPrintWindow(rows: TxRow[], periodLabel: string) {
+  const win = window.open("", "_blank", "width=1000,height=1100");
+  if (!win) return;
+  const now = new Date().toLocaleString(undefined, {
+    dateStyle: "long",
+    timeStyle: "short",
+  });
+  const bodyRows = rows
+    .slice()
+    .sort((a, b) => (a.dateISO < b.dateISO ? 1 : -1))
+    .map(
+      (r) => `
+      <tr>
+        <td>${escapeHtml(
+          new Date(r.dateISO).toLocaleDateString(undefined, {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          }),
+        )}</td>
+        <td class="mono">${escapeHtml(r.ref)}</td>
+        <td>${escapeHtml(r.label)}</td>
+        <td class="right ${r.signed === "neg" ? "neg" : ""}">${escapeHtml(
+          r.amountDisplay,
+        )}</td>
+        <td>${escapeHtml(r.source)}</td>
+      </tr>
+    `,
+    )
+    .join("");
+  const html = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Finance · ${escapeHtml(periodLabel)}</title>
+  <style>
+    body { margin: 0; padding: 24px; font-family: 'Inter', Arial, sans-serif; background: #f6f1e6; color: #15110A; }
+    .page { max-width: 920px; margin: 0 auto; background: #fff; padding: 32px; border: 1px solid #B8912A; }
+    .mast { font-family: Georgia, serif; font-size: 20px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #9C7A1E; text-align: center; margin: 0 0 4px; }
+    .sub { text-align: center; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #4A4232; margin: 0 0 24px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; padding: 10px 12px; background: #f6f1e6; border-bottom: 1px solid #d9cfae; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #7A6F57; }
+    td { padding: 10px 12px; border-bottom: 1px solid #e8e2d0; vertical-align: middle; }
+    .mono { font-family: 'SF Mono', Menlo, Consolas, monospace; font-weight: 600; }
+    .right { text-align: right; font-family: 'SF Mono', Menlo, Consolas, monospace; font-weight: 700; }
+    .neg { color: #c62b44; }
+    .foot { margin-top: 24px; font-size: 11px; color: #4A4232; }
+    .toolbar { max-width: 920px; margin: 0 auto 16px; display: flex; justify-content: space-between; align-items: center; }
+    .btn { background: linear-gradient(135deg, #b8901e, #f0c040, #b8901e); color: #0a0a0a; border: 0; padding: 10px 18px; border-radius: 6px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; font-family: Georgia, serif; font-size: 13px; cursor: pointer; }
+    @media print { body { padding: 0; background: #fff; } .toolbar { display: none; } .page { border: 0; padding: 0.5in; max-width: none; } @page { size: Letter; margin: 0.3in; } }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <strong>Finance · ${escapeHtml(periodLabel)}</strong>
+    <button class="btn" onclick="window.print()">Save as PDF / Print</button>
+  </div>
+  <main class="page">
+    <h1 class="mast">Sphere of Kings</h1>
+    <p class="sub">Finance report · ${escapeHtml(periodLabel)} · Printed ${escapeHtml(now)}</p>
+    <table>
+      <thead><tr><th>Date</th><th>Reference</th><th>Category</th><th class="right">Amount</th><th>Source</th></tr></thead>
+      <tbody>${bodyRows}</tbody>
+    </table>
+    <p class="foot">Not a substitute for formal accounting or tax advice. CSV export at /admin/finance has the raw rows.</p>
+  </main>
+  <script>document.querySelector(".btn")?.focus();</script>
+</body>
+</html>`;
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+}
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+const CloseBlock = styled.section`
+  margin-top: 24px;
+  background: #0e0c09;
+  border: 1px solid #1e1a12;
+  border-radius: 12px;
+  padding: 18px;
+`;
+
+const CloseHead = styled.header`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+`;
+
+const CloseEye = styled.div`
+  font-family: "Cinzel", serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #c9a227;
+  margin-bottom: 6px;
+`;
+
+const CloseStatus = styled.div<{ $closed: boolean }>`
+  font-family: "Inter", sans-serif;
+  font-size: 0.88rem;
+  color: ${(p) => (p.$closed ? "#4fb07d" : "#f5f0e8")};
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const StatusDot = styled.span<{ $tone: "ok" | "warn" }>`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: ${(p) => (p.$tone === "ok" ? "#4fb07d" : "#e0a94a")};
+`;
+
+const ClosedNote = styled.p`
+  margin: 10px 0 0;
+  padding: 8px 12px;
+  background: rgba(79, 176, 125, 0.08);
+  border-left: 3px solid #4fb07d;
+  border-radius: 4px;
+  font-family: "Inter", sans-serif;
+  font-size: 0.85rem;
+  color: #a89880;
+
+  strong {
+    color: #4fb07d;
+  }
+`;
+
+const ClosedList = styled.div`
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #1e1a12;
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 8px;
+  }
+  li {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: #1a1612;
+    border-radius: 6px;
+    font-family: "Inter", sans-serif;
+    font-size: 0.82rem;
+  }
+  li .k {
+    color: #f5f0e8;
+    font-weight: 600;
+  }
+  li .v {
+    color: #a89880;
+    font-size: 0.76rem;
+  }
+`;
+
+const ClosedListH = styled.div`
+  font-family: "Cinzel", serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #a89880;
+  margin-bottom: 8px;
+`;

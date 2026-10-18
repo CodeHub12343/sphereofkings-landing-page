@@ -1,14 +1,59 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  ADMIN_SESSION_COOKIE,
+  readSessionToken,
+} from "@/lib/auth/token";
 
-// Guards the /admin area with HTTP Basic auth.
+// Dual-mode admin gate.
 //
-// Credentials come from ADMIN_USER and ADMIN_PASSWORD environment variables.
-// If either is missing we fail closed with a clear 503 — never let the admin
-// through without a password, even by accident.
+//   1. When MONGODB_URI is set (production path): /admin/* is gated by
+//      the signed admin session cookie set by /admin/signin. No cookie
+//      or a bad/expired/forged one → 302 to the signin page. The sign-
+//      in page and sign-out route are always allowed through so people
+//      can get in.
 //
-// This is a stopgap. Replace with a real auth system (sessions, roles,
-// per-user accounts) before onboarding more than one operator.
-export function middleware(req: NextRequest) {
+//   2. When MONGODB_URI is not set (dev fallback): HTTP Basic prompt
+//      using ADMIN_USER / ADMIN_PASSWORD, same as before. This keeps
+//      laptop development usable without spinning up Mongo.
+//
+// Middleware runs on the Edge runtime, so neither Node crypto nor the
+// Mongo driver is available here. We only verify the cookie's HMAC —
+// the real session lookup, if any, happens in server components.
+
+const hasMongo = typeof process.env.MONGODB_URI === "string" &&
+  process.env.MONGODB_URI.length > 0;
+
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  // The signin and signout endpoints must always be reachable so an
+  // admin who has no cookie can get in or clear a bad one.
+  if (
+    pathname === "/admin/signin" ||
+    pathname.startsWith("/admin/signin/") ||
+    pathname === "/admin/signout" ||
+    pathname.startsWith("/admin/signout/")
+  ) {
+    return NextResponse.next();
+  }
+
+  if (hasMongo) {
+    const cookie = req.cookies.get(ADMIN_SESSION_COOKIE)?.value;
+    const session = await readSessionToken(cookie, "admin").catch(() => null);
+    if (!session) {
+      const url = req.nextUrl.clone();
+      url.pathname = "/admin/signin";
+      url.search = "";
+      const res = NextResponse.redirect(url, 302);
+      res.headers.set("Cache-Control", "no-store");
+      // Scrub a bad cookie so the signin page doesn't bounce back.
+      if (cookie) res.cookies.delete(ADMIN_SESSION_COOKIE);
+      return res;
+    }
+    return NextResponse.next();
+  }
+
+  // ---- Dev fallback: HTTP Basic ----
   const expectedUser = process.env.ADMIN_USER;
   const expectedPassword = process.env.ADMIN_PASSWORD;
 
@@ -29,7 +74,7 @@ export function middleware(req: NextRequest) {
     try {
       decoded = atob(encoded);
     } catch {
-      // malformed — fall through to 401
+      /* fall through to 401 */
     }
     const sep = decoded.indexOf(":");
     if (sep > -1) {
@@ -47,14 +92,13 @@ export function middleware(req: NextRequest) {
   return new NextResponse("Authentication required.", {
     status: 401,
     headers: {
-      "WWW-Authenticate": 'Basic realm="Sphere of Kings admin", charset="UTF-8"',
+      "WWW-Authenticate":
+        'Basic realm="Sphere of Kings admin", charset="UTF-8"',
       "Cache-Control": "no-store",
     },
   });
 }
 
-// Length-aware constant-time string compare. Avoids leaking the password
-// length via early-exit. Edge runtime has no Buffer or crypto.timingSafeEqual.
 function timingSafeEqual(a: string, b: string): boolean {
   const len = Math.max(a.length, b.length);
   let diff = a.length ^ b.length;
@@ -67,8 +111,6 @@ function timingSafeEqual(a: string, b: string): boolean {
 }
 
 export const config = {
-  // Guard every /admin route and any nested sub-path. Public routes
-  // (/, /shop, /donate, /wholesale, /checkout) are untouched.
   matcher: ["/admin", "/admin/:path*"],
 };
 
@@ -91,8 +133,7 @@ const ADMIN_NOT_CONFIGURED_HTML = `<!doctype html>
   <body>
     <main class="card" role="alert">
       <h1>Admin not configured</h1>
-      <p>Set <code>ADMIN_USER</code> and <code>ADMIN_PASSWORD</code> in your environment, then redeploy. See <code>.env.example</code> for the keys.</p>
-      <p>Until that is done, the admin area is intentionally locked — never served without a password, even by accident.</p>
+      <p>Set <code>ADMIN_USER</code> and <code>ADMIN_PASSWORD</code> in your environment (dev fallback), or set <code>MONGODB_URI</code> + <code>SESSION_SECRET</code> for per-account sign-in, then redeploy.</p>
       <p><a href="/">← Back to the public site</a></p>
     </main>
   </body>

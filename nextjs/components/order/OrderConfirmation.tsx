@@ -2,7 +2,7 @@
 
 import styled from "styled-components";
 import Link from "next/link";
-import { SampleOrder, PaymentState } from "@/lib/sample-orders";
+import { SampleOrder, PaymentState, FulfillmentState } from "@/lib/sample-orders";
 
 type Variant = "paid" | "confirming" | "failed" | "refunded";
 
@@ -285,6 +285,122 @@ const ShipV = styled.div`
     font-size: 0.78rem;
     margin-top: 4px;
   }
+`;
+
+/* ---------------- Fulfillment tracker ---------------- */
+
+const Track = styled.section`
+  background: #1a1612;
+  border: 1px solid #2e2618;
+  border-radius: 12px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+const TrackHead = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+
+  h3 {
+    font-family: "Cinzel", serif;
+    color: #f5f0e8;
+    font-size: 1.05rem;
+    margin: 0;
+    font-weight: 700;
+  }
+`;
+
+const TrackHint = styled.span`
+  font-family: "Inter", sans-serif;
+  font-size: 0.78rem;
+  color: #a89880;
+`;
+
+const Rail = styled.ol`
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  position: relative;
+
+  @media (max-width: 540px) {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+`;
+
+const RailStep = styled.li<{ $state: "done" | "active" | "pending" }>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  position: relative;
+  color: ${(p) =>
+    p.$state === "done"
+      ? "#4fb07d"
+      : p.$state === "active"
+      ? "#f0c040"
+      : "#5a4a38"};
+
+  /* Connecting line between dots (desktop). The last item has no line
+     after it. */
+  &:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 13px;
+    left: calc(50% + 18px);
+    right: calc(-50% + 18px);
+    height: 2px;
+    background: ${(p) => (p.$state === "done" ? "#4fb07d" : "#2e2618")};
+
+    @media (max-width: 540px) {
+      display: none;
+    }
+  }
+`;
+
+const RailDot = styled.span<{ $state: "done" | "active" | "pending" }>`
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: ${(p) =>
+    p.$state === "done"
+      ? "#4fb07d"
+      : p.$state === "active"
+      ? "rgba(240, 192, 64, 0.14)"
+      : "#0e0c09"};
+  color: ${(p) => (p.$state === "done" ? "#0a0a0a" : "currentColor")};
+  border: 2px solid
+    ${(p) =>
+      p.$state === "done"
+        ? "#4fb07d"
+        : p.$state === "active"
+        ? "#f0c040"
+        : "#2e2618"};
+  flex-shrink: 0;
+`;
+
+const RailLabel = styled.span`
+  font-family: "Inter", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #f5f0e8;
+`;
+
+const RailSub = styled.span`
+  font-family: "Inter", sans-serif;
+  font-size: 0.72rem;
+  color: #a89880;
 `;
 
 const NextSteps = styled.div`
@@ -640,9 +756,25 @@ export default function OrderConfirmation({
           <Ship>
             <ShipK>Ship to</ShipK>
             <ShipV>
-              {order.customerName}
-              {"\n"}
-              Shipping address pending backend wire-up
+              {order.shipTo ? (
+                <>
+                  {order.shipTo.name}
+                  {"\n"}
+                  {order.shipTo.line1}
+                  {order.shipTo.line2 ? `\n${order.shipTo.line2}` : ""}
+                  {"\n"}
+                  {order.shipTo.city}
+                  {order.shipTo.postal ? ` ${order.shipTo.postal}` : ""}
+                  {"\n"}
+                  {order.shipTo.country}
+                </>
+              ) : (
+                <>
+                  {order.customerName}
+                  {"\n"}
+                  Shipping address not on file for this order.
+                </>
+              )}
               <small>
                 Deliveries start December 1, 2026 — orders ship in the sequence
                 they are paid.
@@ -651,45 +783,53 @@ export default function OrderConfirmation({
           </Ship>
 
           {variant === "paid" && (
-            <NextSteps>
-              <Next>
-                <NextIco aria-hidden="true">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <rect x="2" y="3" width="10" height="8" rx="1" stroke="currentColor" strokeWidth="1.3" />
-                    <path d="M3 4l4 3 4-3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </NextIco>
-                <NextT>Receipt by email</NextT>
-                <NextS>A full receipt is on its way to the email on file.</NextS>
-              </Next>
-              <Next $muted>
-                <NextIco aria-hidden="true">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <rect x="2" y="4" width="10" height="7" rx="1" stroke="currentColor" strokeWidth="1.3" />
-                    <circle cx="5" cy="12" r="1" fill="currentColor" />
-                    <circle cx="10" cy="12" r="1" fill="currentColor" />
-                  </svg>
-                </NextIco>
-                <NextT>Tracking later</NextT>
-                <NextS>
-                  We will send a tracking number when your parcel leaves the
-                  workshop.
-                </NextS>
-              </Next>
-              <Next $muted>
-                <NextIco aria-hidden="true">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.3" />
-                    <path d="M7 4v3l2 1" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-                  </svg>
-                </NextIco>
-                <NextT>Fulfillment in sequence</NextT>
-                <NextS>
-                  We ship in the order payments were confirmed. Not every
-                  parcel arrives December 1.
-                </NextS>
-              </Next>
-            </NextSteps>
+            <>
+              <FulfillmentTracker fulfillment={order.fulfillment} />
+              <NextSteps>
+                <Next>
+                  <NextIco aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <rect x="2" y="3" width="10" height="8" rx="1" stroke="currentColor" strokeWidth="1.3" />
+                      <path d="M3 4l4 3 4-3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </NextIco>
+                  <NextT>Receipt by email</NextT>
+                  <NextS>A full receipt is on its way to the email on file.</NextS>
+                </Next>
+                <Next $muted={order.fulfillment !== "dispatched"}>
+                  <NextIco aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <rect x="2" y="4" width="10" height="7" rx="1" stroke="currentColor" strokeWidth="1.3" />
+                      <circle cx="5" cy="12" r="1" fill="currentColor" />
+                      <circle cx="10" cy="12" r="1" fill="currentColor" />
+                    </svg>
+                  </NextIco>
+                  <NextT>
+                    {order.fulfillment === "dispatched"
+                      ? "On its way"
+                      : "Tracking later"}
+                  </NextT>
+                  <NextS>
+                    {order.fulfillment === "dispatched"
+                      ? "A tracking email has been sent to the address on file."
+                      : "We will send a tracking number when your parcel leaves the workshop."}
+                  </NextS>
+                </Next>
+                <Next $muted>
+                  <NextIco aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.3" />
+                      <path d="M7 4v3l2 1" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+                    </svg>
+                  </NextIco>
+                  <NextT>Fulfillment in sequence</NextT>
+                  <NextS>
+                    We ship in the order payments were confirmed. Not every
+                    parcel arrives December 1.
+                  </NextS>
+                </Next>
+              </NextSteps>
+            </>
           )}
 
           {variant === "confirming" && (
@@ -746,5 +886,82 @@ export default function OrderConfirmation({
         </Card>
       </Shell>
     </PrintReset>
+  );
+}
+
+/**
+ * Three-step tracker that mirrors the admin fulfillment stages so the
+ * customer sees exactly what the operator sees — in real time on next
+ * page load, since /order/[ref] is `dynamic = "force-dynamic"` and the
+ * fulfillment stage lives on the order record itself.
+ */
+function FulfillmentTracker({ fulfillment }: { fulfillment: FulfillmentState }) {
+  const stageOf = (
+    s: "produced" | "packed" | "dispatched",
+  ): "done" | "active" | "pending" => {
+    const order: FulfillmentState[] = ["none", "produced", "packed", "dispatched"];
+    const cur = order.indexOf(fulfillment);
+    const idx = order.indexOf(s);
+    if (cur > idx) return "done";
+    if (cur === idx) return "active";
+    return "pending";
+  };
+
+  const headline =
+    fulfillment === "dispatched"
+      ? "Dispatched — on its way"
+      : fulfillment === "packed"
+      ? "Packed and ready to ship"
+      : fulfillment === "produced"
+      ? "Produced — moving to packing"
+      : "In the production queue";
+
+  const steps: Array<{
+    key: "produced" | "packed" | "dispatched";
+    label: string;
+    sub: string;
+  }> = [
+    { key: "produced", label: "Produced", sub: "Printed and assembled" },
+    { key: "packed", label: "Packed", sub: "Packing slip + box ready" },
+    { key: "dispatched", label: "Dispatched", sub: "Handed to the carrier" },
+  ];
+
+  return (
+    <Track aria-label="Order fulfillment progress">
+      <TrackHead>
+        <h3>{headline}</h3>
+        <TrackHint>
+          Deliveries start December 1, 2026 — we ship in paid sequence.
+        </TrackHint>
+      </TrackHead>
+      <Rail>
+        {steps.map((s) => {
+          const state = stageOf(s.key);
+          return (
+            <RailStep key={s.key} $state={state}>
+              <RailDot $state={state} aria-hidden="true">
+                {state === "done" ? (
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path
+                      d="M2 6l3 3 5-6"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                ) : state === "active" ? (
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <circle cx="6" cy="6" r="2.4" fill="currentColor" />
+                  </svg>
+                ) : null}
+              </RailDot>
+              <RailLabel>{s.label}</RailLabel>
+              <RailSub>{s.sub}</RailSub>
+            </RailStep>
+          );
+        })}
+      </Rail>
+    </Track>
   );
 }

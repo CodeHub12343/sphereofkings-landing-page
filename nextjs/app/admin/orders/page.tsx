@@ -1,48 +1,51 @@
-"use client";
-
-import styled from "styled-components";
 import { Wrap } from "@/components/shared";
 import DemoBanner from "@/components/admin/DemoBanner";
 import OrderQueue from "@/components/admin/OrderQueue";
+import {
+  listOrdersWithSamples,
+  listStoredOrders,
+} from "@/lib/db/collections/orders";
 
-const Page = styled.section`
-  padding: clamp(28px, 4vw, 56px) 0 clamp(48px, 7vw, 96px);
-`;
+export const dynamic = "force-dynamic";
 
-const Head = styled.header`
-  margin-bottom: 20px;
-
-  h1 {
-    font-family: "Cinzel", serif;
-    color: #f5f0e8;
-    font-size: clamp(1.6rem, 3vw, 2.1rem);
-    margin: 0 0 6px;
-    font-weight: 800;
-  }
-  p {
-    font-family: "Inter", sans-serif;
-    color: #a89880;
-    font-size: 0.92rem;
-    margin: 0;
-    line-height: 1.55;
-  }
-`;
-
-export default function AdminOrdersPage() {
+export default async function AdminOrdersPage() {
+  const [orders, real] = await Promise.all([
+    listOrdersWithSamples(),
+    listStoredOrders().catch(() => []),
+  ]);
   return (
-    <Page>
+    <section style={pageStyle}>
       <Wrap>
-        <DemoBanner />
-        <Head>
-          <h1>Orders</h1>
-          <p>
-            The paid Early Bird queue, Kickstarter pledges and wholesale
-            quotes. Filter by origin or by orders that need attention
-            (pending, failed, refund-pending).
+        {real.length === 0 && <DemoBanner />}
+        <header style={headStyle}>
+          <h1 style={h1Style}>Orders</h1>
+          <p style={pStyle}>
+            Real pending orders from checkout and the Kickstarter / wholesale
+            demo set, merged. Filter by origin or by orders that need
+            attention (pending, failed, refund-pending).
           </p>
-        </Head>
-        <OrderQueue />
+        </header>
+        <OrderQueue orders={orders} />
       </Wrap>
-    </Page>
+    </section>
   );
 }
+
+const pageStyle = {
+  padding: "clamp(28px, 4vw, 56px) 0 clamp(48px, 7vw, 96px)",
+};
+const headStyle = { marginBottom: 20 };
+const h1Style = {
+  fontFamily: "'Cinzel', serif",
+  color: "#f5f0e8",
+  fontSize: "clamp(1.6rem, 3vw, 2.1rem)",
+  margin: "0 0 6px",
+  fontWeight: 800 as const,
+};
+const pStyle = {
+  fontFamily: "'Inter', sans-serif",
+  color: "#a89880",
+  fontSize: "0.92rem",
+  margin: 0,
+  lineHeight: 1.55,
+};
