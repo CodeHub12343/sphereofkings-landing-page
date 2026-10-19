@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { findPlayerByUsername, listRankings } from "@/lib/db/collections/players";
+import nextDynamic from "next/dynamic";
 import { ACHIEVEMENTS } from "@/lib/achievements";
 import { currentPlayer } from "@/lib/auth/player-session";
+
+const ChallengeButton = nextDynamic(() => import("@/components/game/ChallengeButton"), { ssr: false });
 
 export const dynamic = "force-dynamic";
 
@@ -55,6 +58,11 @@ export default async function PublicProfile(
         </p>
         {player.bio && (
           <p style={{ color: "var(--text,#f5f0e8)", fontSize: 15, marginTop: 12 }}>{player.bio}</p>
+        )}
+        {viewer && !isSelf && (
+          <div style={{ marginTop: 14 }}>
+            <ChallengeButton opponentUsername={player.username} opponentDisplayName={player.displayName} />
+          </div>
         )}
       </header>
 
