@@ -348,12 +348,27 @@ export default function Hero() {
               <Secondary href="/how-to-play">Discover How to Play</Secondary>
             </Ctas>
 
-            {/* Subscriber counter lifted to the hero per owner request.
-                The "Back on Kickstarter" button was removed on second
-                pass — the KICKSTARTER_URL constant stays available for
-                a future placement. */}
+            {/* Kickstarter strip — subscriber counter + Back on
+                Kickstarter CTA, lifted to the top of the page per
+                owner request. */}
             <KickstarterStrip>
               <SubscriberCounter />
+              <KsBtn
+                href={KICKSTARTER_URL}
+                target={KICKSTARTER_URL.startsWith("http") ? "_blank" : undefined}
+                rel={KICKSTARTER_URL.startsWith("http") ? "noreferrer" : undefined}
+              >
+                <KsIcon aria-hidden="true">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path
+                      d="M3 2h2v10H3zM11 7l-4-4v8z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </KsIcon>
+                Back on Kickstarter
+                <KsHint>Launches Nov 19, 2026</KsHint>
+              </KsBtn>
             </KickstarterStrip>
             <Benefits>
               <li>360° spherical play</li>
