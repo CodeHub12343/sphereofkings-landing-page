@@ -24,6 +24,7 @@ import {
 import { Difficulty, PRESETS, clampDifficulty, labelFor } from "@/lib/games/difficulty";
 import { useAiWorker } from "./useAiWorker";
 import { DifficultySlider } from "./DifficultySlider";
+import { useRankedResult } from "./useRankedResult";
 
 const STORAGE_KEY = "sok.rc.save.v1";
 
@@ -70,6 +71,7 @@ export default function RoyalCheckersBoard() {
   const [message, setMessage] = useState<string>("");
   const aiBusy = useRef(false);
   const { askMove } = useAiWorker();
+  const { me, report, reset: resetRanking, newRating, newAchievements } = useRankedResult("royal-checkers");
 
   // Hydrate from save on first mount.
   useEffect(() => {
@@ -89,6 +91,14 @@ export default function RoyalCheckersBoard() {
 
   const term = outcome(state);
   const myTurn = state.toMove === humanColor && term.kind === "ongoing";
+
+  useEffect(() => {
+    if (term.kind !== "win" && term.kind !== "draw") return;
+    if (!me) return;
+    const result: "win" | "loss" | "draw" =
+      term.kind === "draw" ? "draw" : term.winner === humanColor ? "win" : "loss";
+    void report(result, difficulty);
+  }, [term, me, humanColor, difficulty, report]);
 
   const legal = useMemo(() => legalMoves(state), [state]);
   const legalBySource = useMemo(() => {
@@ -162,7 +172,8 @@ export default function RoyalCheckersBoard() {
     setState(initial());
     setSelected(null);
     setMessage("");
-  }, []);
+    resetRanking();
+  }, [resetRanking]);
 
   const flipSides = useCallback(() => {
     const next = humanColor === "red" ? "black" : "red";
@@ -201,6 +212,12 @@ export default function RoyalCheckersBoard() {
           </>
         )}
         <Tier> · {labelFor(difficulty)} ({difficulty})</Tier>
+        {newRating !== null && (
+          <RankBadge>Rating now <strong>{newRating}</strong></RankBadge>
+        )}
+        {newAchievements.length > 0 && (
+          <RankBadge>Earned: {newAchievements.join(", ")}</RankBadge>
+        )}
       </Status>
 
       <BoardFrame>
@@ -373,6 +390,11 @@ const Status = styled.div`
 `;
 
 const Tier = styled.span`color: var(--text-muted, #a89880); font-size: 13px;`;
+const RankBadge = styled.span`
+  margin-left: 10px; padding: 2px 8px; border-radius: 4px;
+  background: rgba(201,162,39,.1); color: var(--gold-light, #f0c040); font-size: 12px;
+  strong { font-weight: 700; }
+`;
 
 const Hint = styled.span`
   color: var(--text-muted, #a89880);

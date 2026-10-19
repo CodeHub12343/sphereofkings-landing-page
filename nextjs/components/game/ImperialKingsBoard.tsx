@@ -9,6 +9,7 @@ import {
 import { Difficulty, PRESETS, clampDifficulty, labelFor } from "@/lib/games/difficulty";
 import { useAiWorker } from "./useAiWorker";
 import { DifficultySlider } from "./DifficultySlider";
+import { useRankedResult } from "./useRankedResult";
 
 const STORAGE_KEY = "sok.ik.save.v1";
 interface Save { state: string; difficulty: Difficulty; humanColor: "white" | "black"; }
@@ -29,6 +30,7 @@ export default function ImperialKingsBoard() {
   const [message, setMessage] = useState("");
   const { askMove } = useAiWorker();
   const aiBusy = useRef(false);
+  const { me, report, reset: resetRanking, newRating, newAchievements } = useRankedResult("imperial-kings");
 
   useEffect(() => {
     try {
@@ -53,6 +55,14 @@ export default function ImperialKingsBoard() {
   const term = outcome(state);
   const myTurn = state.toMove === humanColor && term.kind === "ongoing";
   const legal = useMemo(() => legalMoves(state), [state]);
+
+  useEffect(() => {
+    if (term.kind !== "win" && term.kind !== "draw") return;
+    if (!me) return;
+    const result: "win" | "loss" | "draw" =
+      term.kind === "draw" ? "draw" : term.winner === humanColor ? "win" : "loss";
+    void report(result, difficulty);
+  }, [term, me, humanColor, difficulty, report]);
 
   const legalBySource = useMemo(() => {
     const m = new Map<string, Move[]>();
@@ -110,7 +120,8 @@ export default function ImperialKingsBoard() {
   const newGame = useCallback(() => {
     try { localStorage.removeItem(STORAGE_KEY); } catch {}
     setState(initial()); setSelected(null); setMessage("");
-  }, []);
+    resetRanking();
+  }, [resetRanking]);
 
   const sqSize = 44;
   const width = COLS * sqSize;
@@ -142,6 +153,12 @@ export default function ImperialKingsBoard() {
           </>
         )}
         <Tier>Difficulty: {labelFor(difficulty)} ({difficulty})</Tier>
+        {newRating !== null && (
+          <RankBadge>Rating now <strong>{newRating}</strong></RankBadge>
+        )}
+        {newAchievements.length > 0 && (
+          <RankBadge>Earned: {newAchievements.join(", ")}</RankBadge>
+        )}
       </Status>
 
       <BoardFrame>
@@ -221,6 +238,11 @@ const Buttons = styled.div`
 const Status = styled.div`font-size:14px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;
   strong{color:var(--gold-light,#f0c040);}`;
 const Tier = styled.span`color:var(--text-muted,#a89880);font-size:13px;`;
+const RankBadge = styled.span`
+  padding:2px 8px;border-radius:4px;background:rgba(201,162,39,.1);
+  color:var(--gold-light,#f0c040);font-size:12px;
+  strong{font-weight:700;}
+`;
 const Hint = styled.span`color:var(--text-muted,#a89880);font-style:italic;`;
 const BoardFrame = styled.div`
   width:100%;max-width:980px;margin:0 auto;background:var(--bg2,#0d0b08);
