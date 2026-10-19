@@ -3,6 +3,13 @@
 import styled from "styled-components";
 import Link from "next/link";
 import { Wrap, GoldTitle } from "./shared";
+import SubscriberCounter from "./SubscriberCounter";
+
+// Kickstarter campaign URL. Set NEXT_PUBLIC_KICKSTARTER_URL in env
+// when the campaign goes live; falls back to the on-page signup
+// anchor so the button is always clickable.
+const KICKSTARTER_URL =
+  process.env.NEXT_PUBLIC_KICKSTARTER_URL ?? "/#signup";
 
 const Section = styled.section`
   background: linear-gradient(160deg, #0a0a0a 0%, #0e0c08 60%, #0a0a0a 100%);
@@ -217,6 +224,68 @@ const Benefits = styled.ul`
   }
 `;
 
+const KickstarterStrip = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+  max-width: 440px;
+`;
+
+const KsBtn = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #2b7a3a 0%, #4fb07d 50%, #2b7a3a 100%);
+  background-size: 200% auto;
+  color: #0a0a0a;
+  text-decoration: none;
+  font-family: "Cinzel", serif;
+  font-weight: 700;
+  font-size: 0.92rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: 8px;
+  box-shadow: 0 10px 24px rgba(44, 122, 58, 0.35);
+  transition: background-position 0.3s ease, box-shadow 0.3s ease,
+    transform 0.2s ease;
+  width: fit-content;
+
+  &:hover {
+    background-position: right center;
+    transform: translateY(-1px);
+    box-shadow: 0 14px 30px rgba(79, 176, 125, 0.45);
+    color: #0a0a0a;
+  }
+  &:focus-visible {
+    outline: 3px solid #4fb07d;
+    outline-offset: 3px;
+  }
+`;
+
+const KsIcon = styled.span`
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  background: #0a0a0a;
+  color: #4fb07d;
+  border-radius: 4px;
+`;
+
+const KsHint = styled.span`
+  font-family: "Inter", sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(10, 10, 10, 0.72);
+  margin-left: 6px;
+  padding-left: 10px;
+  border-left: 1px solid rgba(10, 10, 10, 0.25);
+`;
+
 const OrbImg = styled.img`
   width: 100%;
   max-width: 460px;
@@ -278,6 +347,29 @@ export default function Hero() {
               </Primary>
               <Secondary href="/how-to-play">Discover How to Play</Secondary>
             </Ctas>
+
+            {/* Kickstarter strip — subscriber counter + Back on
+                Kickstarter CTA, lifted to the top of the page per
+                owner request. Replaces the hidden-below placement. */}
+            <KickstarterStrip>
+              <SubscriberCounter />
+              <KsBtn
+                href={KICKSTARTER_URL}
+                target={KICKSTARTER_URL.startsWith("http") ? "_blank" : undefined}
+                rel={KICKSTARTER_URL.startsWith("http") ? "noreferrer" : undefined}
+              >
+                <KsIcon aria-hidden="true">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path
+                      d="M3 2h2v10H3zM11 7l-4-4v8z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </KsIcon>
+                Back on Kickstarter
+                <KsHint>Launches Nov 19, 2026</KsHint>
+              </KsBtn>
+            </KickstarterStrip>
             <Benefits>
               <li>360° spherical play</li>
               <li>Seven games on one board</li>

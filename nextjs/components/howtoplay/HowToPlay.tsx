@@ -75,8 +75,36 @@ const MODES: Mode[] = [
           ),
         },
         {
-          kind: "draft",
+          kind: "approved",
           no: "03",
+          title: "Variation · Stacked king returns home",
+          body: (
+            <p>
+              After a player becomes a king and is{" "}
+              <strong>stacked</strong>, that stacked king may travel all the
+              way back to its home row. Once it reaches home, the player has
+              the <strong>option to split the stack into two separate
+              kings</strong> — restoring a second active piece to the board.
+            </p>
+          ),
+        },
+        {
+          kind: "approved",
+          no: "04",
+          title: "Variation · Kings Face Off",
+          body: (
+            <p>
+              A game-type variation. <strong>Every checker starts as a
+              king, and every king starts double-stacked.</strong> Players
+              begin on equal footing with their most powerful pieces
+              already in play — a faster, higher-tension match from the
+              opening move.
+            </p>
+          ),
+        },
+        {
+          kind: "draft",
+          no: "05",
           title: "Movement across the sphere's seam",
           note: "The exact squares that connect at the sphere's seam, and whether multi-jumps may cross it mid-combo, are being finalised by the owner. We will publish the specific adjacency map once it is approved.",
         },
