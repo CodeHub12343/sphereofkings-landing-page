@@ -31,8 +31,21 @@ export default async function LeaderboardsPage({ searchParams }: Props) {
     const regionById = new Map(regions.map((p) => [p.id, p.region]));
     rows = rows.filter((row) => regionById.get(row.playerId) === region);
   }
-  // Hide minors from public leaderboards unless they're the current viewer.
-  rows = rows.filter((row) => !row.isMinor);
+  // Hide minors who do not have parental consent; even consented
+  // minors stay off the public leaderboard until their own profile
+  // is public. See child-safety.md §3 and lib/safety-gates.ts.
+  const db = await getDb();
+  const consentMap = new Map(
+    (await db.collection<{ id: string; consentStatus?: string; publicProfile?: boolean }>("players")
+      .find({ id: { $in: rows.map((r) => r.playerId) } },
+            { projection: { id: 1, consentStatus: 1, publicProfile: 1 } }).toArray())
+      .map((p) => [p.id, p]),
+  );
+  rows = rows.filter((row) => {
+    if (!row.isMinor) return true;
+    const p = consentMap.get(row.playerId);
+    return !!p?.publicProfile && p?.consentStatus === "parental-granted";
+  });
   rows = rows.slice(0, 50);
 
   return (

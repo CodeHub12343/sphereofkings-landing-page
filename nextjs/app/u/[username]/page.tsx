@@ -6,6 +6,7 @@ import { ACHIEVEMENTS } from "@/lib/achievements";
 import { currentPlayer } from "@/lib/auth/player-session";
 
 const ChallengeButton = nextDynamic(() => import("@/components/game/ChallengeButton"), { ssr: false });
+const ReportButton = nextDynamic(() => import("@/components/ReportButton"), { ssr: false });
 
 export const dynamic = "force-dynamic";
 
@@ -60,8 +61,9 @@ export default async function PublicProfile(
           <p style={{ color: "var(--text,#f5f0e8)", fontSize: 15, marginTop: 12 }}>{player.bio}</p>
         )}
         {viewer && !isSelf && (
-          <div style={{ marginTop: 14 }}>
+          <div style={{ marginTop: 14, display: "flex", gap: 10, flexWrap: "wrap" }}>
             <ChallengeButton opponentUsername={player.username} opponentDisplayName={player.displayName} />
+            <ReportButton subjectKind="profile" subjectId={player.id} label="Report profile" />
           </div>
         )}
       </header>

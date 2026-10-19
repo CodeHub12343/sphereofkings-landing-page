@@ -7,6 +7,7 @@ import {
 import { findPlayerByUsername, GameId } from "@/lib/db/collections/players";
 import { initialState } from "@/lib/realtime/match-engine";
 import { broadcast, matchChannel } from "@/lib/realtime/pusher";
+import { canSendChallenges, canReceiveChallenges, minorGateMessage } from "@/lib/safety-gates";
 
 export const runtime = "nodejs";
 
@@ -43,6 +44,16 @@ export async function POST(req: Request) {
   if (!opp) return NextResponse.json({ error: "opponent not found" }, { status: 404 });
   if (opp.id === me.id) {
     return NextResponse.json({ error: "cannot challenge yourself" }, { status: 400 });
+  }
+
+  if (!canSendChallenges(me)) {
+    return NextResponse.json({ error: minorGateMessage("send challenges") }, { status: 403 });
+  }
+  if (!canReceiveChallenges(opp)) {
+    return NextResponse.json(
+      { error: "That player cannot receive challenges yet (account pending parental consent)." },
+      { status: 403 },
+    );
   }
 
   await ensureMatchIndexes();
