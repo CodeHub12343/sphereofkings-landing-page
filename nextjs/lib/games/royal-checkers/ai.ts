@@ -16,22 +16,8 @@ import {
   pieceAt,
 } from "./engine";
 
-export type Difficulty = "easy" | "medium" | "hard";
-
-interface TierConfig {
-  maxDepth: number;
-  // Chance we pick a non-best move among the top candidates. Keeps the
-  // Easy tier beatable by a human who's still learning the seam.
-  noise: number;
-  // Soft budget — we stop iterating once we cross this.
-  timeBudgetMs: number;
-}
-
-const TIERS: Record<Difficulty, TierConfig> = {
-  easy: { maxDepth: 2, noise: 0.4, timeBudgetMs: 300 },
-  medium: { maxDepth: 4, noise: 0.1, timeBudgetMs: 1000 },
-  hard: { maxDepth: 6, noise: 0, timeBudgetMs: 2500 },
-};
+import { Difficulty, configFor } from "../difficulty";
+export type { Difficulty };
 
 const INF = 1_000_000;
 const WIN = 100_000;
@@ -113,7 +99,7 @@ export function chooseMove(
   if (moves.length === 0) return null;
   if (moves.length === 1) return moves[0];
 
-  const tier = TIERS[difficulty];
+  const tier = configFor(difficulty);
   const side = state.toMove;
   const deadline = Date.now() + tier.timeBudgetMs;
 

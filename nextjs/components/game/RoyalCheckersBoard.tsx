@@ -21,7 +21,9 @@ import {
   outcome,
   pieceAt,
 } from "@/lib/games/royal-checkers/engine";
-import { chooseMove, Difficulty } from "@/lib/games/royal-checkers/ai";
+import { Difficulty, PRESETS, clampDifficulty, labelFor } from "@/lib/games/difficulty";
+import { useAiWorker } from "./useAiWorker";
+import { DifficultySlider } from "./DifficultySlider";
 
 const STORAGE_KEY = "sok.rc.save.v1";
 
@@ -61,19 +63,20 @@ function clearSave() {
 
 export default function RoyalCheckersBoard() {
   const [state, setState] = useState<GameState>(() => initial());
-  const [difficulty, setDifficulty] = useState<Difficulty>("medium");
+  const [difficulty, setDifficulty] = useState<Difficulty>(PRESETS.medium);
   const [humanColor, setHumanColor] = useState<"red" | "black">("red");
   const [selected, setSelected] = useState<Square | null>(null);
   const [thinking, setThinking] = useState(false);
   const [message, setMessage] = useState<string>("");
-  const aiTimer = useRef<number | null>(null);
+  const aiBusy = useRef(false);
+  const { askMove } = useAiWorker();
 
   // Hydrate from save on first mount.
   useEffect(() => {
     const saved = readSave();
     if (saved) {
       setState(decode(saved.state));
-      setDifficulty(saved.difficulty);
+      setDifficulty(clampDifficulty(saved.difficulty as unknown as number));
       setHumanColor(saved.humanColor);
       setMessage("Resumed your saved game.");
     }
@@ -108,16 +111,17 @@ export default function RoyalCheckersBoard() {
   useEffect(() => {
     if (term.kind !== "ongoing") return;
     if (state.toMove === humanColor) return;
+    if (aiBusy.current) return;
+    aiBusy.current = true;
     setThinking(true);
-    aiTimer.current = window.setTimeout(() => {
-      const move = chooseMove(state, difficulty);
-      if (move) setState((prev) => apply(prev, move));
-      setThinking(false);
-    }, 120);
-    return () => {
-      if (aiTimer.current) window.clearTimeout(aiTimer.current);
-    };
-  }, [state, humanColor, difficulty, term.kind]);
+    askMove("rc", encode(state), difficulty)
+      .then((r) => setState(decode(r.state)))
+      .catch(() => setMessage("Computer could not move."))
+      .finally(() => {
+        aiBusy.current = false;
+        setThinking(false);
+      });
+  }, [state, humanColor, difficulty, term.kind, askMove]);
 
   const onSquareClick = useCallback(
     (sq: Square) => {
@@ -179,36 +183,25 @@ export default function RoyalCheckersBoard() {
   return (
     <Wrap>
       <Controls>
+        <DifficultySlider value={difficulty} onChange={setDifficulty} />
         <ControlGroup>
-          <label>
-            Difficulty
-            <select
-              value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-            >
-              <option value="easy">Easy</option>
-              <option value="medium">Medium</option>
-              <option value="hard">Hard</option>
-            </select>
-          </label>
           <button onClick={flipSides}>Switch sides</button>
           <button onClick={newGame}>New game</button>
         </ControlGroup>
-        <Status>
-          {term.kind === "win" && (
-            <strong>
-              {term.winner === humanColor ? "You win." : "Computer wins."}
-            </strong>
-          )}
-          {term.kind === "draw" && <strong>Draw — {term.reason}.</strong>}
-          {term.kind === "ongoing" && (
-            <>
-              {thinking ? "Computer is thinking…" : myTurn ? "Your move." : "…"}
-              {message && <Hint> {message}</Hint>}
-            </>
-          )}
-        </Status>
       </Controls>
+      <Status>
+        {term.kind === "win" && (
+          <strong>{term.winner === humanColor ? "You win." : "Computer wins."}</strong>
+        )}
+        {term.kind === "draw" && <strong>Draw — {term.reason}.</strong>}
+        {term.kind === "ongoing" && (
+          <>
+            {thinking ? "Computer is thinking…" : myTurn ? "Your move." : "…"}
+            {message && <Hint> {message}</Hint>}
+          </>
+        )}
+        <Tier> · {labelFor(difficulty)} ({difficulty})</Tier>
+      </Status>
 
       <BoardFrame>
         <svg
@@ -378,6 +371,8 @@ const Status = styled.div`
   color: var(--text, #f5f0e8);
   strong { color: var(--gold-light, #f0c040); }
 `;
+
+const Tier = styled.span`color: var(--text-muted, #a89880); font-size: 13px;`;
 
 const Hint = styled.span`
   color: var(--text-muted, #a89880);
