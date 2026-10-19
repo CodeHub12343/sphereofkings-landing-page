@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { signoutAction, updateProfileAction } from "../(player)/account-actions";
 
 interface Props {
-  initial: { displayName: string; bio: string; publicProfile: boolean; isMinor: boolean; };
+  initial: { displayName: string; bio: string; publicProfile: boolean; isMinor: boolean; region: string; };
 }
 
 export default function MeForm({ initial }: Props) {
@@ -20,6 +20,18 @@ export default function MeForm({ initial }: Props) {
         <Field>
           <label>Bio</label>
           <textarea name="bio" defaultValue={initial.bio} maxLength={400} rows={3} />
+        </Field>
+        <Field>
+          <label>Region</label>
+          <select name="region" defaultValue={initial.region}>
+            <option value="global">Global (no region)</option>
+            <option value="na">North America</option>
+            <option value="sa">South America</option>
+            <option value="eu">Europe</option>
+            <option value="africa">Africa</option>
+            <option value="asia">Asia</option>
+            <option value="oceania">Oceania</option>
+          </select>
         </Field>
         {!initial.isMinor && (
           <CheckRow>

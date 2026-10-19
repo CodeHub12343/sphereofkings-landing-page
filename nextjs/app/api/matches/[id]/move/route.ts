@@ -6,6 +6,7 @@ import {
 import { applyServerMove } from "@/lib/realtime/match-engine";
 import { broadcast, matchChannel } from "@/lib/realtime/pusher";
 import { recordRankedResult, ratingForDifficulty } from "@/lib/db/collections/players";
+import { onTournamentMatchFinish } from "@/lib/tournaments/engine";
 
 export const runtime = "nodejs";
 
@@ -115,6 +116,38 @@ export async function POST(
       });
     } catch (err) {
       console.warn("ranking update failed:", err instanceof Error ? err.message : err);
+    }
+  }
+
+  // Tournament advancement if this match belongs to one.
+  if (outcome.finished &&
+      match.tournamentId &&
+      typeof match.tournamentRoundIdx === "number" &&
+      typeof match.tournamentNodeIdx === "number") {
+    const winnerSide = outcome.winnerSide;
+    if (winnerSide && winnerSide !== "draw") {
+      const winner = winnerSide === "red-or-white" ? match.challenger : match.opponent;
+      const loser = winnerSide === "red-or-white" ? match.opponent : match.challenger;
+      try {
+        await onTournamentMatchFinish({
+          tournamentId: match.tournamentId,
+          roundIdx: match.tournamentRoundIdx,
+          nodeIdx: match.tournamentNodeIdx,
+          winnerPlayerId: winner.playerId,
+          loserPlayerId: loser.playerId,
+        });
+      } catch (err) {
+        console.warn("tournament advance failed:", err instanceof Error ? err.message : err);
+      }
+    }
+    // On tournament draws (rare — hits only on the 50-move / threefold
+    // rules), re-schedule a replay. Phase 6 ADR will decide on an
+    // Armageddon tiebreak instead; for Phase 5 we just reset the match.
+    if (winnerSide === "draw") {
+      await updateMatch(id, {
+        status: "active",
+        state: outcome.state /* preserve final-position for history */,
+      });
     }
   }
 

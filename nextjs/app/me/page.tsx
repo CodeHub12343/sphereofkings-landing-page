@@ -100,6 +100,7 @@ export default async function MePage() {
             bio: me.bio ?? "",
             publicProfile: me.publicProfile,
             isMinor: me.isMinor,
+            region: me.region ?? "global",
           }}
         />
       </section>

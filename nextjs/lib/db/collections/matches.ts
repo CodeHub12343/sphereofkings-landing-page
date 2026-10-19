@@ -46,6 +46,12 @@ export interface Match {
   // Set when the match ends. "challenger" / "opponent" / "draw" / "abandoned-by-<id>"
   outcome?: string;
   winnerId?: string;      // the playerId of the winner, if any
+  // Tournament attribution — set when a tournament-engine match is
+  // scheduled. The match pipeline uses this to call back into the
+  // tournament advancer on finish.
+  tournamentId?: string;
+  tournamentRoundIdx?: number;
+  tournamentNodeIdx?: number;
 }
 
 export async function ensureMatchIndexes(): Promise<void> {

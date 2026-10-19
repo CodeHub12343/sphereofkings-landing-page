@@ -111,11 +111,16 @@ export async function updateProfileAction(
   const displayName = String(formData.get("displayName") ?? "").trim();
   const bio = String(formData.get("bio") ?? "").trim().slice(0, 400);
   const publicProfile = formData.get("publicProfile") === "on";
+  const region = String(formData.get("region") ?? "global") as PlayerProfile["region"];
   if (displayName.length < 1 || displayName.length > 40) {
     return { error: "Display name must be 1–40 characters." };
   }
+  const validRegions = ["global", "na", "sa", "eu", "africa", "asia", "oceania"];
+  if (!validRegions.includes(region as string)) {
+    return { error: "Invalid region." };
+  }
   // Minors cannot flip to a public profile — safe-default per child-safety.md §3.
   const safePublicProfile = me.isMinor ? false : publicProfile;
-  await updatePlayer(me.id, { displayName, bio, publicProfile: safePublicProfile });
+  await updatePlayer(me.id, { displayName, bio, publicProfile: safePublicProfile, region });
   return { ok: true };
 }

@@ -18,6 +18,7 @@ export interface PlayerProfile {
   publicProfile: boolean; // defaults false for minors, true for adults
   achievements: string[]; // array of achievement slugs earned
   bio?: string;
+  region?: "global" | "na" | "sa" | "eu" | "africa" | "asia" | "oceania";
   createdAt: string;
   lastLoginAt?: string;
 }
