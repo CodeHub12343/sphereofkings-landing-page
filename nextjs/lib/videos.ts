@@ -18,20 +18,33 @@ export type VideoEntry = {
   captions?: boolean;
 };
 
-// Trailer URL mirrors the one wired on the landing page (components/Video.tsx).
-// Keeping a single source of truth would require a small refactor —
-// deferring until a server data source is wired.
-const TRAILER_SRC =
+// Owner-approved trailer URLs. The newest trailer is the one wired to
+// the landing-page hero via `TRAILER_SRC` below; older trailers stay in
+// the gallery as additional entries so nothing is lost.
+export const TRAILER_SRC =
+  "https://res.cloudinary.com/dctvil2gu/video/upload/v1792526572/WhatsApp_Video_2026-10-20_at_4.28.16_AM_ie10dw.mp4";
+
+// Previous trailer kept available for the gallery.
+const TRAILER_SRC_OCT13 =
   "https://res.cloudinary.com/dctvil2gu/video/upload/v1791922144/WhatsApp_Video_2026-10-13_at_7.03.01_PM_itshl0.mp4";
 
 export const VIDEOS: VideoEntry[] = [
+  {
+    id: "trailer-october-20",
+    chapter: "trailer",
+    title: "Sphere of Kings — October 20 trailer",
+    description:
+      "The newest look at Sphere of Kings in play — family at the table, every mode on one sphere.",
+    src: TRAILER_SRC,
+    poster: "/images/d846e954-7329-421e-9b42-85a07f82d117.jpg",
+  },
   {
     id: "trailer-kickstarter",
     chapter: "trailer",
     title: "The spherical seven-in-one",
     description:
       "A short look at the board, the seven modes and why Sphere of Kings belongs on your family game shelf.",
-    src: TRAILER_SRC,
+    src: TRAILER_SRC_OCT13,
     poster: "/images/d846e954-7329-421e-9b42-85a07f82d117.jpg",
   },
   {

@@ -179,6 +179,17 @@ export default function Footer() {
           </Col>
 
           <Col>
+            <Heading>Community</Heading>
+            <Links>
+              <Link href="/sweepstakes">Royal Sphere Giveaway</Link>
+              <Link href="/me/referrals">Your referral link</Link>
+              <Link href="/license">License your design</Link>
+              <Link href="/champions">Champions</Link>
+              <Link href="/blog">Blog</Link>
+            </Links>
+          </Col>
+
+          <Col>
             <Heading>Connect</Heading>
             <Links>
               <Link href="#" aria-label="Follow Sphere of Kings on Instagram">

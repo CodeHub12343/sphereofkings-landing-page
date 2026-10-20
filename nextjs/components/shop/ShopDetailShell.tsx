@@ -7,6 +7,7 @@ import ProductDetail from "./ProductDetail";
 import AddonsRow from "./AddonsRow";
 import PuzzlePicker from "./PuzzlePicker";
 import PhotoUploader from "./PhotoUploader";
+import ColorPicker from "./ColorPicker";
 import { Wrap } from "@/components/shared";
 import { Product } from "@/lib/products";
 
@@ -46,6 +47,14 @@ export default function ShopDetailShell({ product, catalog }: Props) {
               )}
               {product.requiresPhotoUpload && (
                 <PhotoUploader productSlug={product.slug} />
+              )}
+              {product.colorable && (
+                <ColorPicker
+                  productSlug={product.slug}
+                  pattern={product.colorable.pattern}
+                  defaultColors={product.colorable.defaultColors}
+                  helper={product.colorable.helper}
+                />
               )}
             </ProductDetail>
             <AddonsRow addons={explicit} />

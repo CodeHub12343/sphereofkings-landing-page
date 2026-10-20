@@ -28,7 +28,21 @@ export async function adminSignInAction(
     return { error: "Enter your email and password." };
   }
 
-  const user = await checkAdminCredentials(email, password);
+  let user;
+  try {
+    user = await checkAdminCredentials(email, password);
+  } catch (err) {
+    // Atlas transient failure (serverSelectionTimeout, ETIMEDOUT, DNS,
+    // IP-allowlist). The admin can't sign in without Mongo, but at
+    // least show a readable error instead of a stack trace.
+    console.error("adminSignInAction: Mongo unavailable:",
+                  err instanceof Error ? err.message : err);
+    return {
+      error:
+        "Could not reach the authentication database. This usually clears in a few seconds — try again. " +
+        "If it keeps failing, check that this machine's IP is on the MongoDB Atlas allowlist and MONGODB_URI is correct.",
+    };
+  }
   if (!user) {
     return {
       error:

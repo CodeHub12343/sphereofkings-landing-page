@@ -71,6 +71,19 @@ export type Product = {
   // description" modal on the detail page. The short `description`
   // field is still the card / hero summary.
   fullDescription?: string;
+  // Color customisation hook. When set, the detail page shows the
+  // filament colour picker. `pattern` controls how many picks:
+  //   "two-color": buyer picks exactly two different colours
+  //                (board + alternate squares)
+  //   "single":   buyer picks one colour (DIY piece sets, board-only)
+  // `defaultColors` seeds the picker on first open.
+  colorable?: {
+    pattern: "two-color" | "single";
+    defaultColors?: [string, string?];
+    // Admin-provided copy explaining what the picks will apply to on
+    // the physical product (shown under the picker heading).
+    helper?: string;
+  };
 };
 
 /* ------------------------------------------------------------------ *
@@ -114,6 +127,11 @@ export const PRODUCTS: Product[] = [
     price: { amount: 179, currency: "USD" },
     inventoryCap: 1000, unitsSold: 0, purchasable: true,
     sortOrder: 1, category: "reward", addonSlugs: COMMON_ADDON_SLUGS,
+    colorable: {
+      pattern: "two-color",
+      defaultColors: ["royal-red", "jet-black"],
+      helper: "Pick two colours — one for the board's light squares and matching checkers, one for the dark squares and alternate checkers.",
+    },
     fullDescription: `# 👑 Royal Checkers – Two-Color Board & Checkers Set
 
 Experience checkers like never before with **Sphere of Kings!** This unique 3D spherical game board transforms traditional checkers into an exciting, interactive experience for family and friends.
@@ -144,6 +162,11 @@ This reward includes the Royal Checkers game pieces only. Additional game sets a
     price: { amount: 189, currency: "USD" },
     inventoryCap: 1000, unitsSold: 0, purchasable: true,
     sortOrder: 2, category: "reward", addonSlugs: COMMON_ADDON_SLUGS,
+    colorable: {
+      pattern: "two-color",
+      defaultColors: ["pure-white", "jet-black"],
+      helper: "Pick two colours for the board's checkered pattern and your Imperial Kings piece sets.",
+    },
     fullDescription: `# 👑 Imperial Kings – Complete Royal Game Board Kit
 
 Rule the kingdom with **Imperial Kings!** Experience a whole new dimension of strategy with our innovative 3D spherical game board.
@@ -408,6 +431,11 @@ Whether it's your child's artwork, your family pet, a beautiful landscape, or a 
     price: { amount: 510, currency: "USD" },
     inventoryCap: 500, unitsSold: 0, purchasable: true,
     sortOrder: 8, category: "reward", addonSlugs: COMMON_ADDON_SLUGS,
+    colorable: {
+      pattern: "two-color",
+      defaultColors: ["royal-red", "jet-black"],
+      helper: "Pick two colours — applied uniformly across all 3 boards in this bundle.",
+    },
     fullDescription: `## 👑 Sphere of Kings – Royal Checkers 3-Pack Bundle | Checkers Included
 
 **Triple the Games. Triple the Fun. One Royal Experience!**
@@ -458,6 +486,11 @@ Additional game modes, Imperial Kings pieces, puzzle sets, and other accessories
     price: { amount: 805, currency: "USD" },
     inventoryCap: 300, unitsSold: 0, purchasable: true,
     sortOrder: 9, category: "reward", addonSlugs: COMMON_ADDON_SLUGS,
+    colorable: {
+      pattern: "two-color",
+      defaultColors: ["royal-red", "jet-black"],
+      helper: "Pick two colours — applied uniformly across all 5 boards. We'll vary accents per sphere so no two are identical.",
+    },
     fullDescription: `# 👑 Sphere of Kings – Royal Checkers 5-Pack Bundle | Checkers Included
 
 **Five Boards. Five Royal Battles. Endless Family Fun!**
@@ -514,6 +547,11 @@ Support the launch of Sphere of Kings and be among the first to experience our i
     price: { amount: 1522, currency: "USD" },
     inventoryCap: 200, unitsSold: 0, purchasable: true,
     sortOrder: 10, category: "reward", addonSlugs: COMMON_ADDON_SLUGS,
+    colorable: {
+      pattern: "two-color",
+      defaultColors: ["royal-red", "jet-black"],
+      helper: "Pick two base colours. 10-pack bundles ship with varied accent combinations across the set so each board feels distinct.",
+    },
     fullDescription: `# 👑 Sphere of Kings – Royal Checkers 10-Pack Bundle | Checkers Included
 
 **10 Complete Games. 10 Unique Designs. One Legendary Royal Experience!**
@@ -577,6 +615,11 @@ By backing this Kickstarter reward, you're helping bring an innovative spherical
     price: { amount: 2664, currency: "USD" },
     inventoryCap: 100, unitsSold: 0, purchasable: true,
     sortOrder: 11, category: "reward", addonSlugs: COMMON_ADDON_SLUGS,
+    colorable: {
+      pattern: "two-color",
+      defaultColors: ["royal-red", "jet-black"],
+      helper: "Pick two base colours. 20-pack bundles ship with varied accent combinations across the set.",
+    },
     fullDescription: `# 👑 Sphere of Kings – Royal Checkers 20-Pack Bundle | Checkers Included
 
 **20 Complete Games. 20 Royal Kingdoms. One Extraordinary Gaming Experience!**
@@ -642,6 +685,11 @@ Your Kickstarter pledge helps bring our innovative spherical board game system t
     price: { amount: 6713, currency: "USD" },
     inventoryCap: 50, unitsSold: 0, purchasable: true,
     sortOrder: 12, category: "reward", addonSlugs: COMMON_ADDON_SLUGS,
+    colorable: {
+      pattern: "two-color",
+      defaultColors: ["royal-red", "jet-black"],
+      helper: "Pick two base colours. 50-pack bundles ship with a wide variety of accent combinations so every sphere is distinctive.",
+    },
     fullDescription: `# 👑 Sphere of Kings – Royal Checkers 50-Pack Bundle | Checkers Included
 
 **50 Complete Games. 50 Royal Kingdoms. One Ultimate Gaming Experience!**
@@ -716,6 +764,11 @@ Your pledge helps support the production and launch of our innovative spherical 
     price: { amount: 69, currency: "USD" },
     inventoryCap: 2000, unitsSold: 0, purchasable: true,
     sortOrder: 13, category: "addon",
+    colorable: {
+      pattern: "two-color",
+      defaultColors: ["royal-red", "jet-black"],
+      helper: "Pick two colours for your red-and-black equivalent — eg red + white, blue + gold.",
+    },
     fullDescription: `## 👑 Royal Checkers – Complete Game Pieces Set
 
 **Upgrade your Sphere of Kings experience with the Royal Checkers Game Pieces Set!**
@@ -753,6 +806,11 @@ Experience Royal Checkers like never before with *Sphere of Kings 7 IN 1!*`,
     price: { amount: 79, currency: "USD" },
     inventoryCap: 2000, unitsSold: 0, purchasable: true,
     sortOrder: 14, category: "addon",
+    colorable: {
+      pattern: "two-color",
+      defaultColors: ["pure-white", "jet-black"],
+      helper: "Pick two colours for your white-and-black Imperial Kings equivalent.",
+    },
     fullDescription: `# Imperial Kings – Complete Game Pieces Set
 
 **Rule the Kingdom. Master the Strategy. Claim Your Crown!**
@@ -937,6 +995,11 @@ Every piece becomes a reflection of your imagination, making your Imperial Kings
     price: { amount: 129, currency: "USD" },
     inventoryCap: 1000, unitsSold: 0, purchasable: true,
     sortOrder: 18, category: "addon",
+    colorable: {
+      pattern: "two-color",
+      defaultColors: ["royal-red", "jet-black"],
+      helper: "Pick the two base colours for your board's checkered pattern.",
+    },
     fullDescription: `### Reward Title
 
 **Sphere of Kings – Game Board Only (No Game Pieces)**

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import {
   VIDEOS,
@@ -9,10 +9,12 @@ import {
   CHAPTER_LABEL,
   CHAPTER_TONE,
 } from "@/lib/videos";
+import ShareButton from "./ShareButton";
 
 type Filter = "all" | VideoChapter;
 
-const FEATURED_ID = "trailer-kickstarter";
+// Newest owner-approved trailer sits in the Watch-first slot.
+const FEATURED_ID = "trailer-october-20";
 
 const Section = styled.section`
   display: flex;
@@ -350,6 +352,29 @@ export default function VideoGallery() {
     };
   }, [rest]);
 
+  // Deep-link scroll: when the page loads with a #video-id hash, scroll
+  // to that card, auto-play if it has a src, and briefly highlight it.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const applyHash = () => {
+      const hash = window.location.hash.replace(/^#/, "");
+      if (!hash) return;
+      // Give the gallery one tick to lay out before scrolling.
+      requestAnimationFrame(() => {
+        const el = document.getElementById(hash);
+        if (!el) return;
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        const target = VIDEOS.find((v) => v.id === hash);
+        if (!target || !target.src) return;
+        if (target.id === FEATURED_ID) setFeatPlaying(true);
+        else setActivePlay(target.id);
+      });
+    };
+    applyHash();
+    window.addEventListener("hashchange", applyHash);
+    return () => window.removeEventListener("hashchange", applyHash);
+  }, []);
+
   const openCard = (v: VideoEntry) => {
     if (!v.src) return;
     setActivePlay(v.id);
@@ -357,7 +382,7 @@ export default function VideoGallery() {
 
   return (
     <Section aria-label="Approved Sphere of Kings videos">
-      <Feat>
+      <Feat id={featured.id}>
         <Frame>
           {featured.src ? (
             featPlaying ? (
@@ -408,6 +433,13 @@ export default function VideoGallery() {
             <span className="dot" aria-hidden="true" />
             <span>{featured.captions ? "Captions · English" : "Captions pending"}</span>
           </FeatMeta>
+          <FeatShare>
+            <ShareButton
+              title={featured.title}
+              text={featured.description}
+              hash={featured.id}
+            />
+          </FeatShare>
         </FeatBody>
       </Feat>
 
@@ -442,7 +474,7 @@ export default function VideoGallery() {
           const playing = activePlay === v.id;
           const dur = formatDuration(v.durationSeconds);
           return (
-            <Card key={v.id} $disabled={!playable}>
+            <Card key={v.id} id={v.id} $disabled={!playable}>
               <Thumb
                 $playable={playable}
                 onClick={() => playable && !playing && openCard(v)}
@@ -517,6 +549,13 @@ export default function VideoGallery() {
               <CardBody>
                 <CardTitle>{v.title}</CardTitle>
                 <CardDesc>{v.description}</CardDesc>
+                <CardShare>
+                  <ShareButton
+                    title={v.title}
+                    text={v.description}
+                    hash={v.id}
+                  />
+                </CardShare>
               </CardBody>
             </Card>
           );
@@ -546,3 +585,14 @@ export default function VideoGallery() {
     </Section>
   );
 }
+
+const FeatShare = styled.div`
+  margin-top: 10px;
+  display: flex;
+`;
+
+const CardShare = styled.div`
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-start;
+`;

@@ -41,10 +41,17 @@ async function getClient(): Promise<MongoClient> {
   }
   if (!cached.promise) {
     cached.promise = new MongoClient(URI, {
-      // Reasonable defaults for a hobby/project-scale deployment. Bump
-      // maxPoolSize and tune serverSelectionTimeoutMS before production.
+      // Reasonable defaults for a hobby/project-scale deployment. The
+      // first-connect from a cold dev machine can take ~15s because the
+      // TLS handshake + Atlas replica-set discovery runs serially — the
+      // old 8s cap was tripping it. Serverless warm requests still
+      // return in <200ms.
       maxPoolSize: 10,
-      serverSelectionTimeoutMS: 8_000,
+      serverSelectionTimeoutMS: 25_000,
+      connectTimeoutMS: 25_000,
+      socketTimeoutMS: 45_000,
+      retryWrites: true,
+      retryReads: true,
     })
       .connect()
       .then((c) => {

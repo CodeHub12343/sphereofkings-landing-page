@@ -13,6 +13,7 @@ import DonateSection from "@/components/DonateSection";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import SmoothScroll from "@/components/SmoothScroll";
+import GiveawayBand from "@/components/GiveawayBand";
 
 // Section order (commerce-forward):
 // Hero → Collection → Early Bird promo → Features & Story → Seven-in-one
@@ -24,6 +25,7 @@ export default function Home() {
       <SmoothScroll />
       <Header />
       <Hero />
+      <GiveawayBand />
       <KingdomCollection />
       <ChristmasPanel />
       <Features />

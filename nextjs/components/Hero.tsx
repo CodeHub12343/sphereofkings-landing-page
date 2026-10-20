@@ -201,13 +201,20 @@ const Secondary = styled(Link)`
 const Benefits = styled.ul`
   list-style: none;
   padding: 0;
-  margin: 0;
+  /* Breathing room from the Kickstarter CTA strip above.
+     Matches the Hero's existing rhythm (eyebrow→title 22px,
+     sub→buttons 20px). */
+  margin: 24px 0 0;
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
   color: #a89880;
   font-family: "Inter", sans-serif;
   font-size: 0.85rem;
+
+  @media (max-width: 420px) {
+    margin-top: 20px;
+  }
 
   li {
     display: inline-flex;

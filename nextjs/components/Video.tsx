@@ -2,6 +2,7 @@
 
 import styled from "styled-components";
 import { Wrap, GoldTitle } from "./shared";
+import ShareButton from "./videos/ShareButton";
 
 const Section = styled.section`
   padding: var(--section-pad) 0;
@@ -45,8 +46,10 @@ const Frame = styled.div`
   }
 `;
 
-const VIDEO_SRC =
-  "https://res.cloudinary.com/dctvil2gu/video/upload/v1791922144/WhatsApp_Video_2026-10-13_at_7.03.01_PM_itshl0.mp4";
+// Points at the owner-approved featured trailer. Single source of truth
+// in lib/videos.ts, so the home-page hero and /videos stay in sync when
+// the owner uploads a newer trailer.
+import { TRAILER_SRC as VIDEO_SRC } from "@/lib/videos";
 
 export default function Video() {
   return (
@@ -68,7 +71,20 @@ export default function Video() {
             <a href={VIDEO_SRC}>Watch the video</a>.
           </video>
         </Frame>
+        <ShareRow>
+          <ShareButton
+            title="Sphere of Kings — official trailer"
+            text="Watch Sphere of Kings in action — one spherical board, seven games. Launching on Kickstarter November 19."
+            hash="trailer-october-20"
+          />
+        </ShareRow>
       </Wrap>
     </Section>
   );
 }
+
+const ShareRow = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+`;

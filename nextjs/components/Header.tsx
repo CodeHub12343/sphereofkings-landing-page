@@ -223,6 +223,7 @@ const NAV = [
   ["/shop", "Shop"],
   ["/how-to-play", "How to Play"],
   ["/videos", "Videos"],
+  ["/sweepstakes", "Giveaway"],
   ["/our-story", "Our Story"],
   ["/wholesale", "Wholesale"],
   ["/affiliate", "Affiliate"],
