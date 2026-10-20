@@ -3,6 +3,8 @@ import Link from "next/link";
 import { topRankings } from "@/lib/db/collections/players";
 import { REGION_LABELS, Region } from "@/lib/db/collections/tournaments";
 import { getDb } from "@/lib/db/mongo";
+import FeaturePage from "@/components/feature/FeaturePage";
+import { FChip } from "@/components/feature/primitives";
 
 export const metadata: Metadata = { title: "Leaderboards · Sphere of Kings" };
 export const dynamic = "force-dynamic";
@@ -19,7 +21,6 @@ export default async function LeaderboardsPage({ searchParams }: Props) {
   const game = (g === "imperial-kings" ? "imperial-kings" : "royal-checkers") as "royal-checkers" | "imperial-kings";
   const region = (r as Region) || "global";
 
-  // Pull top rankings (all regions), then filter in-app when region != global.
   let rows = await topRankings(game, 200);
   if (region !== "global") {
     const db = await getDb();
@@ -31,9 +32,6 @@ export default async function LeaderboardsPage({ searchParams }: Props) {
     const regionById = new Map(regions.map((p) => [p.id, p.region]));
     rows = rows.filter((row) => regionById.get(row.playerId) === region);
   }
-  // Hide minors who do not have parental consent; even consented
-  // minors stay off the public leaderboard until their own profile
-  // is public. See child-safety.md §3 and lib/safety-gates.ts.
   const db = await getDb();
   const consentMap = new Map(
     (await db.collection<{ id: string; consentStatus?: string; publicProfile?: boolean }>("players")
@@ -49,45 +47,52 @@ export default async function LeaderboardsPage({ searchParams }: Props) {
   rows = rows.slice(0, 50);
 
   return (
-    <main style={{ padding: "100px 20px 60px", maxWidth: 820, margin: "0 auto" }}>
-      <header style={{ marginBottom: 20 }}>
-        <h1 style={{ margin: 0, color: "var(--text,#f5f0e8)", fontSize: 26 }}>Leaderboards</h1>
-      </header>
-      <nav style={{ display: "flex", gap: 10, marginBottom: 10, flexWrap: "wrap" }}>
+    <FeaturePage
+      eyebrow="Phase 5 · Rankings"
+      title="Leaderboards"
+      subtitle="Top 50 by Glicko-2 rating. Minors are shown only with granted parental consent."
+      centered
+    >
+      <nav style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap", justifyContent: "center" }}>
         {GAMES.map((gm) => (
-          <Link key={gm.id} href={`/leaderboards?game=${gm.id}&region=${region}`}
-                style={chip(game === gm.id)}>{gm.label}</Link>
+          <Link key={gm.id} href={`/leaderboards?game=${gm.id}&region=${region}`} style={{ textDecoration: "none" }}>
+            <FChip $tone={game === gm.id ? "gold" : "muted"}>{gm.label}</FChip>
+          </Link>
         ))}
       </nav>
-      <nav style={{ display: "flex", gap: 6, marginBottom: 20, flexWrap: "wrap" }}>
+      <nav style={{ display: "flex", gap: 6, marginBottom: 24, flexWrap: "wrap", justifyContent: "center" }}>
         {(Object.keys(REGION_LABELS) as Region[]).map((rg) => (
-          <Link key={rg} href={`/leaderboards?game=${game}&region=${rg}`} style={chip(region === rg)}>
-            {REGION_LABELS[rg]}
+          <Link key={rg} href={`/leaderboards?game=${game}&region=${rg}`} style={{ textDecoration: "none" }}>
+            <FChip $tone={region === rg ? "gold" : "muted"}>{REGION_LABELS[rg]}</FChip>
           </Link>
         ))}
       </nav>
 
       {rows.length === 0 ? (
-        <p style={{ color: "var(--text-muted,#a89880)" }}>No ranked players yet.</p>
+        <p style={{ textAlign: "center", color: "var(--text-muted)" }}>No ranked players yet.</p>
       ) : (
         <ol style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 6 }}>
           {rows.map((row, i) => (
             <li key={row.playerId} style={{
               display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10,
-              padding: "10px 14px",
-              background: "var(--bg2,#0d0b08)", border: "1px solid var(--border,#2a2218)",
+              padding: "12px 16px",
+              background: i < 3 ? "rgba(201,162,39,.06)" : "var(--bg2,#0d0b08)",
+              border: `1px solid ${i < 3 ? "var(--gold,#c9a227)" : "var(--border,#2a2218)"}`,
               borderRadius: 6,
             }}>
               <span style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <span style={{ fontSize: 13, color: "var(--text-muted,#a89880)", minWidth: 28, textAlign: "right" }}>
+                <span style={{ fontFamily: "'Cinzel',serif",
+                                fontSize: 15, color: i < 3 ? "var(--gold-light,#f0c040)" : "var(--text-muted,#a89880)",
+                                minWidth: 32, textAlign: "right", fontWeight: 700 }}>
                   #{i + 1}
                 </span>
-                <Link href={`/u/${row.username}`} style={{ color: "var(--text,#f5f0e8)", textDecoration: "none" }}>
+                <Link href={`/u/${row.username}`} style={{ color: "var(--text,#f5f0e8)", textDecoration: "none", fontSize: 15 }}>
                   {row.displayName}
                 </Link>
               </span>
               <span style={{ display: "flex", gap: 12, alignItems: "baseline" }}>
-                <span style={{ color: "var(--gold-light,#f0c040)", fontSize: 18, fontWeight: 700 }}>
+                <span style={{ fontFamily: "'Cinzel',serif",
+                                color: "var(--gold-light,#f0c040)", fontSize: 20, fontWeight: 700 }}>
                   {row.rating}
                 </span>
                 <span style={{ color: "var(--text-muted,#a89880)", fontSize: 12 }}>
@@ -98,18 +103,6 @@ export default async function LeaderboardsPage({ searchParams }: Props) {
           ))}
         </ol>
       )}
-    </main>
+    </FeaturePage>
   );
-}
-
-function chip(active: boolean): React.CSSProperties {
-  return {
-    padding: "6px 12px",
-    borderRadius: 20,
-    fontSize: 13,
-    textDecoration: "none",
-    background: active ? "rgba(201,162,39,.1)" : "var(--bg2,#0d0b08)",
-    color: active ? "var(--gold-light,#f0c040)" : "var(--text-muted,#a89880)",
-    border: `1px solid ${active ? "var(--gold,#c9a227)" : "var(--border,#2a2218)"}`,
-  };
 }

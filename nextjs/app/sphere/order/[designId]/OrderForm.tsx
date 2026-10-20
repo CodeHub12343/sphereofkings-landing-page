@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import styled from "styled-components";
+import {
+  FField, FLabel, FInput, FBtnGold, FBanner,
+} from "@/components/feature/primitives";
 
 export default function OrderForm({ designId }: { designId: string }) {
   const [busy, setBusy] = useState(false);
@@ -15,19 +18,14 @@ export default function OrderForm({ designId }: { designId: string }) {
     const body = {
       designId,
       shipping: {
-        name: fd.get("name"),
-        line1: fd.get("line1"),
-        line2: fd.get("line2"),
-        city: fd.get("city"),
-        region: fd.get("region"),
-        postalCode: fd.get("postalCode"),
-        country: fd.get("country"),
+        name: fd.get("name"), line1: fd.get("line1"), line2: fd.get("line2"),
+        city: fd.get("city"), region: fd.get("region"),
+        postalCode: fd.get("postalCode"), country: fd.get("country"),
       },
     };
     try {
       const r = await fetch("/api/custom-spheres", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
+        method: "POST", headers: { "content-type": "application/json" },
         body: JSON.stringify(body),
       });
       const data = await r.json();
@@ -38,43 +36,30 @@ export default function OrderForm({ designId }: { designId: string }) {
     } finally { setBusy(false); }
   };
 
-  if (ok) return <Ok>{ok}</Ok>;
+  if (ok) return <FBanner $tone="success">{ok}</FBanner>;
 
   return (
     <Form onSubmit={submit}>
-      <Field><label>Full name</label><input name="name" required maxLength={80} /></Field>
-      <Field><label>Address line 1</label><input name="line1" required maxLength={120} /></Field>
-      <Field><label>Address line 2</label><input name="line2" maxLength={120} /></Field>
+      <FField><FLabel>Full name</FLabel><FInput name="name" required maxLength={80} /></FField>
+      <FField><FLabel>Address line 1</FLabel><FInput name="line1" required maxLength={120} /></FField>
+      <FField><FLabel>Address line 2</FLabel><FInput name="line2" maxLength={120} /></FField>
       <Row>
-        <Field><label>City</label><input name="city" required maxLength={60} /></Field>
-        <Field><label>Region / State</label><input name="region" required maxLength={60} /></Field>
+        <FField><FLabel>City</FLabel><FInput name="city" required maxLength={60} /></FField>
+        <FField><FLabel>Region / State</FLabel><FInput name="region" required maxLength={60} /></FField>
       </Row>
       <Row>
-        <Field><label>Postal code</label><input name="postalCode" required maxLength={20} /></Field>
-        <Field><label>Country (ISO alpha-2)</label><input name="country" required maxLength={2} minLength={2}
-                     style={{ textTransform: "uppercase" }} placeholder="US / GB / NG" /></Field>
+        <FField><FLabel>Postal code</FLabel><FInput name="postalCode" required maxLength={20} /></FField>
+        <FField><FLabel>Country (ISO alpha-2)</FLabel>
+          <FInput name="country" required maxLength={2} minLength={2}
+                  style={{ textTransform: "uppercase" }} placeholder="US / GB / NG" /></FField>
       </Row>
-      {error && <Err>{error}</Err>}
-      <Primary type="submit" disabled={busy}>{busy ? "Placing order…" : "Place order"}</Primary>
+      {error && <FBanner $tone="danger">{error}</FBanner>}
+      <FBtnGold type="submit" disabled={busy} style={{ alignSelf: "flex-start", marginTop: 10 }}>
+        {busy ? "Placing order…" : "Place order"}
+      </FBtnGold>
     </Form>
   );
 }
 
-const Form = styled.form`display:flex;flex-direction:column;gap:10px;`;
+const Form = styled.form`display:flex;flex-direction:column;gap:4px;`;
 const Row = styled.div`display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;`;
-const Field = styled.div`
-  display:flex;flex-direction:column;gap:4px;
-  label{font-size:12px;color:var(--text-muted,#a89880);text-transform:uppercase;letter-spacing:.05em;}
-  input{background:var(--bg2,#0d0b08);color:var(--text,#f5f0e8);
-    border:1px solid var(--border,#2a2218);border-radius:6px;padding:8px 10px;font-size:14px;}
-`;
-const Primary = styled.button`
-  align-self:flex-start;background:var(--gold,#c9a227);color:#000;border:none;border-radius:6px;
-  padding:11px 16px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;
-  &:hover{background:var(--gold-light,#f0c040);} &:disabled{opacity:.6;}
-`;
-const Err = styled.div`color:var(--status-urgent,#ff6b7a);font-size:13px;`;
-const Ok = styled.div`
-  padding:14px;color:var(--text,#f5f0e8);
-  background:rgba(79,176,125,.08);border:1px solid var(--status-online,#4fb07d);border-radius:8px;
-`;

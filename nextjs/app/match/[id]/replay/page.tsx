@@ -1,11 +1,10 @@
 import { notFound } from "next/navigation";
-import nextDynamic from "next/dynamic";
 import Link from "next/link";
 import { getMatch } from "@/lib/db/collections/matches";
+import FeaturePage from "@/components/feature/FeaturePage";
+import Replay from "./ReplayClient";
 
 export const dynamic = "force-dynamic";
-
-const Replay = nextDynamic(() => import("@/components/game/ReplayViewer"), { ssr: false });
 
 export async function generateMetadata(
   { params }: { params: Promise<{ id: string }> },
@@ -27,23 +26,20 @@ export default async function MatchReplayPage(
   if (!match) notFound();
   if (match.status !== "finished" && match.status !== "abandoned") {
     return (
-      <main style={{ padding: "100px 20px", maxWidth: 520, margin: "0 auto", textAlign: "center" }}>
-        <h1 style={{ color: "var(--text,#f5f0e8)" }}>Match still in play</h1>
-        <p style={{ color: "var(--text-muted,#a89880)" }}>
-          Replays are available after a match ends.{" "}
-          <Link href={`/match/${match.id}`} style={{ color: "var(--gold-light,#f0c040)" }}>Open the live match</Link>.
-        </p>
-      </main>
+      <FeaturePage eyebrow="Replay" title="Match still in play"
+                   subtitle={<>Replays become available once a match ends. <Link href={`/match/${match.id}`} style={{color:"var(--gold-light,#f0c040)"}}>Open the live match</Link>.</>}
+                   centered narrow>
+        <div />
+      </FeaturePage>
     );
   }
   return (
-    <main style={{ padding: "100px 20px 60px", maxWidth: 1000, margin: "0 auto" }}>
-      <p style={{ color: "var(--gold,#c9a227)", fontSize: 12, letterSpacing: ".12em",
-                  textTransform: "uppercase", margin: "0 0 6px" }}>Replay</p>
-      <h1 style={{ margin: "0 0 16px", color: "var(--text,#f5f0e8)", fontSize: 24 }}>
-        {match.challenger.displayName} vs {match.opponent.displayName}
-      </h1>
+    <FeaturePage
+      eyebrow="Replay"
+      title={`${match.challenger.displayName} vs ${match.opponent.displayName}`}
+      subtitle={`${match.game.replace("-", " ")} · ${match.moves.length} plies`}
+    >
       <Replay match={match} />
-    </main>
+    </FeaturePage>
   );
 }

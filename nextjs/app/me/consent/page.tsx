@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { currentPlayer } from "@/lib/auth/player-session";
+import FeaturePage from "@/components/feature/FeaturePage";
+import { FBanner } from "@/components/feature/primitives";
 import ConsentRequestForm from "./ConsentRequestForm";
 
 export const dynamic = "force-dynamic";
@@ -9,28 +11,29 @@ export default async function MyConsentPage() {
   if (!me) redirect("/signin?next=/me/consent");
   if (!me.isMinor) {
     return (
-      <main style={{ padding: "100px 20px", maxWidth: 540, margin: "0 auto" }}>
-        <h1 style={{ color: "var(--text,#f5f0e8)" }}>No consent required</h1>
-        <p style={{ color: "var(--text-muted,#a89880)" }}>Your account is already an adult account.</p>
-      </main>
+      <FeaturePage eyebrow="Account" title="No consent required"
+                   subtitle="Your account is already an adult account." centered narrow>
+        <div />
+      </FeaturePage>
     );
   }
   if (me.consentStatus === "parental-granted") {
     return (
-      <main style={{ padding: "100px 20px", maxWidth: 540, margin: "0 auto" }}>
-        <h1 style={{ color: "var(--text,#f5f0e8)" }}>Consent granted</h1>
-        <p style={{ color: "var(--text-muted,#a89880)" }}>You have full access to messaging and challenges.</p>
-      </main>
+      <FeaturePage eyebrow="Account" title="Consent granted"
+                   subtitle="You have full access to messaging and challenges." centered narrow>
+        <FBanner $tone="success">Welcome aboard.</FBanner>
+      </FeaturePage>
     );
   }
   return (
-    <main style={{ padding: "100px 20px 60px", maxWidth: 540, margin: "0 auto" }}>
-      <h1 style={{ color: "var(--text,#f5f0e8)", margin: 0 }}>Parental consent</h1>
-      <p style={{ color: "var(--text-muted,#a89880)", marginTop: 6 }}>
-        Enter a parent or guardian's email. We'll send them a one-time link to
-        complete the $0.50 (refunded) verification charge.
-      </p>
+    <FeaturePage
+      eyebrow="Account"
+      title="Parental consent"
+      subtitle="Enter a parent or guardian's email. We'll send them a one-time link to complete the $0.50 (refunded) verification charge."
+      centered
+      narrow
+    >
       <ConsentRequestForm />
-    </main>
+    </FeaturePage>
   );
 }

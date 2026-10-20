@@ -1,11 +1,12 @@
 import { notFound } from "next/navigation";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { getPuzzle } from "@/lib/db/collections/puzzles";
-
-const Player = dynamic(() => import("@/components/game/PuzzlePlayer"), { ssr: false });
+import FeaturePage from "@/components/feature/FeaturePage";
+import { FChip } from "@/components/feature/primitives";
+import Player from "./PlayerClient";
 
 export const dynamicParams = true;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> },
@@ -27,13 +28,17 @@ export default async function PuzzleDetail(
   if (!puzzle) notFound();
 
   return (
-    <main style={{ padding: "100px 20px 60px", maxWidth: 900, margin: "0 auto" }}>
-      <Link href="/puzzles" style={{ color: "var(--gold,#c9a227)", textDecoration: "none", fontSize: 14 }}>
+    <FeaturePage
+      eyebrow={`${puzzle.game === "royal-checkers" ? "Royal Checkers" : "Imperial Kings"} · Puzzle`}
+      title={puzzle.title}
+      subtitle={puzzle.prompt}
+      action={<FChip $tone={puzzle.tier === "kid" ? "info" : "gold"}>{puzzle.tier}</FChip>}
+    >
+      <Link href="/puzzles" style={{ color: "var(--gold,#c9a227)", textDecoration: "none",
+                                      fontSize: 14, display: "inline-block", marginBottom: 20 }}>
         ← All puzzles
       </Link>
-      <div style={{ marginTop: 20 }}>
-        <Player puzzle={puzzle} />
-      </div>
-    </main>
+      <Player puzzle={puzzle} />
+    </FeaturePage>
   );
 }

@@ -3,6 +3,10 @@
 import { useActionState } from "react";
 import styled from "styled-components";
 import { signoutAction, updateProfileAction } from "../(player)/account-actions";
+import {
+  FField, FLabel, FInput, FSelect, FTextarea,
+  FBtnGold, FBtnDanger, FBanner,
+} from "@/components/feature/primitives";
 
 interface Props {
   initial: { displayName: string; bio: string; publicProfile: boolean; isMinor: boolean; region: string; };
@@ -13,17 +17,17 @@ export default function MeForm({ initial }: Props) {
   return (
     <>
       <Form action={formAction}>
-        <Field>
-          <label>Display name</label>
-          <input name="displayName" defaultValue={initial.displayName} required maxLength={40} />
-        </Field>
-        <Field>
-          <label>Bio</label>
-          <textarea name="bio" defaultValue={initial.bio} maxLength={400} rows={3} />
-        </Field>
-        <Field>
-          <label>Region</label>
-          <select name="region" defaultValue={initial.region}>
+        <FField>
+          <FLabel>Display name</FLabel>
+          <FInput name="displayName" defaultValue={initial.displayName} required maxLength={40} />
+        </FField>
+        <FField>
+          <FLabel>Bio</FLabel>
+          <FTextarea name="bio" defaultValue={initial.bio} maxLength={400} rows={3} />
+        </FField>
+        <FField>
+          <FLabel>Region</FLabel>
+          <FSelect name="region" defaultValue={initial.region}>
             <option value="global">Global (no region)</option>
             <option value="na">North America</option>
             <option value="sa">South America</option>
@@ -31,66 +35,35 @@ export default function MeForm({ initial }: Props) {
             <option value="africa">Africa</option>
             <option value="asia">Asia</option>
             <option value="oceania">Oceania</option>
-          </select>
-        </Field>
+          </FSelect>
+        </FField>
         {!initial.isMinor && (
           <CheckRow>
-            <input type="checkbox" name="publicProfile" id="publicProfile"
-                   defaultChecked={initial.publicProfile} />
+            <input type="checkbox" name="publicProfile" id="publicProfile" defaultChecked={initial.publicProfile} />
             <label htmlFor="publicProfile">
               Public profile — your rating and stats visible at /u/username
             </label>
           </CheckRow>
         )}
         {initial.isMinor && (
-          <Note>Minors (under 18) have a private profile by default; it cannot be made public.</Note>
+          <FBanner $tone="info">Minors (under 18) have a private profile by default; it cannot be made public.</FBanner>
         )}
-        {state?.error && <ErrorBanner role="alert">{state.error}</ErrorBanner>}
-        {state?.ok && <OkBanner>Saved.</OkBanner>}
-        <Submit disabled={pending}>{pending ? "Saving…" : "Save profile"}</Submit>
+        {state?.error && <FBanner $tone="danger" role="alert">{state.error}</FBanner>}
+        {state?.ok && <FBanner $tone="success">Saved.</FBanner>}
+        <FBtnGold type="submit" disabled={pending} style={{ alignSelf: "flex-start", marginTop: 6 }}>
+          {pending ? "Saving…" : "Save profile"}
+        </FBtnGold>
       </Form>
-      <form action={signoutAction} style={{ marginTop: 20 }}>
-        <SignOut type="submit">Sign out</SignOut>
+      <form action={signoutAction} style={{ marginTop: 24 }}>
+        <FBtnDanger type="submit">Sign out</FBtnDanger>
       </form>
     </>
   );
 }
 
-const Form = styled.form`display:flex;flex-direction:column;gap:12px;`;
-const Field = styled.div`
-  display:flex;flex-direction:column;gap:4px;
-  label{font-size:13px;color:var(--text-muted,#a89880);text-transform:uppercase;letter-spacing:.05em;}
-  input,textarea{
-    background:var(--bg2,#0d0b08);color:var(--text,#f5f0e8);
-    border:1px solid var(--border,#2a2218);border-radius:6px;
-    padding:10px 12px;font-size:14px;font-family:inherit;
-  }
-`;
+const Form = styled.form`display:flex;flex-direction:column;gap:4px;`;
 const CheckRow = styled.div`
-  display:flex;gap:10px;align-items:flex-start;
-  input{margin-top:3px;}
+  display:flex;gap:10px;align-items:flex-start;margin:6px 0 10px;
+  input{margin-top:3px;accent-color:var(--gold,#c9a227);}
   label{color:var(--text,#f5f0e8);font-size:14px;}
-`;
-const Note = styled.p`
-  font-size:13px;color:var(--text-muted,#a89880);margin:0;
-  padding:10px;background:rgba(76,124,224,.08);border:1px solid var(--minor-badge,#4c7ce0);border-radius:6px;
-`;
-const Submit = styled.button`
-  align-self:flex-start;background:var(--gold,#c9a227);color:#000;border:none;border-radius:6px;
-  padding:10px 14px;font-size:14px;font-weight:600;cursor:pointer;
-  &:hover{background:var(--gold-light,#f0c040);}
-  &:disabled{opacity:.6;}
-`;
-const SignOut = styled.button`
-  background:transparent;color:var(--text-muted,#a89880);border:1px solid var(--border,#2a2218);
-  border-radius:6px;padding:8px 12px;font-size:13px;cursor:pointer;
-  &:hover{color:var(--status-urgent,#ff6b7a);border-color:var(--status-urgent,#ff6b7a);}
-`;
-const ErrorBanner = styled.div`
-  padding:8px;border:1px solid var(--status-urgent,#ff6b7a);border-radius:6px;
-  color:var(--status-urgent,#ff6b7a);background:rgba(255,107,122,.08);font-size:13px;
-`;
-const OkBanner = styled.div`
-  padding:8px;border:1px solid var(--status-online,#4fb07d);border-radius:6px;
-  color:var(--status-online,#4fb07d);background:rgba(79,176,125,.08);font-size:13px;
 `;

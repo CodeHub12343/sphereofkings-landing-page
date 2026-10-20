@@ -1,12 +1,11 @@
 import { redirect, notFound } from "next/navigation";
-import nextDynamic from "next/dynamic";
 import { currentPlayer } from "@/lib/auth/player-session";
 import { enforceTurnTimeout, getMatch } from "@/lib/db/collections/matches";
+import FeaturePage from "@/components/feature/FeaturePage";
+import MatchBoard from "./MatchBoardClient";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-const MatchBoard = nextDynamic(() => import("@/components/game/MatchBoard"), { ssr: false });
 
 export async function generateMetadata(
   { params }: { params: Promise<{ id: string }> },
@@ -30,18 +29,25 @@ export default async function MatchPage(
   const parties = [raw.challenger.playerId, raw.opponent.playerId];
   if (!parties.includes(me.id)) {
     return (
-      <main style={{ padding: "100px 20px", maxWidth: 520, margin: "0 auto", textAlign: "center" }}>
-        <h1 style={{ color: "var(--text,#f5f0e8)" }}>Not your match</h1>
-        <p style={{ color: "var(--text-muted,#a89880)" }}>
-          Only the two players can view this match.
-        </p>
-      </main>
+      <FeaturePage
+        eyebrow="Match"
+        title="Not your match"
+        subtitle="Only the two players can view this match."
+        centered
+        narrow
+      >
+        <div />
+      </FeaturePage>
     );
   }
   const match = await enforceTurnTimeout(raw);
   return (
-    <main style={{ padding: "100px 20px 60px", maxWidth: 1000, margin: "0 auto" }}>
+    <FeaturePage
+      eyebrow="Live match"
+      title={`${match.challenger.displayName} vs ${match.opponent.displayName}`}
+      subtitle={`${match.game.replace("-", " ")} · ${match.status}`}
+    >
       <MatchBoard initial={match} viewerId={me.id} />
-    </main>
+    </FeaturePage>
   );
 }

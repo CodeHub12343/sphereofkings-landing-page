@@ -1,10 +1,10 @@
 import { redirect, notFound } from "next/navigation";
-import nextDynamic from "next/dynamic";
 import { currentPlayer } from "@/lib/auth/player-session";
 import { getConversation, listMessages, updateConversation } from "@/lib/db/collections/safety-io";
+import FeaturePage from "@/components/feature/FeaturePage";
+import Thread from "./Thread";
 
 export const dynamic = "force-dynamic";
-const Thread = nextDynamic(() => import("./Thread"), { ssr: false });
 
 export default async function ConversationPage(
   { params }: { params: Promise<{ conversationId: string }> },
@@ -29,13 +29,18 @@ export default async function ConversationPage(
   };
 
   return (
-    <main style={{ padding: "100px 20px 60px", maxWidth: 720, margin: "0 auto" }}>
+    <FeaturePage
+      eyebrow="Direct message"
+      title={other.displayName}
+      subtitle={`@${other.username}`}
+      narrow
+    >
       <Thread
         conversationId={conversationId}
         other={other}
         meId={me.id}
         initialMessages={messages}
       />
-    </main>
+    </FeaturePage>
   );
 }

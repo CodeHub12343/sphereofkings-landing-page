@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { currentPlayer } from "@/lib/auth/player-session";
 import { getDesign } from "@/lib/db/collections/sphere-designs";
+import FeaturePage from "@/components/feature/FeaturePage";
 import OrderForm from "./OrderForm";
 
 export const dynamic = "force-dynamic";
@@ -16,18 +17,20 @@ export default async function OrderCustomSphere(
   if (design.playerId !== me.id) notFound();
 
   return (
-    <main style={{ padding: "100px 20px 60px", maxWidth: 700, margin: "0 auto" }}>
-      <h1 style={{ margin: 0, color: "var(--text,#f5f0e8)", fontSize: 24 }}>Order a custom sphere</h1>
-      <p style={{ color: "var(--text-muted,#a89880)", margin: "6px 0 20px" }}>
-        Design: <strong style={{ color: "var(--gold-light,#f0c040)" }}>{design.title}</strong>.
-        Hand-finished. $149 USD plus shipping (calculated at the next step).
-      </p>
+    <FeaturePage
+      eyebrow="Custom physical order"
+      title="Order a custom sphere"
+      subtitle={<>Design: <strong style={{color:"var(--gold-light,#f0c040)"}}>{design.title}</strong>. Hand-finished. $149 USD plus shipping (calculated at the next step).</>}
+      narrow
+    >
       {(design.previewBlobKey || design.previewDataUrl) && (
         /* eslint-disable-next-line @next/next/no-img-element */
         <img src={design.previewBlobKey ?? design.previewDataUrl ?? ""} alt="Design preview"
-             style={{ width: 240, borderRadius: 8, border: "1px solid var(--border,#2a2218)", marginBottom: 20 }} />
+             style={{ width: "100%", maxWidth: 320, borderRadius: 10,
+                      border: "1px solid var(--border,#2a2218)", marginBottom: 24,
+                      imageRendering: "pixelated" }} />
       )}
       <OrderForm designId={designId} />
-    </main>
+    </FeaturePage>
   );
 }

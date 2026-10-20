@@ -7,3 +7,9 @@ Thumbs.db
 .vscode/
 .idea/
 *.log
+
+# TypeScript incremental build artifact
+nextjs/tsconfig.tsbuildinfo
+
+# Local dev launch config (preview_start)
+.claude/launch.json

@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { consentByToken } from "@/lib/db/collections/safety-io";
 import { findPlayerById } from "@/lib/db/collections/players";
+import FeaturePage from "@/components/feature/FeaturePage";
+import { FBanner, FSectionTitle } from "@/components/feature/primitives";
 import ConsentForm from "./ConsentForm";
 
 export const dynamic = "force-dynamic";
@@ -14,62 +17,61 @@ export default async function ConsentPage(
 
   if (consent.status !== "pending") {
     return (
-      <main style={{ padding: "100px 20px", maxWidth: 540, margin: "0 auto" }}>
-        <h1 style={{ color: "var(--text,#f5f0e8)" }}>
-          Already {consent.status}
-        </h1>
-        <p style={{ color: "var(--text-muted,#a89880)" }}>
-          This consent request has already been resolved. If you believe this is a mistake,
-          contact support at hello@sphereofkings.com.
-        </p>
-      </main>
+      <FeaturePage
+        eyebrow="Parental consent"
+        title={`Already ${consent.status}`}
+        subtitle="This consent request has already been resolved."
+        centered
+        narrow
+      >
+        <FBanner $tone="info">
+          If you believe this is a mistake, contact support at <a href="mailto:hello@sphereofkings.com"
+            style={{color:"var(--gold-light,#f0c040)"}}>hello@sphereofkings.com</a>.
+        </FBanner>
+      </FeaturePage>
     );
   }
   if (new Date(consent.tokenExpiresAt).getTime() < Date.now()) {
     return (
-      <main style={{ padding: "100px 20px", maxWidth: 540, margin: "0 auto" }}>
-        <h1 style={{ color: "var(--text,#f5f0e8)" }}>Link expired</h1>
-        <p style={{ color: "var(--text-muted,#a89880)" }}>Ask your child to request a new consent email.</p>
-      </main>
+      <FeaturePage eyebrow="Parental consent" title="Link expired"
+                   subtitle="Ask your child to request a new consent email." centered narrow>
+        <div />
+      </FeaturePage>
     );
   }
   const player = await findPlayerById(consent.playerId);
   if (!player) notFound();
 
   return (
-    <main style={{ padding: "100px 20px 60px", maxWidth: 540, margin: "0 auto" }}>
-      <h1 style={{ color: "var(--text,#f5f0e8)", margin: 0 }}>Parental consent</h1>
-      <p style={{ color: "var(--text-muted,#a89880)", marginTop: 6 }}>
-        Your child <strong>{player.displayName}</strong> (@{player.username}) is asking
-        for consent to use Sphere of Kings.
-      </p>
-      <section style={{
-        margin: "20px 0", padding: 16,
-        background: "var(--bg2,#0d0b08)",
-        border: "1px solid var(--border,#2a2218)", borderRadius: 8,
-      }}>
-        <h2 style={{ fontSize: 15, color: "var(--gold-light,#f0c040)", margin: "0 0 10px" }}>
-          What Sphere of Kings does with their data
-        </h2>
-        <ul style={{ color: "var(--text,#f5f0e8)", fontSize: 14, paddingLeft: 20, margin: 0, lineHeight: 1.6 }}>
+    <FeaturePage
+      eyebrow="Verifiable parental consent"
+      title="Parental consent"
+      subtitle={<>Your child <strong style={{color:"var(--gold-light,#f0c040)"}}>{player.displayName}</strong> (@{player.username}) is asking for consent to use Sphere of Kings.</>}
+      centered
+      narrow
+    >
+      <section style={{ marginBottom: 24, padding: 16,
+                        background: "var(--bg2,#0d0b08)",
+                        border: "1px solid var(--border,#2a2218)", borderRadius: 10 }}>
+        <FSectionTitle>What Sphere of Kings does with their data</FSectionTitle>
+        <ul style={{ color: "var(--text,#f5f0e8)", fontSize: 14, paddingLeft: 20, margin: 0, lineHeight: 1.75 }}>
           <li>Stores only year of birth (not full DOB).</li>
           <li>Keeps the profile private by default; the leaderboard hides minors.</li>
           <li>Blocks messaging and challenges until this consent is granted.</li>
           <li>No ad-tracking. No third-party profile sharing.</li>
-          <li>Full details at <a href="/content/policy/child-safety.md" style={{ color: "var(--gold-light,#f0c040)" }}>our child-safety policy</a>.</li>
+          <li>Full details at <Link href="/content/policy/child-safety.md"
+            style={{color:"var(--gold-light,#f0c040)"}}>our child-safety policy</Link>.</li>
         </ul>
       </section>
-      <section style={{ margin: "16px 0" }}>
-        <p style={{ color: "var(--text,#f5f0e8)", fontSize: 14, margin: "0 0 10px" }}>
-          To verify you are an adult (COPPA-compliant), we take a one-time{" "}
-          <strong>$0.50 USD</strong> charge and refund it immediately.
-          The charge shows as <code>SPHEREOFKINGS CONSENT</code>.
-        </p>
-      </section>
+      <p style={{ color: "var(--text,#f5f0e8)", fontSize: 14, lineHeight: 1.7, marginBottom: 20 }}>
+        To verify you are an adult (COPPA-compliant), we take a one-time{" "}
+        <strong style={{color:"var(--gold-light,#f0c040)"}}>$0.50 USD</strong> charge and refund it immediately.
+        The charge shows as <code>SPHEREOFKINGS CONSENT</code>.
+      </p>
       <ConsentForm token={consent.token} />
-      <p style={{ color: "var(--text-muted,#a89880)", fontSize: 12, marginTop: 16 }}>
+      <p style={{ color: "var(--text-muted)", fontSize: 12, marginTop: 20 }}>
         You can withdraw consent at any time by emailing hello@sphereofkings.com.
       </p>
-    </main>
+    </FeaturePage>
   );
 }
