@@ -9,9 +9,6 @@ import {
 export const dynamic = "force-dynamic";
 
 export async function generateStaticParams() {
-  // Pre-build the known catalog paths. The route is dynamic anyway so
-  // new slugs that admins add after the build still render fine — this
-  // just gives first-paint for the known set.
   const products = await listProducts().catch(() => []);
   return products.map((p) => ({ slug: p.slug }));
 }
@@ -25,19 +22,21 @@ export async function generateMetadata({
   const product = await findProductBySlug(slug);
   if (!product) return { title: "Not found — Sphere of Kings" };
   return {
-    title: `${product.name} — Sphere of Kings Christmas Early Bird`,
-    description: product.description,
+    title: `${product.name} — Sphere of Kings`,
+    description: product.description.slice(0, 160),
   };
 }
 
-export default async function ProductPage({
+export default async function ShopProductPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = await findProductBySlug(slug);
+  const [product, catalog] = await Promise.all([
+    findProductBySlug(slug),
+    listProducts().catch(() => []),
+  ]);
   if (!product) notFound();
-
-  return <ShopDetailShell product={product} />;
+  return <ShopDetailShell product={product} catalog={catalog} />;
 }
