@@ -13,3 +13,14 @@ nextjs/tsconfig.tsbuildinfo
 
 # Local dev launch config (preview_start)
 .claude/launch.json
+
+# Recovered-subscriber lists — contain real PII, must never leave the dev box.
+# Belongs in the Mongo subscribers collection, imported via import-subscribers.mjs.
+nextjs/scripts/recovered-subscribers.txt
+nextjs/scripts/recovered-gmail.txt
+
+# Any top-level .env file (defense-in-depth; the nextjs/.gitignore already
+# covers nextjs/.env*.local, this blocks any .env anywhere in the repo).
+.env
+.env.*
+!.env.example

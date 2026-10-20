@@ -23,6 +23,18 @@ export const FEATURE_FLAGS = {
   // Custom-image sphere uploads. Image moderation gate must pass
   // AWS Rekognition / Hive integration first.
   customImageSpheres: process.env.FEATURE_CUSTOM_IMAGE_SPHERES === "1",
+
+  // Referral sweepstakes. Rules are counsel-approved as of
+  // 2026-10-20, so entries are OPEN by default. Set
+  // FEATURE_SWEEPSTAKES_ENTRIES=0 to kill-switch public entry
+  // without redeploying (e.g. to pause between rounds); any other
+  // value keeps the public /sweepstakes form live.
+  sweepstakesEntries: process.env.FEATURE_SWEEPSTAKES_ENTRIES !== "0",
+
+  // Designer licensing marketplace. The $5,000 Stripe charge + NDA
+  // generation cannot fire until the license agreement template is
+  // signed off by counsel.
+  licensingMarketplace: process.env.FEATURE_LICENSING_MARKETPLACE === "1",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAGS;

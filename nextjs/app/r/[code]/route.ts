@@ -1,105 +1,65 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { cookies, headers } from "next/headers";
 import {
-  AFF_ATTR_COOKIE,
-  AFF_FIRST_COOKIE,
-  AFF_TOUCHES_COOKIE,
-  AFF_ATTR_MAX_AGE_SECONDS,
-  appendTouch,
-  encodeAttrCookie,
-  encodeTouchesCookie,
-  parseAttrCookie,
-  parseTouchesCookie,
-} from "@/lib/affiliate-auth";
-import { findAffiliateByCode } from "@/lib/db/collections/affiliates";
+  ensureReferralIndexes, findCode, recordEvent,
+} from "@/lib/db/collections/referrals";
+import { hashVisitor, hashIp, newCookieId } from "@/lib/sweepstakes";
 
-// Needs Node (not Edge) because it hits Mongo to look the code up.
 export const runtime = "nodejs";
 
-// /r/[code] — the public referral entry point. Validates the code and
-// drops the attribution cookie, then 302s to the destination. Unknown or
-// suspended codes still redirect (so a mis-shared link still works for
-// the customer), but no cookie is set.
-//
-// Open-redirect safe: `?to=` is honored only when it is a relative,
-// single-slash path.
+const COOKIE_NAME = "sok_ref";
+const VISITOR_COOKIE = "sok_vid";
+const COOKIE_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
+
+/**
+ * /r/<code> — referral landing. Sets a 30-day cookie carrying the
+ * referral code, logs the click, then 302 to the home page. Signups
+ * that happen while this cookie is set are attributed to the code.
+ */
 export async function GET(
-  req: NextRequest,
-  ctx: { params: Promise<{ code: string }> },
+  _req: Request,
+  { params }: { params: Promise<{ code: string }> },
 ) {
-  const { code } = await ctx.params;
-  const to = req.nextUrl.searchParams.get("to") ?? "/shop";
-  const dest = isSafeInternalPath(to) ? to : "/shop";
-  const url = new URL(dest, req.nextUrl.origin);
+  const { code } = await params;
+  const jar = await cookies();
+  const h = await headers();
 
-  const upper = decodeURIComponent(code).trim().toUpperCase();
-  // Mongo lookup — recognises both the seeded sample affiliates and
-  // self-signup codes (SOV-xxx-xxxx) created via /affiliate/apply.
-  const found = await findAffiliateByCode(upper).catch(() => undefined);
-  const eligible = found && found.state === "active";
+  await ensureReferralIndexes().catch(() => {});
 
-  const res = NextResponse.redirect(url, 302);
-  res.headers.set("Cache-Control", "no-store");
-
-  if (eligible) {
-    const nowISO = new Date().toISOString();
-    const previousLast = parseAttrCookie(
-      req.cookies.get(AFF_ATTR_COOKIE)?.value ?? "",
-    );
-    // Preserve the LAST-TOUCH timestamp on repeat clicks for the same
-    // code so the window can't be reset by clicking the link again.
-    const lastClickISO =
-      previousLast && previousLast.code === upper
-        ? previousLast.firstClickISO
-        : nowISO;
-    res.cookies.set(AFF_ATTR_COOKIE, encodeAttrCookie(upper, lastClickISO), {
-      maxAge: AFF_ATTR_MAX_AGE_SECONDS,
-      sameSite: "lax",
-      path: "/",
-    });
-
-    // First-touch cookie — only write it when it isn't already set.
-    // That makes it genuinely "first touch" across the shopper's whole
-    // 30-day journey, even if they click different affiliate links.
-    const firstTouch = parseAttrCookie(
-      req.cookies.get(AFF_FIRST_COOKIE)?.value ?? "",
-    );
-    if (!firstTouch) {
-      res.cookies.set(
-        AFF_FIRST_COOKIE,
-        encodeAttrCookie(upper, nowISO),
-        {
-          maxAge: AFF_ATTR_MAX_AGE_SECONDS,
-          sameSite: "lax",
-          path: "/",
-        },
-      );
-    }
-
-    // Touches cookie — ordered history (oldest-first) of unique codes
-    // the shopper has clicked. Powers linear + u-shape attribution.
-    const previousTouches = parseTouchesCookie(
-      req.cookies.get(AFF_TOUCHES_COOKIE)?.value ?? "",
-    );
-    const nextTouches = appendTouch(previousTouches, upper, nowISO);
-    res.cookies.set(
-      AFF_TOUCHES_COOKIE,
-      encodeTouchesCookie(nextTouches),
-      {
-        maxAge: AFF_ATTR_MAX_AGE_SECONDS,
-        sameSite: "lax",
-        path: "/",
-      },
-    );
+  const row = await findCode(code).catch(() => null);
+  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "/";
+  if (!row || !row.active) {
+    return NextResponse.redirect(new URL("/", site));
   }
-  return res;
-}
 
-function isSafeInternalPath(p: string): boolean {
-  if (typeof p !== "string") return false;
-  if (!p.startsWith("/")) return false;
-  // Reject //example.com style open-redirects and protocol-relative URLs.
-  if (p.startsWith("//")) return false;
-  // Reject anything that smells like a scheme.
-  if (/^\/\\?/.test(p)) return false;
-  return true;
+  // Visitor id — stable per-browser cookie used for de-duplication.
+  let vid = jar.get(VISITOR_COOKIE)?.value;
+  if (!vid) {
+    vid = newCookieId();
+    jar.set(VISITOR_COOKIE, vid, {
+      httpOnly: true, sameSite: "lax", path: "/",
+      maxAge: 60 * 60 * 24 * 365 * 2, // 2 years
+    });
+  }
+  // Attribution cookie — scoped to the one code.
+  jar.set(COOKIE_NAME, row.code, {
+    httpOnly: false, // non-sensitive and we check it on the client at times
+    sameSite: "lax", path: "/",
+    maxAge: COOKIE_TTL_SECONDS,
+  });
+
+  // Log the click. Verification happens at the conversion step; clicks
+  // are always recorded for admin visibility.
+  await recordEvent({
+    code: row.code,
+    kind: "click",
+    visitorHash: hashVisitor(vid),
+    ipHash: hashIp(h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? h.get("x-real-ip")),
+    userAgentHash: undefined,
+    verified: false,
+    reason: "click",
+    attributedPlayerId: row.playerId,
+  }).catch(() => {});
+
+  return NextResponse.redirect(new URL("/", site));
 }
