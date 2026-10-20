@@ -22,7 +22,9 @@ const PRODUCTS_PATH = path.join(DATA_DIR, "products.json");
 let mongoSeedChecked = false;
 async function ensureMongoSeeded(): Promise<void> {
   if (mongoSeedChecked) return;
-  mongoSeedChecked = true;
+  // Only flip the flag after a successful round-trip, so a transient
+  // Atlas outage on the first request doesn't permanently skip the
+  // seed on later requests.
   const col = await getCollection<Product>(COLLECTION);
   await col.createIndex({ slug: 1 }, { unique: true }).catch(() => {});
   const count = await col.estimatedDocumentCount();
@@ -32,6 +34,7 @@ async function ensureMongoSeeded(): Promise<void> {
       // either way.
     });
   }
+  mongoSeedChecked = true;
 }
 
 /* -------------------------- File backend --------------------------- */
@@ -55,45 +58,83 @@ async function fileReadAll(): Promise<Product[]> {
     const raw = await fs.readFile(PRODUCTS_PATH, "utf8");
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
+  } catch (err) {
+    // Corrupt file (two writers raced, truncated write, bad hand-edit).
+    // Fall back to the seed catalog so the shop never appears empty.
+    console.warn(
+      "fileReadAll: products.json unreadable, falling back to PRODUCTS seed:",
+      err instanceof Error ? err.message : err,
+    );
+    try {
+      await fileWriteAll(PRODUCTS);
+    } catch {}
+    return PRODUCTS;
   }
 }
 
 async function fileWriteAll(products: Product[]): Promise<void> {
   await ensureFileStore();
-  await fs.writeFile(
-    PRODUCTS_PATH,
-    JSON.stringify(products, null, 2),
-    "utf8",
-  );
+  // Write to a temp file then rename — atomic swap on POSIX and
+  // Windows NTFS. Prevents a half-written products.json leaving the
+  // shop empty when a crash/race truncates the file.
+  const tmp = `${PRODUCTS_PATH}.${process.pid}.${Date.now()}.tmp`;
+  await fs.writeFile(tmp, JSON.stringify(products, null, 2), "utf8");
+  await fs.rename(tmp, PRODUCTS_PATH);
 }
 
 /* -------------------------- Public API ----------------------------- */
 
+function sortedFileRead(): Promise<Product[]> {
+  return fileReadAll().then((rows) =>
+    [...rows].sort((a, b) =>
+      (a.sortOrder ?? 999) - (b.sortOrder ?? 999) || a.slug.localeCompare(b.slug),
+    ),
+  );
+}
+
 export async function listProducts(): Promise<Product[]> {
   if (hasMongo()) {
-    await ensureMongoSeeded();
-    const col = await getCollection<Product>(COLLECTION);
-    return col
-      .find({}, { projection: { _id: 0 } })
-      .sort({ slug: 1 })
-      .toArray();
+    try {
+      await ensureMongoSeeded();
+      const col = await getCollection<Product>(COLLECTION);
+      // Owner-signed ordering: rewards first (sortOrder 1..7), add-ons
+      // after (8..13). Falls back to slug for any seed-less rows left
+      // over from older runs.
+      const rows = await col
+        .find({}, { projection: { _id: 0 } })
+        .sort({ sortOrder: 1, slug: 1 })
+        .toArray();
+      if (rows.length > 0) return rows;
+    } catch (err) {
+      // Transient Atlas timeout — degrade to the file store so dev
+      // doesn't hang. The next request retries Mongo automatically.
+      console.warn("listProducts: Mongo unavailable, falling back to file store:",
+                   err instanceof Error ? err.message : err);
+    }
   }
-  return fileReadAll();
+  return sortedFileRead();
 }
 
 export async function findProductBySlug(
   slug: string,
 ): Promise<Product | undefined> {
   if (hasMongo()) {
-    await ensureMongoSeeded();
-    const col = await getCollection<Product>(COLLECTION);
-    const doc = await col.findOne(
-      { slug } as Filter<Product>,
-      { projection: { _id: 0 } },
-    );
-    return doc ?? undefined;
+    try {
+      await ensureMongoSeeded();
+      const col = await getCollection<Product>(COLLECTION);
+      const doc = await col.findOne(
+        { slug } as Filter<Product>,
+        { projection: { _id: 0 } },
+      );
+      if (doc) return doc;
+    } catch (err) {
+      // Mongo unreachable (transient Atlas outage, DNS, firewall) —
+      // fall back to the file store so detail pages still render.
+      console.warn(
+        "findProductBySlug: Mongo unavailable, falling back to file store:",
+        err instanceof Error ? err.message : err,
+      );
+    }
   }
   const all = await fileReadAll();
   return all.find((p) => p.slug === slug);

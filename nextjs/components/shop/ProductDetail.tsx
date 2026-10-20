@@ -6,6 +6,7 @@ import Link from "next/link";
 import DeliveryNotice from "./DeliveryNotice";
 import { Product, availability, formatMoney } from "@/lib/products";
 import { useCart } from "@/lib/cart";
+import FullDetailsTrigger from "./FullDetailsTrigger";
 
 const Crumbs = styled.nav`
   font-family: "Inter", sans-serif;
@@ -357,7 +358,7 @@ const Fine = styled.p`
   margin: 0;
 `;
 
-export default function ProductDetail({ product }: { product: Product }) {
+export default function ProductDetail({ product, children }: { product: Product; children?: React.ReactNode }) {
   const avail = availability(product);
   const soldOut = avail.kind === "sold-out";
   const lowStock = avail.kind === "low-stock";
@@ -487,6 +488,12 @@ export default function ProductDetail({ product }: { product: Product }) {
 
           <Title>{product.name}</Title>
           <Lede>{product.description}</Lede>
+          {product.fullDescription && (
+            <FullDetailsTrigger
+              title={product.name}
+              bodyMarkdown={product.fullDescription}
+            />
+          )}
 
           <PricePanel>
             <PriceTop>
@@ -565,6 +572,10 @@ export default function ProductDetail({ product }: { product: Product }) {
               </BuyRow>
             )}
           </PricePanel>
+
+          {/* Puzzle picker / photo uploader slot (ShopDetailShell injects
+              these when product.puzzleOptions / requiresPhotoUpload). */}
+          {children}
 
           <DeliveryNotice variant="early-bird" />
 
