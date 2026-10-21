@@ -18,12 +18,18 @@ export type SendResult =
   | { ok: true; id: string }
   | { ok: false; reason: string };
 
+// Two input shapes — exactly one of `react` or `html` must be set.
+//   • react : one of our table-based React email templates
+//   • html  : raw HTML (used for the few simple one-off emails that
+//             don't need a dedicated template file)
 export type SendInput = {
   to: string;
   subject: string;
-  react: ReactElement;
   replyTo?: string;
-};
+} & (
+  | { react: ReactElement; html?: never }
+  | { html: string; react?: never }
+);
 
 const DEFAULT_FROM = "Sphere of Kings <hello@sphereofkings.com>";
 
@@ -34,13 +40,21 @@ export async function sendEmail(input: SendInput): Promise<SendResult> {
   }
   const from = process.env.EMAIL_FROM || DEFAULT_FROM;
 
-  // Render the React email to static HTML. Our templates are
-  // table-based with inline styles already, so this round-trips
-  // identically to how Gmail / Outlook / Apple Mail will render it.
-  // Dynamic import prevents the React 19 build-time guard on
-  // `react-dom/server` from firing on any traced client chain.
-  const { renderToStaticMarkup } = await import("react-dom/server");
-  const html = renderToStaticMarkup(input.react);
+  // Resolve the HTML body. React templates render through
+  // renderToStaticMarkup (table-based + inlined styles so Gmail,
+  // Outlook and Apple Mail all show them identically). Raw-HTML
+  // inputs skip the render step entirely.
+  // Dynamic import of react-dom/server dodges the React 19 build-time
+  // guard that would otherwise fire on traced client chains.
+  let html: string;
+  if ("react" in input && input.react) {
+    const { renderToStaticMarkup } = await import("react-dom/server");
+    html = renderToStaticMarkup(input.react);
+  } else if ("html" in input && typeof input.html === "string") {
+    html = input.html;
+  } else {
+    return { ok: false, reason: "sendEmail: neither `react` nor `html` was provided" };
+  }
 
   try {
     const res = await fetch("https://api.resend.com/emails", {

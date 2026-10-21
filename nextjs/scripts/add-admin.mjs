@@ -2,7 +2,7 @@
 // Usage:
 //   node scripts/add-admin.mjs <email> <password> [displayName] [role]
 //
-//   node scripts/add-admin.mjs benjaminosei37@gmail.com Benjamin123# "Benjamin Osei" fulfillment
+//   node scripts/add-admin.mjs admin@example.com "<strong-password>" "Display Name" fulfillment
 //
 // Password is hashed with the SAME scrypt format the signin flow
 // expects (lib/auth/password.ts). Role defaults to "fulfillment".
