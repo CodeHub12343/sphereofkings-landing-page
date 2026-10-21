@@ -412,6 +412,7 @@ export default function AdminHeader({
                 {perAccount && user ? (
                   <ExitLink
                     href="/admin/signout"
+                    prefetch={false}
                     title={`${user.email} · ${user.role}`}
                   >
                     Sign out
@@ -476,7 +477,7 @@ export default function AdminHeader({
             ))}
             <DrawerFoot>
               {perAccount && user ? (
-                <DrawerExit href="/admin/signout" onClick={close}>
+                <DrawerExit href="/admin/signout" prefetch={false} onClick={close}>
                   Sign out
                 </DrawerExit>
               ) : (
