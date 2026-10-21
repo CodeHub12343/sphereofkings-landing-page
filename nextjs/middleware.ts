@@ -46,8 +46,22 @@ export async function middleware(req: NextRequest) {
       url.search = "";
       const res = NextResponse.redirect(url, 302);
       res.headers.set("Cache-Control", "no-store");
-      // Scrub a bad cookie so the signin page doesn't bounce back.
-      if (cookie) res.cookies.delete(ADMIN_SESSION_COOKIE);
+      // Scrub a bad cookie so the signin page doesn't bounce back —
+      // but ONLY on top-level navigations. A failing prefetch (RSC) or
+      // CORS fetch must never wipe the live session cookie, otherwise
+      // one transient verify miss on a background prefetch kills the
+      // user's whole session.
+      const isPrefetch =
+        req.headers.get("next-router-prefetch") === "1" ||
+        req.headers.get("purpose") === "prefetch" ||
+        req.headers.get("sec-purpose")?.includes("prefetch");
+      const isRsc = req.headers.get("rsc") === "1";
+      const isTopLevelNav =
+        req.headers.get("sec-fetch-mode") === "navigate" &&
+        req.headers.get("sec-fetch-dest") === "document";
+      if (cookie && isTopLevelNav && !isPrefetch && !isRsc) {
+        res.cookies.delete(ADMIN_SESSION_COOKIE);
+      }
       return res;
     }
     return NextResponse.next();
