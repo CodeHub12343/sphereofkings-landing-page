@@ -5,12 +5,16 @@ import styled from "styled-components";
 import { formatSubRelative, SubSource } from "@/lib/sample-subscribers";
 import type { StoredSubscriber, SubscriberStatus } from "@/lib/store/subscribers-store";
 import { resendConfirmationAction } from "@/app/subscribe/actions";
-import { broadcastLaunchAnnouncementAction } from "@/app/admin/subscribers/actions";
+import {
+  broadcastLaunchAnnouncementAction,
+  sendLaunchToSubscriberAction,
+} from "@/app/admin/subscribers/actions";
 
 type Filter = "all" | "consented" | "pending" | "unsubscribed";
 type Toast =
   | { kind: "idle" }
   | { kind: "copied"; email: string }
+  | { kind: "sent"; label: string }
   | { kind: "pending-wire"; count: number }
   | {
       kind: "confirm-url";
@@ -464,9 +468,9 @@ export default function SubscribersAdmin({
   };
 
   const sendOne = (s: Row) => {
-    // For pending subscribers we have a real confirmation URL to
-    // surface. For already-consented we just note that there's nothing
-    // to send until the launch email is wired.
+    // Pending-confirm rows: surface the confirmation URL for the
+    // operator to share. Consented rows: actually resend the launch
+    // email via Resend. Unsubscribed: nothing to do.
     if (s.status === "pending-confirm") {
       startTransition(async () => {
         const result = await resendConfirmationAction(s.email);
@@ -480,14 +484,43 @@ export default function SubscribersAdmin({
           setToast({ kind: "error", message: result.error });
         }
       });
-    } else {
-      setToast({ kind: "pending-wire", count: 1 });
+      return;
     }
+    if (s.status === "consented") {
+      startTransition(async () => {
+        const result = await sendLaunchToSubscriberAction(s.email);
+        if (result.ok) {
+          setToast({ kind: "sent", label: `Sent to ${result.email}` });
+        } else {
+          setToast({ kind: "error", message: result.error });
+        }
+      });
+      return;
+    }
+    setToast({ kind: "error", message: `Cannot send to ${s.status} rows.` });
   };
 
   const sendBulk = () => {
-    setToast({ kind: "pending-wire", count: selected.size });
-    setSelected(new Set());
+    const emails = Array.from(selected);
+    if (emails.length === 0) return;
+    startTransition(async () => {
+      let sent = 0;
+      let failed = 0;
+      for (const email of emails) {
+        const r = await sendLaunchToSubscriberAction(email);
+        if (r.ok) sent++;
+        else failed++;
+      }
+      setSelected(new Set());
+      if (failed === 0) {
+        setToast({ kind: "sent", label: `Sent to ${sent} subscriber${sent === 1 ? "" : "s"}` });
+      } else {
+        setToast({
+          kind: "error",
+          message: `Sent ${sent}, failed ${failed}. Check Audit for details.`,
+        });
+      }
+    });
   };
 
   // Broadcast the LaunchAnnouncement to EVERY consented subscriber.
@@ -712,7 +745,7 @@ export default function SubscribersAdmin({
             Showing {rows.length} of {totals.all}
           </span>
           <span>
-            Email provider not wired — Resend captures intent, no mail is sent.
+            Resend wired — the Resend and Broadcast buttons send real email to the subscriber.
           </span>
         </FootBar>
       </Card>
@@ -853,6 +886,29 @@ export default function SubscribersAdmin({
             <div>
               <h3 style={{ color: "#4fb07d" }}>Copied</h3>
             </div>
+          </ToastBody>
+        )}
+        {toast.kind === "sent" && (
+          <ToastBody style={{ borderColor: "#4fb07d" }}>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style={{ color: "#4fb07d" }}>
+              <path
+                d="M3 9l4 4 8-9"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <div>
+              <h3 style={{ color: "#4fb07d" }}>{toast.label}</h3>
+            </div>
+            <button
+              className="close"
+              aria-label="Dismiss"
+              onClick={() => setToast({ kind: "idle" })}
+            >
+              ×
+            </button>
           </ToastBody>
         )}
         {toast.kind === "error" && (

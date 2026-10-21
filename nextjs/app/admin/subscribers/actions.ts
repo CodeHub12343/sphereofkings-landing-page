@@ -72,6 +72,52 @@ export type ResendConfirmResult =
   | { ok: true; email: string }
   | { ok: false; error: string };
 
+export type SendLaunchToOneResult =
+  | { ok: true; email: string }
+  | { ok: false; error: string };
+
+/**
+ * Send the Launch Announcement to ONE already-consented subscriber.
+ * Used by the per-row "Resend" button for consented rows. Rate-limit
+ * safe for one-offs — no serial-loop concerns.
+ */
+export async function sendLaunchToSubscriberAction(
+  email: string,
+): Promise<SendLaunchToOneResult> {
+  const subs = await listSubscribers().catch(() => []);
+  const sub = subs.find((s) => s.email.toLowerCase() === email.toLowerCase());
+  if (!sub) return { ok: false, error: `No subscriber ${email}.` };
+  if (sub.status !== "consented") {
+    return {
+      ok: false,
+      error: `Subscriber is ${sub.status}, not consented — launch mail is only sent to consented rows.`,
+    };
+  }
+
+  const result = await sendEmail({
+    to: sub.email,
+    subject: "Christmas Early Bird preorders are open — Sphere of Kings",
+    react: createElement(LaunchAnnouncement, { firstName: sub.firstName }),
+  }).catch((e) => ({ ok: false, reason: (e as Error).message } as const));
+
+  const actor = await currentAdminActor();
+  await recordAuditEvent({
+    actor,
+    action: result.ok
+      ? "subscribers.launch.resent-one"
+      : "subscribers.launch.resend-one-failed",
+    target: { collection: "subscribers", id: sub.email },
+    summary: result.ok
+      ? `Resent launch to ${sub.email}`
+      : `Resend to ${sub.email} failed: ${result.reason}`,
+    details: { to: sub.email, reason: result.ok ? null : result.reason },
+  }).catch(() => {});
+
+  revalidatePath("/admin/subscribers");
+  if (!result.ok) return { ok: false, error: result.reason };
+  return { ok: true, email: sub.email };
+}
+
 /**
  * Fire a confirmation-style email to a single pending-confirm
  * subscriber via Resend. Distinct from app/subscribe/actions.ts →
