@@ -94,15 +94,19 @@ try {
     const existing = await col.findOne({ email });
     if (existing) { existed++; continue; }
     await col.insertOne({
-      id: randomUUID(),
       email,
-      status: "confirmed",
-      source: "formspree-recovery",
-      createdAt: now,
-      confirmedAt: now,
-      // Even though these users already consented via the Formspree
-      // signup, we mint a fresh unsubscribe token so the unsubscribe
-      // link in the broadcast still works for them.
+      // Treat Formspree-recovered sign-ups as fully consented — they
+      // already opted in on the landing page before the Formspree quota
+      // dropped their row. "consented" is the status the broadcast
+      // action filters on.
+      status: "consented",
+      source: "import",
+      createdISO: now,
+      confirmedISO: now,
+      // Both tokens are required by the schema. The confirm token is
+      // moot (already consented) but we still mint one so the record
+      // validates cleanly.
+      confirmToken: randomBytes(16).toString("hex"),
       unsubscribeToken: randomBytes(16).toString("hex"),
     });
     inserted++;
@@ -113,8 +117,8 @@ try {
   console.log(`existed  : ${existed}`);
   console.log(`invalid  : ${invalid.length}`);
   const total = await col.countDocuments();
-  const confirmed = await col.countDocuments({ status: "confirmed" });
-  console.log(`subscribers now in Mongo: ${total} total, ${confirmed} confirmed`);
+  const consented = await col.countDocuments({ status: "consented" });
+  console.log(`subscribers now in Mongo: ${total} total, ${consented} consented`);
 } finally {
   await client.close();
 }
