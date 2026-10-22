@@ -3,7 +3,7 @@
 import styled from "styled-components";
 import Image from "next/image";
 import Link from "next/link";
-import { Product, formatMoney } from "@/lib/products";
+import { Product, formatMoney, pricing } from "@/lib/products";
 import { useCart } from "@/lib/cart";
 
 interface Props {
@@ -27,9 +27,7 @@ export default function AddonsRow({ addons, heading = "Add-ons for your order" }
       </Heading>
       <Grid>
         {addons.map((a) => {
-          const price = a.priceApproved && a.price
-            ? formatMoney(a.price.amount, a.price.currency)
-            : "$—";
+          const p = pricing(a);
           const canAdd = a.priceApproved && a.purchasable;
           return (
             <Card key={a.slug}>
@@ -45,7 +43,25 @@ export default function AddonsRow({ addons, heading = "Add-ons for your order" }
                   <Link href={`/shop/${a.slug}`}>{a.name}</Link>
                 </Title>
                 <Row>
-                  <Price>{price}</Price>
+                  {a.priceApproved && p ? (
+                    <span>
+                      <span
+                        style={{
+                          color: "#7a6a52",
+                          textDecoration: "line-through",
+                          fontSize: "0.8rem",
+                          marginRight: 6,
+                          fontVariantNumeric: "tabular-nums",
+                        }}
+                        aria-label={`Retail ${p.retailFormatted}`}
+                      >
+                        {p.retailFormatted}
+                      </span>
+                      <Price>{p.saleFormatted}</Price>
+                    </span>
+                  ) : (
+                    <Price>{"$—"}</Price>
+                  )}
                   <AddBtn type="button" disabled={!canAdd}
                           onClick={() => canAdd && addItem(a.slug, 1)}>
                     + Add

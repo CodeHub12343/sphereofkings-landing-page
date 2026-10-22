@@ -9,6 +9,7 @@ import {
   updateOrderPayment,
 } from "@/lib/db/collections/orders";
 import { findProductBySlug } from "@/lib/db/collections/products";
+import { pricing } from "@/lib/products";
 import { getStripe, hasStripe, publishableKey } from "@/lib/stripe/server";
 import { OrderOrigin, ShipTo } from "@/lib/sample-orders";
 import { createAttribution } from "@/lib/db/collections/attributed-orders";
@@ -341,14 +342,18 @@ export async function createPaymentIntentAction(
   if (!order) return { ok: false, reason: "order-not-found" };
 
   // Compute amount from the live product catalog so the UI can't
-  // over- or under-charge via a tampered client-side total.
+  // over- or under-charge via a tampered client-side total. Use the
+  // sale price (retail minus the site-wide discount) — this is what
+  // the shop advertises and what the customer agreed to pay.
   let subtotalMinor = 0;
   for (const line of order.lines ?? []) {
     const product = await findProductBySlug(line.slug);
     if (!product || !product.priceApproved || !product.price) {
       return { ok: false, reason: "price-pending", slug: line.slug };
     }
-    subtotalMinor += Math.round(product.price.amount * 100) * line.qty;
+    const p = pricing(product);
+    if (!p) return { ok: false, reason: "price-pending", slug: line.slug };
+    subtotalMinor += Math.round(p.sale * 100) * line.qty;
   }
   // Apply the wholesale discount if the order carries one. Floor at
   // the Stripe minimum further down.

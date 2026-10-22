@@ -6,7 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Wrap } from "@/components/shared";
 import { useCart } from "@/lib/cart";
-import { formatMoney } from "@/lib/products";
+import { formatMoney, pricing } from "@/lib/products";
 
 const Section = styled.section`
   padding: clamp(28px, 4vw, 56px) 0 clamp(48px, 7vw, 96px);
@@ -311,12 +311,18 @@ export default function CartPageView() {
   const { lines, setQty, removeItem, hasUnapprovedPrice } = useCart();
   const empty = lines.length === 0;
 
-  // Sum only the lines with approved prices; `hasUnapprovedPrice`
-  // controls whether we show a total or the "price pending" state.
-  const subtotal = lines.reduce((n, l) => {
-    if (!l.product.priceApproved || !l.product.price) return n;
-    return n + l.product.price.amount * l.qty;
-  }, 0);
+  // Sum both retail and sale subtotals. The sale subtotal is what the
+  // customer actually pays — the retail total is shown struck through
+  // so the discount is visible on the order summary.
+  let retailSubtotal = 0;
+  let saleSubtotal = 0;
+  for (const l of lines) {
+    const p = pricing(l.product);
+    if (!l.product.priceApproved || !p) continue;
+    retailSubtotal += p.retail * l.qty;
+    saleSubtotal += p.sale * l.qty;
+  }
+  const savings = retailSubtotal - saleSubtotal;
   const currency = lines.find((l) => l.product.price)?.product.price?.currency ?? "USD";
 
   return (
@@ -401,14 +407,20 @@ export default function CartPageView() {
                       </QtyBox>
                     </LineBody>
                     <LineRight>
-                      <LinePrice $muted={!l.product.priceApproved}>
-                        {l.product.priceApproved && l.product.price
-                          ? formatMoney(
-                              l.product.price.amount * l.qty,
-                              l.product.price.currency,
-                            )
-                          : "$—"}
-                      </LinePrice>
+                      {(() => {
+                        const p = pricing(l.product);
+                        if (!l.product.priceApproved || !p) {
+                          return <LinePrice $muted>$—</LinePrice>;
+                        }
+                        return (
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2 }}>
+                            <span style={{ color: "#7a6a52", textDecoration: "line-through", fontSize: "0.8rem", fontVariantNumeric: "tabular-nums" }}>
+                              {formatMoney(p.retail * l.qty)}
+                            </span>
+                            <LinePrice>{formatMoney(p.sale * l.qty)}</LinePrice>
+                          </div>
+                        );
+                      })()}
                       <Remove
                         type="button"
                         onClick={() => removeItem(l.slug)}
@@ -423,11 +435,23 @@ export default function CartPageView() {
               <Summary>
                 <h2>Order summary</h2>
                 <Totals>
+                  <dt>Retail subtotal</dt>
+                  <dd className={hasUnapprovedPrice ? "muted" : ""} style={{ textDecoration: hasUnapprovedPrice ? "none" : "line-through", color: hasUnapprovedPrice ? undefined : "#7a6a52" }}>
+                    {hasUnapprovedPrice
+                      ? "price pending"
+                      : formatMoney(retailSubtotal, currency)}
+                  </dd>
+                  {!hasUnapprovedPrice && savings > 0 && (
+                    <>
+                      <dt style={{ color: "#4fb07d" }}>You save (20%)</dt>
+                      <dd style={{ color: "#4fb07d" }}>−{formatMoney(savings, currency)}</dd>
+                    </>
+                  )}
                   <dt>Subtotal</dt>
                   <dd className={hasUnapprovedPrice ? "muted" : ""}>
                     {hasUnapprovedPrice
                       ? "price pending"
-                      : formatMoney(subtotal, currency)}
+                      : formatMoney(saleSubtotal, currency)}
                   </dd>
                   <dt>Shipping</dt>
                   <dd className="muted">calculated at checkout</dd>

@@ -23,6 +23,48 @@ export function formatMoney(amount: number, currency: "USD" = "USD"): string {
   }
 }
 
+// Site-wide sale discount applied to every product's retail price.
+// James (2026-10-21): the retail price is shown struck through and the
+// 20%-off price is the regular selling price on the website. Change
+// this one constant to adjust the site-wide discount everywhere —
+// shop cards, product detail, cart totals, checkout math, and the
+// actual Stripe charge.
+export const SITE_WIDE_DISCOUNT_PCT = 20;
+const SITE_WIDE_DISCOUNT = SITE_WIDE_DISCOUNT_PCT / 100;
+
+export type ProductPricing = {
+  retail: number;              // original list price
+  sale: number;                // what the customer pays
+  savings: number;             // retail - sale, rounded to cents
+  discountPct: number;         // integer 0–100
+  retailFormatted: string;     // "$179"
+  saleFormatted: string;       // "$143.20"
+  savingsFormatted: string;    // "$35.80"
+};
+
+// Single source of truth for pricing display + checkout math. Any UI
+// that shows a price, and any server code that charges a price, MUST
+// call this — never multiply by (1 - discount) inline.
+export function pricing(
+  product: { price?: { amount: number; currency: "USD" } | undefined },
+): ProductPricing | null {
+  if (!product.price) return null;
+  const retail = product.price.amount;
+  // Round the sale price to whole cents so it survives the ×100 → integer
+  // conversion that checkout and Stripe expect without drifting.
+  const sale = Math.round(retail * (1 - SITE_WIDE_DISCOUNT) * 100) / 100;
+  const savings = Math.round((retail - sale) * 100) / 100;
+  return {
+    retail,
+    sale,
+    savings,
+    discountPct: SITE_WIDE_DISCOUNT_PCT,
+    retailFormatted: formatMoney(retail),
+    saleFormatted: formatMoney(sale),
+    savingsFormatted: formatMoney(savings),
+  };
+}
+
 // Sphere of Kings catalog — the 2026 Kickstarter reward list.
 //
 // Order is owner-signed (James Bowser, 2026-10-19 chat): rewards in the

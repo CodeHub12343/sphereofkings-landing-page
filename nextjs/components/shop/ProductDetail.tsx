@@ -4,7 +4,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import Link from "next/link";
 import DeliveryNotice from "./DeliveryNotice";
-import { Product, availability, formatMoney } from "@/lib/products";
+import { Product, availability, formatMoney, pricing } from "@/lib/products";
 import { useCart } from "@/lib/cart";
 import FullDetailsTrigger from "./FullDetailsTrigger";
 
@@ -497,11 +497,47 @@ export default function ProductDetail({ product, children }: { product: Product;
 
           <PricePanel>
             <PriceTop>
-              <PriceBig $muted={!product.priceApproved}>
-                {product.priceApproved && product.price
-                  ? formatMoney(product.price.amount, product.price.currency)
-                  : "$—"}
-              </PriceBig>
+              {(() => {
+                const p = pricing(product);
+                if (!product.priceApproved || !p) {
+                  return <PriceBig $muted>{"$—"}</PriceBig>;
+                }
+                return (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+                      <span
+                        style={{
+                          fontFamily: "'Inter', sans-serif",
+                          fontWeight: 500,
+                          color: "#7a6a52",
+                          textDecoration: "line-through",
+                          fontSize: "1.05rem",
+                          fontVariantNumeric: "tabular-nums",
+                        }}
+                        aria-label={`Retail ${p.retailFormatted}`}
+                      >
+                        {p.retailFormatted}
+                      </span>
+                      <PriceBig>{p.saleFormatted}</PriceBig>
+                      <span
+                        style={{
+                          background: "linear-gradient(135deg, #b91c3c 0%, #ef4461 100%)",
+                          color: "#fff",
+                          fontFamily: "'Inter', sans-serif",
+                          fontWeight: 700,
+                          fontSize: "0.7rem",
+                          letterSpacing: "0.08em",
+                          textTransform: "uppercase",
+                          padding: "4px 10px",
+                          borderRadius: 4,
+                        }}
+                      >
+                        {p.discountPct}% off · Save {p.savingsFormatted}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })()}
               <PriceNote>
                 {product.priceApproved
                   ? "Shipping and tax calculated at checkout"

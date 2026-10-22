@@ -5,7 +5,7 @@ import styled from "styled-components";
 import Link from "next/link";
 import DeliveryNotice from "@/components/shop/DeliveryNotice";
 import { useCart } from "@/lib/cart";
-import { formatMoney } from "@/lib/products";
+import { formatMoney, pricing } from "@/lib/products";
 import { AFF_ATTR_COOKIE } from "@/lib/affiliate-auth";
 import { resolveAffiliateAction } from "@/app/checkout/affiliate-actions";
 import {
@@ -534,18 +534,27 @@ export default function CheckoutStepper() {
   const { lines, hasUnapprovedPrice } = useCart();
   const [step, setStep] = useState<Step>("contact");
 
-  // Totals for the summary panel and the Pay CTA. We only sum lines
-  // with approved prices; `hasUnapprovedPrice` controls whether we
-  // show the amount or the "price pending" state.
-  const subtotal = lines.reduce((n, l) => {
-    if (!l.product.priceApproved || !l.product.price) return n;
-    return n + l.product.price.amount * l.qty;
-  }, 0);
+  // Totals for the summary panel and the Pay CTA. Sum retail (crossed
+  // out) and sale (what the customer actually pays) separately.
+  let retailSubtotal = 0;
+  let saleSubtotal = 0;
+  for (const l of lines) {
+    const p = pricing(l.product);
+    if (!l.product.priceApproved || !p) continue;
+    retailSubtotal += p.retail * l.qty;
+    saleSubtotal += p.sale * l.qty;
+  }
+  const subtotal = saleSubtotal;
+  const savings = retailSubtotal - saleSubtotal;
   const currency =
     lines.find((l) => l.product.price)?.product.price?.currency ?? "USD";
   const subtotalDisplay = hasUnapprovedPrice
     ? "price pending"
     : formatMoney(subtotal, currency);
+  const retailSubtotalDisplay = hasUnapprovedPrice
+    ? "price pending"
+    : formatMoney(retailSubtotal, currency);
+  const savingsDisplay = formatMoney(savings, currency);
   const totalDisplay = hasUnapprovedPrice ? "$—" : formatMoney(subtotal, currency);
 
   const [contact, setContact] = useState({ email: "", phone: "" });
@@ -1078,17 +1087,33 @@ export default function CheckoutStepper() {
               <ItemName>{l.product.name}</ItemName>
               <ItemMeta>Qty {l.qty} · Early Bird</ItemMeta>
             </ItemBody>
-            <ItemPrice $muted={!l.product.priceApproved}>
-              {l.product.priceApproved && l.product.price
-                ? formatMoney(
-                    l.product.price.amount * l.qty,
-                    l.product.price.currency,
-                  )
-                : "$—"}
-            </ItemPrice>
+            {(() => {
+              const p = pricing(l.product);
+              if (!l.product.priceApproved || !p) {
+                return <ItemPrice $muted>$—</ItemPrice>;
+              }
+              return (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2 }}>
+                  <span style={{ color: "#7a6a52", textDecoration: "line-through", fontSize: "0.75rem", fontVariantNumeric: "tabular-nums" }}>
+                    {formatMoney(p.retail * l.qty)}
+                  </span>
+                  <ItemPrice>{formatMoney(p.sale * l.qty)}</ItemPrice>
+                </div>
+              );
+            })()}
           </Item>
         ))}
         <Rows>
+          <dt>Retail subtotal</dt>
+          <dd className={hasUnapprovedPrice ? "muted" : ""} style={{ textDecoration: hasUnapprovedPrice ? "none" : "line-through", color: hasUnapprovedPrice ? undefined : "#7a6a52" }}>
+            {retailSubtotalDisplay}
+          </dd>
+          {!hasUnapprovedPrice && savings > 0 && (
+            <>
+              <dt style={{ color: "#4fb07d" }}>You save (20%)</dt>
+              <dd style={{ color: "#4fb07d" }}>−{savingsDisplay}</dd>
+            </>
+          )}
           <dt>Subtotal</dt>
           <dd className={hasUnapprovedPrice ? "muted" : ""}>
             {subtotalDisplay}

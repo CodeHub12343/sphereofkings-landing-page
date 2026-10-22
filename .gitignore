@@ -18,6 +18,8 @@ nextjs/tsconfig.tsbuildinfo
 # Belongs in the Mongo subscribers collection, imported via import-subscribers.mjs.
 nextjs/scripts/recovered-subscribers.txt
 nextjs/scripts/recovered-gmail.txt
+nextjs/scripts/gmail-oct17-batch.txt
+nextjs/scripts/*-batch.txt
 
 # Any top-level .env file (defense-in-depth; the nextjs/.gitignore already
 # covers nextjs/.env*.local, this blocks any .env anywhere in the repo).

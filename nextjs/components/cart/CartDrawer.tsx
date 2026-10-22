@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import styled from "styled-components";
 import Link from "next/link";
 import { useCart } from "@/lib/cart";
+import { pricing, formatMoney } from "@/lib/products";
 
 const Scrim = styled.div<{ $open: boolean }>`
   position: fixed;
@@ -435,7 +436,20 @@ export default function CartDrawer() {
                   </QtyBox>
                 </LineBody>
                 <LineRight>
-                  <LinePrice $muted={!l.product.priceApproved}>$—</LinePrice>
+                  {(() => {
+                    const p = pricing(l.product);
+                    if (!l.product.priceApproved || !p) {
+                      return <LinePrice $muted>$—</LinePrice>;
+                    }
+                    return (
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2 }}>
+                        <span style={{ color: "#7a6a52", textDecoration: "line-through", fontSize: "0.75rem", fontVariantNumeric: "tabular-nums" }}>
+                          {formatMoney(p.retail * l.qty)}
+                        </span>
+                        <LinePrice>{formatMoney(p.sale * l.qty)}</LinePrice>
+                      </div>
+                    );
+                  })()}
                   <Remove
                     type="button"
                     onClick={() => removeItem(l.slug)}
@@ -448,12 +462,32 @@ export default function CartDrawer() {
             ))
           )}
         </Body>
-        {!empty && (
+        {!empty && (() => {
+          let retailSum = 0;
+          let saleSum = 0;
+          for (const l of lines) {
+            const p = pricing(l.product);
+            if (!l.product.priceApproved || !p) continue;
+            retailSum += p.retail * l.qty;
+            saleSum += p.sale * l.qty;
+          }
+          const savings = retailSum - saleSum;
+          return (
           <Foot>
             <Totals>
+              <dt>Retail subtotal</dt>
+              <dd className={hasUnapprovedPrice ? "muted" : ""} style={{ textDecoration: hasUnapprovedPrice ? "none" : "line-through", color: hasUnapprovedPrice ? undefined : "#7a6a52" }}>
+                {hasUnapprovedPrice ? "price pending" : formatMoney(retailSum)}
+              </dd>
+              {!hasUnapprovedPrice && savings > 0 && (
+                <>
+                  <dt style={{ color: "#4fb07d" }}>You save (20%)</dt>
+                  <dd style={{ color: "#4fb07d" }}>−{formatMoney(savings)}</dd>
+                </>
+              )}
               <dt>Subtotal</dt>
               <dd className={hasUnapprovedPrice ? "muted" : ""}>
-                {hasUnapprovedPrice ? "price pending" : "$—"}
+                {hasUnapprovedPrice ? "price pending" : formatMoney(saleSum)}
               </dd>
               <dt>Shipping</dt>
               <dd className="muted">calculated at checkout</dd>
@@ -479,7 +513,8 @@ export default function CartDrawer() {
               </svg>
             </CheckoutBtn>
           </Foot>
-        )}
+          );
+        })()}
       </Panel>
     </>
   );

@@ -2,7 +2,7 @@
 
 import styled from "styled-components";
 import Link from "next/link";
-import { Product, availability, formatMoney } from "@/lib/products";
+import { Product, availability, formatMoney, pricing } from "@/lib/products";
 import { useCart } from "@/lib/cart";
 
 const Card = styled.article<{ $featured?: boolean }>`
@@ -134,6 +134,31 @@ const Price = styled.span<{ $muted?: boolean }>`
   font-variant-numeric: tabular-nums;
 `;
 
+const Retail = styled.span`
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: #7a6a52;
+  text-decoration: line-through;
+  margin-right: 8px;
+  font-variant-numeric: tabular-nums;
+`;
+
+const SaleBadge = styled.span`
+  display: inline-block;
+  margin-left: 8px;
+  background: linear-gradient(135deg, #b91c3c 0%, #ef4461 100%);
+  color: #fff;
+  font-family: "Inter", sans-serif;
+  font-weight: 700;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  vertical-align: middle;
+`;
+
 const PriceNote = styled.span`
   font-size: 0.7rem;
   color: #a89880;
@@ -263,11 +288,23 @@ export default function ProductCard({
       </Body>
       <Foot>
         <PriceRow>
-          <Price $muted={!product.priceApproved}>
-            {product.priceApproved && product.price
-              ? formatMoney(product.price.amount, product.price.currency)
-              : "$—"}
-          </Price>
+          {(() => {
+            const p = pricing(product);
+            if (!product.priceApproved || !p) {
+              return <Price $muted>{"$—"}</Price>;
+            }
+            return (
+              <span>
+                <Retail aria-label={`Retail ${p.retailFormatted}`}>
+                  {p.retailFormatted}
+                </Retail>
+                <Price>{p.saleFormatted}</Price>
+                <SaleBadge aria-label={`${p.discountPct} percent off`}>
+                  {p.discountPct}% off
+                </SaleBadge>
+              </span>
+            );
+          })()}
           <PriceNote>
             {product.priceApproved
               ? `${sold.toLocaleString()} / ${cap.toLocaleString()} sold`
