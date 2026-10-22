@@ -1,5 +1,4 @@
 import { Wrap } from "@/components/shared";
-import DemoBanner from "@/components/admin/DemoBanner";
 import FulfillmentView from "@/components/admin/FulfillmentView";
 import { listOrdersWithSamples } from "@/lib/db/collections/orders";
 
@@ -38,10 +37,6 @@ export default async function AdminFulfillmentPage({
       placedISO: o.placedISO,
     }));
 
-  const hasReal = all.some(
-    (o) => "createdByCheckoutISO" in o && o.createdByCheckoutISO,
-  );
-
   // Did the request ask for a specific order? Figure out whether it's
   // already in the Early-Bird-paid queue so we can either jump to it or
   // explain why it isn't visible.
@@ -63,7 +58,6 @@ export default async function AdminFulfillmentPage({
   return (
     <section style={pageStyle}>
       <Wrap>
-        {!hasReal && <DemoBanner />}
         <header style={{ marginBottom: 20 }}>
           <h1 style={h1Style}>Fulfillment</h1>
           <p style={pStyle}>

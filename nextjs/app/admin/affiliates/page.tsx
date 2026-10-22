@@ -1,9 +1,7 @@
 import { Wrap } from "@/components/shared";
-import DemoBanner from "@/components/admin/DemoBanner";
 import AffiliatesAdmin from "@/components/admin/AffiliatesAdmin";
 import { aggregateByAffiliate } from "@/lib/db/collections/attributed-orders";
 import { listAffiliates } from "@/lib/db/collections/affiliates";
-import { listStoredOrders } from "@/lib/db/collections/orders";
 
 export const dynamic = "force-dynamic";
 
@@ -13,23 +11,17 @@ export const metadata = {
 };
 
 export default async function AdminAffiliatesPage() {
-  // All three sources read in parallel. Affiliates are the actual
-  // records (seeded from SAMPLE_AFFILIATES on an empty collection);
-  // aggregates are rolled up per-code from attributedOrders; the
-  // orders check is just so we can hide the demo banner once at least
-  // one real checkout has landed.
-  const [affiliates, aggregates, realOrders] = await Promise.all([
+  // Two sources read in parallel. Affiliates are the actual records
+  // (seeded from SAMPLE_AFFILIATES on an empty collection); aggregates
+  // are rolled up per-code from attributedOrders.
+  const [affiliates, aggregates] = await Promise.all([
     listAffiliates(),
     aggregateByAffiliate(),
-    listStoredOrders().catch(() => []),
   ]);
-
-  const hasReal = realOrders.length > 0;
 
   return (
     <section style={pageStyle}>
       <Wrap>
-        {!hasReal && <DemoBanner />}
         <header style={headStyle}>
           <h1 style={h1Style}>Affiliates</h1>
           <p style={pStyle}>

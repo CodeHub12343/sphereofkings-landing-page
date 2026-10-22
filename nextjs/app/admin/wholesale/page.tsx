@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import { Wrap } from "@/components/shared";
-import DemoBanner from "@/components/admin/DemoBanner";
 import WholesaleQueue from "@/components/admin/WholesaleQueue";
 import { listQuotes } from "@/lib/store/quotes-store";
 
@@ -11,7 +10,6 @@ export default async function AdminWholesalePage() {
   return (
     <section style={pageStyle}>
       <Wrap>
-        {quotes.length === 0 && <DemoBanner />}
         <header style={headStyle}>
           <h1 style={h1Style}>Wholesale quotes</h1>
           <p style={pStyle}>

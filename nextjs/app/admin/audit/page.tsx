@@ -1,5 +1,4 @@
 import { Wrap } from "@/components/shared";
-import DemoBanner from "@/components/admin/DemoBanner";
 import AuditView from "@/components/admin/AuditView";
 import { listAuditEvents } from "@/lib/db/collections/audit";
 
@@ -14,7 +13,6 @@ export default async function AdminAuditPage() {
   return (
     <section style={pageStyle}>
       <Wrap>
-        {events.length === 0 && <DemoBanner />}
         <header style={headStyle}>
           <h1 style={h1Style}>Audit log</h1>
           <p style={pStyle}>

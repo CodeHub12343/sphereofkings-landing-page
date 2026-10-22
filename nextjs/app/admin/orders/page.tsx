@@ -1,5 +1,4 @@
 import { Wrap } from "@/components/shared";
-import DemoBanner from "@/components/admin/DemoBanner";
 import OrderQueue from "@/components/admin/OrderQueue";
 import {
   listOrdersWithSamples,
@@ -16,7 +15,6 @@ export default async function AdminOrdersPage() {
   return (
     <section style={pageStyle}>
       <Wrap>
-        {real.length === 0 && <DemoBanner />}
         <header style={headStyle}>
           <h1 style={h1Style}>Orders</h1>
           <p style={pStyle}>

@@ -3,7 +3,6 @@
 import styled from "styled-components";
 import Link from "next/link";
 import { Wrap } from "@/components/shared";
-import DemoBanner from "@/components/admin/DemoBanner";
 import { formatMoney } from "@/lib/products";
 
 export type OverviewStats = {
@@ -349,7 +348,6 @@ export default function AdminOverview({ stats }: { stats: OverviewStats }) {
   return (
     <Page>
       <Wrap>
-        {stats.realOrdersCount === 0 && <DemoBanner />}
         <Head>
           <h1>Overview</h1>
           <p>

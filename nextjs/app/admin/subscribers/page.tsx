@@ -1,5 +1,4 @@
 import { Wrap } from "@/components/shared";
-import DemoBanner from "@/components/admin/DemoBanner";
 import SubscribersAdmin from "@/components/admin/SubscribersAdmin";
 import { listSubscribers } from "@/lib/store/subscribers-store";
 
@@ -10,18 +9,6 @@ export default async function AdminSubscribersPage() {
   return (
     <section style={pageStyle}>
       <Wrap>
-        {subscribers.length === 0 && (
-          <DemoBanner
-            title="No subscribers yet."
-            message={
-              <>
-                The launch list fills as visitors confirm their email from the
-                sign-up form. Nothing is faked here — this view stays empty
-                until a real subscriber opts in.
-              </>
-            }
-          />
-        )}
         <header style={headStyle}>
           <h1 style={h1Style}>Subscribers</h1>
           <p style={pStyle}>

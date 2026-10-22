@@ -1,5 +1,4 @@
 import { Wrap } from "@/components/shared";
-import DemoBanner from "@/components/admin/DemoBanner";
 import ProductsAdmin from "@/components/admin/ProductsAdmin";
 import { listProducts } from "@/lib/db/collections/products";
 
@@ -10,7 +9,6 @@ export default async function AdminProductsPage() {
   return (
     <section style={pageStyle}>
       <Wrap>
-        {initialProducts.length === 0 && <DemoBanner />}
         <header style={headStyle}>
           <h1 style={h1Style}>Products</h1>
           <p style={pStyle}>
