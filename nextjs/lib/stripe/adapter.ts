@@ -74,6 +74,19 @@ export class RealStripeAdapter implements StripeAdapter {
     const fromSec = Math.floor(from.getTime() / 1000);
     const toSec = Math.floor(to.getTime() / 1000);
 
+    // Ignore list — one-off Stripe transaction IDs we want hidden from
+    // the finance view and reconciliation. Comma-separated env var;
+    // matches payment intents (pi_), charges (ch_), refunds (re_) and
+    // payouts (po_). Set STRIPE_FINANCE_IGNORE_IDS in .env.local or
+    // Vercel. Case-insensitive, trims whitespace.
+    const ignore = new Set(
+      (process.env.STRIPE_FINANCE_IGNORE_IDS ?? "")
+        .split(",")
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean),
+    );
+    const skip = (id: string) => ignore.has(id.toLowerCase());
+
     const out: StripeTx[] = [];
 
     // Payment intents (charges)
@@ -81,6 +94,7 @@ export class RealStripeAdapter implements StripeAdapter {
       created: { gte: fromSec, lt: toSec },
       limit: 100,
     })) {
+      if (skip(pi.id)) continue;
       out.push({
         id: pi.id,
         type: "charge",
@@ -104,6 +118,7 @@ export class RealStripeAdapter implements StripeAdapter {
       created: { gte: fromSec, lt: toSec },
       limit: 100,
     })) {
+      if (skip(r.id)) continue;
       out.push({
         id: r.id,
         type: "refund",
@@ -122,6 +137,7 @@ export class RealStripeAdapter implements StripeAdapter {
       created: { gte: fromSec, lt: toSec },
       limit: 100,
     })) {
+      if (skip(p.id)) continue;
       out.push({
         id: p.id,
         type: "payout",
