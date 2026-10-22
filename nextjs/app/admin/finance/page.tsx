@@ -1,5 +1,4 @@
 import { Wrap } from "@/components/shared";
-import DemoBanner from "@/components/admin/DemoBanner";
 import FinanceDashboard from "@/components/admin/FinanceDashboard";
 import type { TxRow, TxCategory } from "@/components/admin/FinanceDashboard";
 import { getStripeAdapter, StripeTx } from "@/lib/stripe/adapter";
@@ -86,12 +85,11 @@ export default async function AdminFinancePage({
     to,
   });
 
-  const hasRealData = realOrders.length > 0 || storedExpenses.length > 0;
-
   return (
     <section style={pageStyle}>
       <Wrap>
-        {!hasRealData && <DemoBanner />}
+        {/* DemoBanner removed with the demo-row fallback — the finance view
+            now shows an honest empty state when there's no real data. */}
         <FinanceDashboard
           initialTx={initialTx}
           reconciliation={reconciliation}

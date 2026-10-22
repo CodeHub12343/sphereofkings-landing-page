@@ -592,9 +592,7 @@ export default function FinanceDashboard({
   const commissionsEligibleCount = commissions.eligibleCount;
   const commissionsPaidOutCount = commissions.paidOutCount;
   const [filter, setFilter] = useState<Filter>("all");
-  const [tx, setTx] = useState<TxRow[]>(
-    initialTx.length ? initialTx : INITIAL_TX,
-  );
+  const [tx, setTx] = useState<TxRow[]>(initialTx);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [closeNote, setCloseNote] = useState("");
   const [confirmReopen, setConfirmReopen] = useState(false);
