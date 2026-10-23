@@ -8,6 +8,8 @@ export type AffiliateTier =
   | "Imperial"
   | "Sovereign";
 
+export type PayoutMethodKind = "bank" | "wise" | "paypal";
+
 export type SampleAffiliate = {
   code: string;
   firstName: string;
@@ -24,6 +26,21 @@ export type SampleAffiliate = {
   approvedCommissionCount: number;
   paidOutCount: number;
   state: AffiliateState;
+  // Self-serve payout settings — set by the affiliate on /affiliate/payout.
+  // Both are optional until the affiliate fills them in; without them
+  // they can't open a withdrawal request.
+  payoutMethod?: PayoutMethodKind;
+  // Free-text destination (bank account, PayPal email, Wise handle).
+  // We never render this in any public surface — only to the affiliate
+  // on their own dashboard and to admins on the payout drawer.
+  payoutDetails?: string;
+  payoutUpdatedISO?: string;
+  // Manual commission-rate override (James, 2026-10-22). When set,
+  // takes precedence over the auto-tier for NEW attributions. Historical
+  // snapshots are never adjusted retroactively.
+  customRatePct?: number;
+  customRateSetISO?: string;
+  customRateSetByAdminId?: string;
 };
 
 export const SAMPLE_AFFILIATES: SampleAffiliate[] = [

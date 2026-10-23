@@ -56,6 +56,11 @@ export type StoredAttribution = {
   payoutMethod?: PayoutMethod;
   payoutReference?: string;
   payoutNote?: string;
+  // Lock marker. When set, this attribution belongs to a withdrawal
+  // request and is not available for a new request. Cleared when the
+  // owning request is rejected; cleared implicitly when the owning
+  // request is completed (status flips to paid-out at the same time).
+  withdrawalRequestId?: string;
 };
 
 const COLLECTION = "attributedOrders";
@@ -400,4 +405,130 @@ export function computeCommissionMinor(
   sharePct = 100,
 ): number {
   return Math.round((orderTotalMinor * tierPct * sharePct) / 10000);
+}
+
+/* ------------------- Withdrawal-request integration ---------------- */
+
+/**
+ * Eligible-and-unlocked rows for an affiliate — the ones that count
+ * toward their "available for withdrawal" balance. An eligible row
+ * locked to an outstanding withdrawal request is excluded.
+ */
+export async function listAvailableForWithdrawal(
+  affiliateCode: string,
+): Promise<StoredAttribution[]> {
+  const rows = await listAttributionsForAffiliate(affiliateCode);
+  return rows.filter((r) => r.status === "eligible" && !r.withdrawalRequestId);
+}
+
+/**
+ * Stamp a batch of (orderRef, affiliateCode) rows with the request id
+ * so the available-balance query excludes them.
+ */
+export async function lockAttributionsForRequest(
+  affiliateCode: string,
+  orderRefs: string[],
+  withdrawalRequestId: string,
+): Promise<number> {
+  if (orderRefs.length === 0) return 0;
+  if (hasMongo()) {
+    await ensureIndex();
+    const col = await getCollection<StoredAttribution>(COLLECTION);
+    const res = await col.updateMany(
+      { affiliateCode, orderRef: { $in: orderRefs } } as Filter<StoredAttribution>,
+      { $set: { withdrawalRequestId } },
+    );
+    return res.modifiedCount;
+  }
+  const all = await fileReadAll();
+  let n = 0;
+  for (const r of all) {
+    if (r.affiliateCode === affiliateCode && orderRefs.includes(r.orderRef)) {
+      r.withdrawalRequestId = withdrawalRequestId;
+      n++;
+    }
+  }
+  await fileWriteAll(all);
+  return n;
+}
+
+/**
+ * Release every attribution locked to a withdrawal request (on reject).
+ */
+export async function unlockAttributionsFromRequest(
+  withdrawalRequestId: string,
+): Promise<number> {
+  if (hasMongo()) {
+    const col = await getCollection<StoredAttribution>(COLLECTION);
+    const res = await col.updateMany(
+      { withdrawalRequestId } as Filter<StoredAttribution>,
+      { $unset: { withdrawalRequestId: "" } },
+    );
+    return res.modifiedCount;
+  }
+  const all = await fileReadAll();
+  let n = 0;
+  for (const r of all) {
+    if (r.withdrawalRequestId === withdrawalRequestId) {
+      delete r.withdrawalRequestId;
+      n++;
+    }
+  }
+  await fileWriteAll(all);
+  return n;
+}
+
+/**
+ * Flip every attribution locked to a request from `eligible` to
+ * `paid-out` and record the payout bookkeeping. Returns the orderRefs
+ * flipped and the total commission paid.
+ */
+export async function markAttributionsPaidOutForRequest(
+  withdrawalRequestId: string,
+  payout: {
+    method: PayoutMethod;
+    reference?: string;
+    note?: string;
+  },
+): Promise<{ orderRefs: string[]; totalPaidMinor: number }> {
+  const now = new Date().toISOString();
+  if (hasMongo()) {
+    const col = await getCollection<StoredAttribution>(COLLECTION);
+    const rows = await col
+      .find({ withdrawalRequestId } as Filter<StoredAttribution>, { projection: { _id: 0 } })
+      .toArray();
+    const orderRefs = rows.map((r) => r.orderRef);
+    const totalPaidMinor = rows.reduce((n, r) => n + (r.commissionAmountMinor ?? 0), 0);
+    await col.updateMany(
+      { withdrawalRequestId } as Filter<StoredAttribution>,
+      {
+        $set: {
+          status: "paid-out",
+          lastStatusISO: now,
+          paidOutISO: now,
+          payoutMethod: payout.method,
+          payoutReference: payout.reference,
+          payoutNote: payout.note,
+        },
+      },
+    );
+    return { orderRefs, totalPaidMinor };
+  }
+  const all = await fileReadAll();
+  const orderRefs: string[] = [];
+  let totalPaidMinor = 0;
+  for (const r of all) {
+    if (r.withdrawalRequestId === withdrawalRequestId) {
+      orderRefs.push(r.orderRef);
+      totalPaidMinor += r.commissionAmountMinor ?? 0;
+      r.status = "paid-out";
+      r.lastStatusISO = now;
+      r.paidOutISO = now;
+      r.payoutMethod = payout.method;
+      r.payoutReference = payout.reference;
+      r.payoutNote = payout.note;
+    }
+  }
+  await fileWriteAll(all);
+  return { orderRefs, totalPaidMinor };
 }

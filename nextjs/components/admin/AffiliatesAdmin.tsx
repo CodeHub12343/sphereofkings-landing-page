@@ -12,6 +12,7 @@ import { formatRelative } from "@/lib/sample-orders";
 import {
   setAffiliateStateAction,
   payoutEligibleAction,
+  setAffiliateCustomRateAction,
 } from "@/app/admin/affiliates/actions";
 
 type Filter = "all" | AffiliateState;
@@ -953,6 +954,17 @@ export default function AffiliatesAdmin({
               </Group>
 
               <Group>
+                <GLabel>Custom commission rate (override)</GLabel>
+                <GVal>
+                  <CustomRateControl
+                    code={open.code}
+                    tierRatePct={open.tierRatePct}
+                    initial={open.customRatePct ?? null}
+                  />
+                </GVal>
+              </Group>
+
+              <Group>
                 <GLabel>Commission records</GLabel>
                 <CommGrid>
                   <Comm>
@@ -1060,5 +1072,117 @@ export default function AffiliatesAdmin({
         )}
       </Panel>
     </>
+  );
+}
+
+function CustomRateControl({
+  code,
+  tierRatePct,
+  initial,
+}: {
+  code: string;
+  tierRatePct: number;
+  initial: number | null;
+}) {
+  const [value, setValue] = useState<string>(initial === null ? "" : String(initial));
+  const [pending, startTransition] = useTransition();
+  const [note, setNote] = useState<string | null>(null);
+
+  const save = (next: number | null) => {
+    setNote(null);
+    startTransition(async () => {
+      const r = await setAffiliateCustomRateAction(code, next);
+      if (r.ok) {
+        setNote(
+          next === null
+            ? `Cleared. Falls back to tier rate ${tierRatePct}%.`
+            : `Saved. New attributions will use ${next}%.`,
+        );
+      } else {
+        setNote(r.error);
+      }
+    });
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <input
+          type="number"
+          min={0}
+          max={60}
+          step={1}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder={`tier default ${tierRatePct}`}
+          style={{
+            background: "#1a1612",
+            border: "1.5px solid #2e2618",
+            borderRadius: 8,
+            padding: "8px 12px",
+            color: "#f5f0e8",
+            width: 100,
+            fontFamily: "'Inter', sans-serif",
+          }}
+        />
+        <span style={{ color: "#a89880" }}>%</span>
+        <button
+          type="button"
+          disabled={pending}
+          onClick={() => {
+            const n = Number(value);
+            if (!Number.isFinite(n) || n < 0 || n > 60) {
+              setNote("Enter a number between 0 and 60.");
+              return;
+            }
+            save(n);
+          }}
+          style={{
+            background: "#c9a227",
+            color: "#0a0a0a",
+            border: 0,
+            padding: "8px 14px",
+            borderRadius: 8,
+            fontWeight: 700,
+            fontFamily: "'Inter', sans-serif",
+            fontSize: "0.85rem",
+            cursor: "pointer",
+          }}
+        >
+          {pending ? "Saving…" : "Save override"}
+        </button>
+        {initial !== null && (
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() => {
+              setValue("");
+              save(null);
+            }}
+            style={{
+              background: "transparent",
+              color: "#a89880",
+              border: "1px solid #2e2618",
+              padding: "8px 14px",
+              borderRadius: 8,
+              fontFamily: "'Inter', sans-serif",
+              fontSize: "0.82rem",
+              cursor: "pointer",
+            }}
+          >
+            Clear
+          </button>
+        )}
+      </div>
+      <small style={{ color: "#5a4a38", fontFamily: "'Inter', sans-serif", lineHeight: 1.5 }}>
+        Only affects NEW attributions. Historical commissions keep the rate they
+        were attributed at. Leave blank to use the tier ladder.
+      </small>
+      {note && (
+        <small style={{ color: "#f0c040", fontFamily: "'Inter', sans-serif" }}>
+          {note}
+        </small>
+      )}
+    </div>
   );
 }

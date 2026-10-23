@@ -5,6 +5,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AffiliateDashboard from "./AffiliateDashboard";
+import WithdrawalPanel from "./WithdrawalPanel";
 import { Wrap } from "@/components/shared";
 import {
   SAMPLE_AFFILIATE,
@@ -81,6 +82,22 @@ export type AffiliateMoneyTotals = {
   pendingCommissionMinor: number;
   approvedCommissionMinor: number;
   paidOutCommissionMinor: number;
+  // Split of `approvedCommissionMinor`:
+  //   availableCommissionMinor — eligible rows NOT locked to a request
+  //   lockedInRequestMinor     — eligible rows locked to an open request
+  availableCommissionMinor?: number;
+  lockedInRequestMinor?: number;
+};
+
+export type WithdrawalRequestView = {
+  id: string;
+  status: "pending" | "approved" | "completed" | "rejected";
+  amountMinor: number;
+  requestedISO: string;
+  decisionISO?: string;
+  completedISO?: string;
+  rejectReason?: string;
+  payoutMethod: "bank" | "wise" | "paypal";
 };
 
 // Build the dashboard shape from the admin record plus live attribution
@@ -174,12 +191,16 @@ export default function AffiliateAuthedShell({
   affiliate,
   attributedRows = [],
   totals,
+  withdrawalRequests = [],
+  payoutConfigured = false,
 }: {
   // Live record from the Mongo `affiliates` collection, fetched by the
   // server page before render. Nothing here calls back to the DB.
   affiliate: SampleAffiliate;
   attributedRows?: AttributedRowView[];
   totals?: AffiliateMoneyTotals;
+  withdrawalRequests?: WithdrawalRequestView[];
+  payoutConfigured?: boolean;
 }) {
   const dashboardAff = toDashboardAffiliate(
     affiliate,
@@ -211,6 +232,13 @@ export default function AffiliateAuthedShell({
               <SignOut href="/affiliate/signout">Sign out</SignOut>
             </SignedInBar>
             <AffiliateDashboard affiliate={dashboardAff} />
+            <WithdrawalPanel
+              availableMinor={totals?.availableCommissionMinor ?? 0}
+              lockedMinor={totals?.lockedInRequestMinor ?? 0}
+              paidOutMinor={totals?.paidOutCommissionMinor ?? 0}
+              payoutConfigured={payoutConfigured}
+              requests={withdrawalRequests}
+            />
           </Wrap>
         </Section>
       </main>

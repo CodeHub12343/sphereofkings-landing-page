@@ -20,6 +20,59 @@ import { createElement } from "react";
 
 const VALID: AffiliateState[] = ["pending", "active", "suspended"];
 
+export type SetCustomRateResult =
+  | { ok: true; code: string; customRatePct: number | null }
+  | { ok: false; error: string };
+
+/**
+ * Manually override an affiliate's commission rate for NEW attributions,
+ * overriding the auto-tier ladder. Pass `null` to clear the override
+ * and fall back to the tier-based rate. Historical commissions already
+ * attributed don't change — the rate is snapshotted at attribution time.
+ */
+export async function setAffiliateCustomRateAction(
+  code: string,
+  customRatePct: number | null,
+): Promise<SetCustomRateResult> {
+  const aff = await findAffiliateByCode(code);
+  if (!aff) return { ok: false, error: `Affiliate ${code} not found.` };
+
+  if (customRatePct !== null) {
+    if (
+      typeof customRatePct !== "number" ||
+      !Number.isFinite(customRatePct) ||
+      customRatePct < 0 ||
+      customRatePct > 60
+    ) {
+      return { ok: false, error: "Rate must be between 0 and 60." };
+    }
+  }
+
+  const actor = await currentAdminActor();
+  const now = new Date().toISOString();
+  await updateAffiliate(code, {
+    customRatePct: customRatePct ?? undefined,
+    customRateSetISO: customRatePct !== null ? now : undefined,
+    customRateSetByAdminId: customRatePct !== null ? actor.id : undefined,
+  });
+
+  await recordAuditEvent({
+    actor,
+    action: customRatePct === null
+      ? "affiliate.customRate.cleared"
+      : "affiliate.customRate.set",
+    target: { collection: "affiliates", id: code },
+    summary: customRatePct === null
+      ? `${code}: custom rate cleared (back to tier ${aff.tier} ${aff.tierRatePct}%)`
+      : `${code}: custom rate set to ${customRatePct}%`,
+    details: { previous: aff.customRatePct ?? null, next: customRatePct },
+  }).catch(() => {});
+
+  revalidatePath("/admin/affiliates");
+  revalidatePath("/affiliate");
+  return { ok: true, code, customRatePct };
+}
+
 export type AffiliateStateResult =
   | { ok: true; code: string; state: AffiliateState }
   | { ok: false; error: string };

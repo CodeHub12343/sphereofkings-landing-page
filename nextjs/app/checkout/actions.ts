@@ -295,7 +295,12 @@ export async function createPendingOrderAction(
         await createAttribution({
           orderRef: order.ref,
           affiliateCode: r.aff.code,
-          commissionTierPct: r.aff.tierRatePct,
+          // A manual rate override wins over the auto-tier rate. The
+          // override is set per-affiliate by an admin for Distributors
+          // and top sellers who should start higher than the ladder
+          // would place them. Still snapshotted so historical orders
+          // don't shift when the admin later removes the override.
+          commissionTierPct: r.aff.customRatePct ?? r.aff.tierRatePct,
           sharePct: r.sharePct,
           touch: r.touch,
           unitCount,

@@ -1,7 +1,9 @@
+import Link from "next/link";
 import { Wrap } from "@/components/shared";
 import AffiliatesAdmin from "@/components/admin/AffiliatesAdmin";
 import { aggregateByAffiliate } from "@/lib/db/collections/attributed-orders";
 import { listAffiliates } from "@/lib/db/collections/affiliates";
+import { countPendingWithdrawalRequests } from "@/lib/db/collections/withdrawal-requests";
 
 export const dynamic = "force-dynamic";
 
@@ -11,12 +13,14 @@ export const metadata = {
 };
 
 export default async function AdminAffiliatesPage() {
-  // Two sources read in parallel. Affiliates are the actual records
+  // Three sources read in parallel. Affiliates are the actual records
   // (seeded from SAMPLE_AFFILIATES on an empty collection); aggregates
-  // are rolled up per-code from attributedOrders.
-  const [affiliates, aggregates] = await Promise.all([
+  // are rolled up per-code from attributedOrders; pending-withdrawals
+  // count drives the queue badge below.
+  const [affiliates, aggregates, pendingWithdrawals] = await Promise.all([
     listAffiliates(),
     aggregateByAffiliate(),
+    countPendingWithdrawalRequests().catch(() => 0),
   ]);
 
   return (
@@ -30,6 +34,30 @@ export default async function AdminAffiliatesPage() {
             counts and commissions come from <strong>attributedOrders</strong>
             and flip as the Stripe webhook confirms payments.
           </p>
+          <div style={{ marginTop: 14, display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <Link
+              href="/admin/affiliates/requests"
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 8,
+                padding: "8px 14px", borderRadius: 8,
+                background: pendingWithdrawals > 0 ? "rgba(240, 192, 64, 0.14)" : "#1a1612",
+                border: `1px solid ${pendingWithdrawals > 0 ? "#f0c040" : "#2e2618"}`,
+                color: pendingWithdrawals > 0 ? "#f0c040" : "#a89880",
+                fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", fontWeight: 600,
+                textDecoration: "none",
+              }}
+            >
+              Withdrawal requests
+              {pendingWithdrawals > 0 && (
+                <span style={{
+                  background: "#f0c040", color: "#0a0a0a",
+                  padding: "2px 8px", borderRadius: 999, fontSize: "0.72rem", fontWeight: 800,
+                }}>
+                  {pendingWithdrawals} pending
+                </span>
+              )}
+            </Link>
+          </div>
         </header>
         <AffiliatesAdmin affiliates={affiliates} aggregates={aggregates} />
       </Wrap>

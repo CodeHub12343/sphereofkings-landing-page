@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { findAffiliateByCode } from "@/lib/db/collections/affiliates";
 import { AFF_SESSION_COOKIE, readSessionToken } from "@/lib/auth/token";
 import { listAttributionsForAffiliate } from "@/lib/db/collections/attributed-orders";
+import { listWithdrawalRequests } from "@/lib/db/collections/withdrawal-requests";
 import { findOrderByRef } from "@/lib/db/collections/orders";
 import AffiliateAuthedShell, {
   AttributedRowView,
@@ -67,12 +68,23 @@ export default async function AffiliatePage() {
   const pendingCommissionMinor = attributions
     .filter((a) => a.status === "pending")
     .reduce((n, a) => n + (a.commissionAmountMinor ?? 0), 0);
-  const approvedCommissionMinor = attributions
-    .filter((a) => a.status === "eligible")
+  // "Eligible but LOCKED to an open withdrawal request" is distinct from
+  // "available to withdraw right now". Both still show as "eligible" in
+  // the row view, but the balance tiles split them.
+  const eligibleRows = attributions.filter((a) => a.status === "eligible");
+  const availableCommissionMinor = eligibleRows
+    .filter((a) => !a.withdrawalRequestId)
     .reduce((n, a) => n + (a.commissionAmountMinor ?? 0), 0);
+  const lockedInRequestMinor = eligibleRows
+    .filter((a) => Boolean(a.withdrawalRequestId))
+    .reduce((n, a) => n + (a.commissionAmountMinor ?? 0), 0);
+  const approvedCommissionMinor = availableCommissionMinor + lockedInRequestMinor;
   const paidOutCommissionMinor = attributions
     .filter((a) => a.status === "paid-out")
     .reduce((n, a) => n + (a.commissionAmountMinor ?? 0), 0);
+
+  // Full request history for this affiliate.
+  const withdrawalRequests = await listWithdrawalRequests({ affiliateCode: aff.code });
 
   return (
     <AffiliateAuthedShell
@@ -82,7 +94,20 @@ export default async function AffiliatePage() {
         pendingCommissionMinor,
         approvedCommissionMinor,
         paidOutCommissionMinor,
+        availableCommissionMinor,
+        lockedInRequestMinor,
       }}
+      withdrawalRequests={withdrawalRequests.map((r) => ({
+        id: r.id,
+        status: r.status,
+        amountMinor: r.amountMinor,
+        requestedISO: r.requestedISO,
+        decisionISO: r.decisionISO,
+        completedISO: r.completedISO,
+        rejectReason: r.rejectReason,
+        payoutMethod: r.payoutMethod,
+      }))}
+      payoutConfigured={Boolean(aff.payoutMethod && aff.payoutDetails)}
     />
   );
 }
