@@ -7,13 +7,29 @@ import * as rc from "@/lib/games/royal-checkers/engine";
 import * as ik from "@/lib/games/imperial-kings/engine";
 import type { Match } from "@/lib/db/collections/matches";
 import { useMatchStream, ConnState } from "./useMatchStream";
+import {
+  BoardChrome,
+  BoardDefs,
+  CheckerPiece,
+  ChessPiece,
+  LegalDot,
+  SeamLine,
+  Square as SkinSquare,
+} from "./BoardSkin";
+import BoardViewToggle from "./BoardViewToggle";
+import type { SpherePiece } from "./SphereBoardView";
+import ResignButton from "./ResignButton";
+import MatchChat from "./MatchChat";
 
 interface Props {
   initial: Match;
   viewerId: string;
+  // Read-only spectator view — no click handlers, no resign, no chat.
+  // Served from /match/[id]/watch.
+  spectator?: boolean;
 }
 
-export default function MatchBoard({ initial, viewerId }: Props) {
+export default function MatchBoard({ initial, viewerId, spectator = false }: Props) {
   const { match, conn, refetch } = useMatchStream(initial.id, initial);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<{ col: number; row: number } | null>(null);
@@ -23,6 +39,7 @@ export default function MatchBoard({ initial, viewerId }: Props) {
   const amChallenger = current.challenger.playerId === viewerId;
   const amOpponent = current.opponent.playerId === viewerId;
   const myTurn =
+    !spectator &&
     current.status === "active" &&
     ((amChallenger && current.toMoveSide === "red-or-white") ||
       (amOpponent && current.toMoveSide === "black"));
@@ -50,7 +67,8 @@ export default function MatchBoard({ initial, viewerId }: Props) {
   }, [current.id, refetch]);
 
   const resign = useCallback(async () => {
-    if (!confirm("Resign this match?")) return;
+    // Confirmation is handled by the ResignButton's two-step UI; just
+    // fire the POST when the user confirms.
     await fetch(`/api/matches/${current.id}/resign`, { method: "POST" });
     void refetch();
   }, [current.id, refetch]);
@@ -146,11 +164,43 @@ export default function MatchBoard({ initial, viewerId }: Props) {
         />
       )}
 
-      {current.status === "active" && (
+      {current.status === "active" && !spectator && (
         <ControlsRow>
-          <Secondary onClick={resign}>Resign</Secondary>
+          <ResignButton onResign={resign} />
+          <button
+            type="button"
+            onClick={() => {
+              const url = typeof window !== "undefined"
+                ? `${window.location.origin}/match/${current.id}/watch`
+                : "";
+              try { navigator.clipboard.writeText(url); } catch {}
+            }}
+            title="Copies a share link that lets anyone spectate this match"
+            style={{
+              background: "transparent", color: "#a89880",
+              border: "1px solid #2e2618", padding: "7px 12px",
+              borderRadius: 6, fontSize: 14, cursor: "pointer",
+              fontFamily: "'Inter', sans-serif",
+            }}
+          >
+            Share spectator link
+          </button>
         </ControlsRow>
       )}
+      {spectator && (
+        <ControlsRow>
+          <span style={{ color: "#a89880", fontFamily: "'Inter', sans-serif", fontSize: 13 }}>
+            Spectator view — read-only. Share this link to invite more viewers.
+          </span>
+        </ControlsRow>
+      )}
+
+      <MatchChat
+        matchId={current.id}
+        viewerId={viewerId}
+        readOnly={spectator}
+        initialMessages={current.chatMessages ?? []}
+      />
     </Wrap>
   );
 }
@@ -217,68 +267,115 @@ function RcMatchBoard({
 
   const renderRow = myColor === "red" ? (r: number) => rc.ROWS - r : (r: number) => r - 1;
 
+  const squareClick = (col: number, row: number) => {
+    if (!myTurn) return;
+    const forThis = forSelected.find((m) => {
+      const land = m.path[m.path.length - 1];
+      return land.col === col && land.row === row;
+    });
+    if (forThis) { onMove(JSON.stringify(forThis)); return; }
+    const p = state.board[row - 1][col - 1];
+    if (p && p.color === myColor && bySource.has(`${col},${row}`)) {
+      setSelected({ col, row });
+    } else {
+      setSelected(null);
+    }
+  };
+  const boardW = rc.COLS * SQ;
+  const boardH = rc.ROWS * SQ;
+
+  const spherePieces = useMemo(() => {
+    const out: SpherePiece[] = [];
+    for (let r = 0; r < rc.ROWS; r++) {
+      for (let c = 0; c < rc.COLS; c++) {
+        const p = state.board[r][c];
+        if (p) out.push({ col: c + 1, row: r + 1, color: p.color, kind: "checker" });
+      }
+    }
+    return out;
+  }, [state.board]);
+  const sphereLegalDests = useMemo(() => {
+    const seen = new Set<string>();
+    const out: { col: number; row: number; capture: boolean }[] = [];
+    for (const m of forSelected) {
+      const land = m.path[m.path.length - 1];
+      const key = `${land.col},${land.row}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push({ col: land.col, row: land.row, capture: m.captured.length > 0 });
+    }
+    return out;
+  }, [forSelected]);
+
   return (
-    <BoardFrame>
-      <svg viewBox={`0 0 ${rc.COLS * SQ} ${rc.ROWS * SQ}`}>
+    <BoardViewToggle
+      cols={rc.COLS}
+      rows={rc.ROWS}
+      pieces={spherePieces}
+      selected={selected}
+      legalDests={sphereLegalDests}
+      onCellClick={(cell) => squareClick(cell.col, cell.row)}
+    >
+    <BoardChrome>
+      <svg viewBox={`0 0 ${boardW} ${boardH}`}>
+        <BoardDefs />
         {Array.from({ length: rc.ROWS }).map((_, ri) =>
           Array.from({ length: rc.COLS }).map((__, ci) => {
             const col = ci + 1, row = ri + 1;
             const dark = rc.isDark(col, row);
             const x = ci * SQ, y = renderRow(row) * SQ;
-            const sel = selected && selected.col === col && selected.row === row;
+            const sel = selected !== null && selected.col === col && selected.row === row;
             const dest = forSelected.find((m) => {
               const land = m.path[m.path.length - 1];
               return land.col === col && land.row === row;
             });
             return (
               <g key={`${col}-${row}`}>
-                <rect x={x} y={y} width={SQ} height={SQ}
-                      fill={dark ? "var(--board-dark,#2b2210)" : "var(--board-light,#f3e1a7)"}
-                      stroke={sel ? "var(--gold-light,#f0c040)" : "none"}
-                      strokeWidth={sel ? 3 : 0}
-                      onClick={() => {
-                        if (!myTurn) return;
-                        if (dest) { onMove(JSON.stringify(dest)); return; }
-                        const p = state.board[ri][ci];
-                        if (p && p.color === myColor && bySource.has(`${col},${row}`)) {
-                          setSelected({ col, row });
-                        } else {
-                          setSelected(null);
-                        }
-                      }}
-                      style={{ cursor: myTurn ? "pointer" : "default" }} />
+                <SkinSquare
+                  x={x}
+                  y={y}
+                  size={SQ}
+                  dark={dark}
+                  selected={sel}
+                  onClick={() => squareClick(col, row)}
+                />
                 {dest && (
-                  <circle cx={x + SQ / 2} cy={y + SQ / 2} r={7}
-                          fill={dest.captured.length > 0
-                            ? "var(--board-capture-move,rgba(198,43,68,.45))"
-                            : "var(--board-legal-move,rgba(79,176,125,.45))"}
-                          pointerEvents="none" />
+                  <LegalDot
+                    cx={x + SQ / 2}
+                    cy={y + SQ / 2}
+                    size={SQ}
+                    capture={dest.captured.length > 0}
+                  />
                 )}
-                {(() => {
-                  const p = state.board[ri][ci];
-                  if (!p) return null;
-                  return (
-                    <circle cx={x + SQ / 2} cy={y + SQ / 2} r={SQ * 0.36}
-                            fill={p.color === "red" ? "var(--piece-red,#c62b44)" : "var(--piece-black,#1a1510)"}
-                            stroke="#000" strokeWidth={1}
-                            onClick={() => {
-                              if (!myTurn) return;
-                              if (dest) { onMove(JSON.stringify(dest)); return; }
-                              if (p.color === myColor && bySource.has(`${col},${row}`)) {
-                                setSelected({ col, row });
-                              } else {
-                                setSelected(null);
-                              }
-                            }}
-                            style={{ cursor: myTurn ? "pointer" : "default" }} />
-                  );
-                })()}
               </g>
             );
           }),
         )}
+        <SeamLine x={0} height={boardH} />
+        <SeamLine x={boardW} height={boardH} />
+        {Array.from({ length: rc.ROWS }).map((_, ri) =>
+          Array.from({ length: rc.COLS }).map((__, ci) => {
+            const col = ci + 1, row = ri + 1;
+            const p = state.board[ri][ci];
+            if (!p) return null;
+            const x = ci * SQ + SQ / 2;
+            const y = renderRow(row) * SQ + SQ / 2;
+            return (
+              <CheckerPiece
+                key={`p-${col}-${row}`}
+                cx={x}
+                cy={y}
+                size={SQ}
+                color={p.color}
+                king={p.kind === "king"}
+                onClick={() => squareClick(col, row)}
+              />
+            );
+          }),
+        )}
       </svg>
-    </BoardFrame>
+    </BoardChrome>
+    </BoardViewToggle>
   );
 }
 
@@ -317,66 +414,110 @@ function IkMatchBoard({
   const forSelected = selected ? bySource.get(`${selected.col},${selected.row}`) ?? [] : [];
   const renderRow = myColor === "white" ? (r: number) => ik.ROWS - r : (r: number) => r - 1;
 
+  const squareClick = (col: number, row: number) => {
+    if (!myTurn) return;
+    const forThis = forSelected.find((m) => m.to.col === col && m.to.row === row);
+    if (forThis) { onMove(JSON.stringify(forThis)); return; }
+    const p = state.board[row - 1][col - 1];
+    if (p && p.color === myColor && bySource.has(`${col},${row}`)) {
+      setSelected({ col, row });
+    } else {
+      setSelected(null);
+    }
+  };
+  const boardW = ik.COLS * SQ;
+  const boardH = ik.ROWS * SQ;
+
+  const spherePieces = useMemo(() => {
+    const out: SpherePiece[] = [];
+    for (let r = 0; r < ik.ROWS; r++) {
+      for (let c = 0; c < ik.COLS; c++) {
+        const p = state.board[r][c];
+        if (p) out.push({ col: c + 1, row: r + 1, color: p.color, kind: p.kind });
+      }
+    }
+    return out;
+  }, [state.board]);
+  const sphereLegalDests = useMemo(() => {
+    const seen = new Set<string>();
+    const out: { col: number; row: number; capture: boolean }[] = [];
+    for (const m of forSelected) {
+      const key = `${m.to.col},${m.to.row}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push({ col: m.to.col, row: m.to.row, capture: Boolean(m.captured) });
+    }
+    return out;
+  }, [forSelected]);
+
   return (
-    <BoardFrame>
-      <svg viewBox={`0 0 ${ik.COLS * SQ} ${ik.ROWS * SQ}`}>
+    <BoardViewToggle
+      cols={ik.COLS}
+      rows={ik.ROWS}
+      pieces={spherePieces}
+      selected={selected}
+      legalDests={sphereLegalDests}
+      onCellClick={(cell) => squareClick(cell.col, cell.row)}
+    >
+    <BoardChrome>
+      <svg viewBox={`0 0 ${boardW} ${boardH}`}>
+        <BoardDefs />
         {Array.from({ length: ik.ROWS }).map((_, ri) =>
           Array.from({ length: ik.COLS }).map((__, ci) => {
             const col = ci + 1, row = ri + 1;
             const light = (col + row) % 2 === 0;
             const x = ci * SQ, y = renderRow(row) * SQ;
-            const sel = selected && selected.col === col && selected.row === row;
+            const sel = selected !== null && selected.col === col && selected.row === row;
             const dest = forSelected.find((m) => m.to.col === col && m.to.row === row);
-            const p = state.board[ri][ci];
             return (
               <g key={`${col}-${row}`}>
-                <rect x={x} y={y} width={SQ} height={SQ}
-                      fill={light ? "var(--board-light,#f3e1a7)" : "var(--board-dark,#2b2210)"}
-                      stroke={sel ? "var(--gold-light,#f0c040)" : "none"}
-                      strokeWidth={sel ? 3 : 0}
-                      onClick={() => {
-                        if (!myTurn) return;
-                        if (dest) { onMove(JSON.stringify(dest)); return; }
-                        if (p && p.color === myColor && bySource.has(`${col},${row}`)) {
-                          setSelected({ col, row });
-                        } else {
-                          setSelected(null);
-                        }
-                      }}
-                      style={{ cursor: myTurn ? "pointer" : "default" }} />
+                <SkinSquare
+                  x={x}
+                  y={y}
+                  size={SQ}
+                  dark={!light}
+                  selected={sel}
+                  onClick={() => squareClick(col, row)}
+                />
                 {dest && (
-                  <circle cx={x + SQ / 2} cy={y + SQ / 2} r={7}
-                          fill={dest.captured
-                            ? "var(--board-capture-move,rgba(198,43,68,.45))"
-                            : "var(--board-legal-move,rgba(79,176,125,.45))"}
-                          pointerEvents="none" />
-                )}
-                {p && (
-                  <text x={x + SQ / 2} y={y + SQ / 2 + 10} textAnchor="middle"
-                        fontSize={28}
-                        fill={p.color === "white" ? "var(--piece-white,#f5efd8)" : "var(--piece-black,#1a1510)"}
-                        onClick={() => {
-                          if (!myTurn) return;
-                          if (dest) { onMove(JSON.stringify(dest)); return; }
-                          if (p.color === myColor && bySource.has(`${col},${row}`)) {
-                            setSelected({ col, row });
-                          } else {
-                            setSelected(null);
-                          }
-                        }}
-                        style={{ cursor: myTurn ? "pointer" : "default", userSelect: "none" }}>
-                    {GLYPH[`${p.color}-${p.kind}`]}
-                  </text>
+                  <LegalDot
+                    cx={x + SQ / 2}
+                    cy={y + SQ / 2}
+                    size={SQ}
+                    capture={Boolean(dest.captured)}
+                  />
                 )}
               </g>
             );
           }),
         )}
+        <SeamLine x={0} height={boardH} />
+        <SeamLine x={boardW} height={boardH} />
+        {Array.from({ length: ik.ROWS }).map((_, ri) =>
+          Array.from({ length: ik.COLS }).map((__, ci) => {
+            const col = ci + 1, row = ri + 1;
+            const p = state.board[ri][ci];
+            if (!p) return null;
+            const x = ci * SQ + SQ / 2;
+            const y = renderRow(row) * SQ + SQ / 2;
+            return (
+              <ChessPiece
+                key={`p-${col}-${row}`}
+                cx={x}
+                cy={y}
+                size={SQ}
+                color={p.color}
+                kind={p.kind}
+                onClick={() => squareClick(col, row)}
+              />
+            );
+          }),
+        )}
       </svg>
-    </BoardFrame>
+    </BoardChrome>
+    </BoardViewToggle>
   );
 }
-
 const Wrap = styled.div`display:flex;flex-direction:column;gap:12px;color:var(--text,#f5f0e8);`;
 const Panel = styled.div`
   padding:20px;background:var(--bg2,#0d0b08);border:1px solid var(--border,#2a2218);border-radius:10px;

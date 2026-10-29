@@ -179,12 +179,23 @@ export default function Footer() {
           </Col>
 
           <Col>
+            <Heading>Play</Heading>
+            <Links>
+              <Link href="/play/royal-checkers">Royal Checkers</Link>
+              <Link href="/play/imperial-kings">Imperial Kings</Link>
+              <Link href="/puzzles">Daily puzzles</Link>
+              <Link href="/matches">Online matches</Link>
+              <Link href="/tournaments">Tournaments</Link>
+              <Link href="/champions">Champions ladder</Link>
+            </Links>
+          </Col>
+
+          <Col>
             <Heading>Community</Heading>
             <Links>
               <Link href="/sweepstakes">Royal Sphere Giveaway</Link>
               <Link href="/me/referrals">Your referral link</Link>
               <Link href="/license">License your design</Link>
-              <Link href="/champions">Champions</Link>
               <Link href="/blog">Blog</Link>
             </Links>
           </Col>

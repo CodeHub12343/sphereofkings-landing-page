@@ -21,6 +21,15 @@ nextjs/scripts/recovered-gmail.txt
 nextjs/scripts/gmail-oct17-batch.txt
 nextjs/scripts/*-batch.txt
 
+# Walkthrough recordings — big binary files, regenerate on demand.
+nextjs/scripts/walkthrough-output/
+
+# Generated docs (docx/pdf) — regenerate via scripts/docs/build-*.mjs.
+# Word lock files (~$*) must never be committed either.
+nextjs/scripts/docs/*.docx
+nextjs/scripts/docs/*.pdf
+nextjs/scripts/docs/~$*
+
 # Any top-level .env file (defense-in-depth; the nextjs/.gitignore already
 # covers nextjs/.env*.local, this blocks any .env anywhere in the repo).
 .env

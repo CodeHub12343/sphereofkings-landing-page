@@ -25,6 +25,21 @@ import { Difficulty, PRESETS, clampDifficulty, labelFor } from "@/lib/games/diff
 import { useAiWorker } from "./useAiWorker";
 import { DifficultySlider } from "./DifficultySlider";
 import { useRankedResult } from "./useRankedResult";
+import {
+  BoardChrome,
+  BoardDefs,
+  CheckerPiece,
+  LegalDot,
+  SeamLine,
+  Square as SkinSquare,
+} from "./BoardSkin";
+import BoardViewToggle from "./BoardViewToggle";
+import type { SpherePiece } from "./SphereBoardView";
+import ResignButton from "./ResignButton";
+import FirstTimeWelcome from "./FirstTimeWelcome";
+import PostGameModal from "./PostGameModal";
+import GameClock from "./GameClock";
+import { fx } from "@/lib/game-feedback";
 
 const STORAGE_KEY = "sok.rc.save.v1";
 
@@ -69,6 +84,14 @@ export default function RoyalCheckersBoard() {
   const [selected, setSelected] = useState<Square | null>(null);
   const [thinking, setThinking] = useState(false);
   const [message, setMessage] = useState<string>("");
+  const [resigned, setResigned] = useState(false);
+  // History stack: snapshots of (state, humanColor) BEFORE each
+  // human-initiated move pair. Undo restores the most recent.
+  const historyRef = useRef<{ state: GameState; humanColor: "red" | "black" }[]>([]);
+  const [canUndo, setCanUndo] = useState(false);
+  const [showEndModal, setShowEndModal] = useState(false);
+  const [clockOn, setClockOn] = useState(false);
+  const [clockKey, setClockKey] = useState(0); // bumps to reset clocks on new game
   const aiBusy = useRef(false);
   const { askMove } = useAiWorker();
   const { me, report, reset: resetRanking, newRating, newAchievements } = useRankedResult("royal-checkers");
@@ -89,14 +112,22 @@ export default function RoyalCheckersBoard() {
     writeSave({ state: encode(state), difficulty, humanColor });
   }, [state, difficulty, humanColor]);
 
-  const term = outcome(state);
+  // If the player resigned, overlay a synthetic win-for-opponent on
+  // whatever the engine thinks.
+  const rawTerm = outcome(state);
+  const term = resigned
+    ? ({ kind: "win", winner: humanColor === "red" ? "black" : "red", reason: "resignation" } as typeof rawTerm)
+    : rawTerm;
   const myTurn = state.toMove === humanColor && term.kind === "ongoing";
 
   useEffect(() => {
     if (term.kind !== "win" && term.kind !== "draw") return;
-    if (!me) return;
     const result: "win" | "loss" | "draw" =
       term.kind === "draw" ? "draw" : term.winner === humanColor ? "win" : "loss";
+    // Game-over sfx + show the post-game modal.
+    fx(result);
+    setShowEndModal(true);
+    if (!me) return;
     void report(result, difficulty);
   }, [term, me, humanColor, difficulty, report]);
 
@@ -116,6 +147,15 @@ export default function RoyalCheckersBoard() {
     if (!selected) return [];
     return legalBySource.get(`${selected.col},${selected.row}`) ?? [];
   }, [selected, legalBySource]);
+
+  // Legal destinations shaped for the sphere view (same geometry as the
+  // flat dots). `path` ends at the landing square; captures light up red.
+  const sphereLegalDests = useMemo(() => {
+    return legalForSelected.map((m) => {
+      const land = m.path[m.path.length - 1];
+      return { col: land.col, row: land.row, capture: m.captured.length > 0 };
+    });
+  }, [legalForSelected]);
 
   // AI turn: pick a move and apply after a small delay for feel.
   useEffect(() => {
@@ -143,7 +183,11 @@ export default function RoyalCheckersBoard() {
           return land.col === sq.col && land.row === sq.row;
         });
         if (dest) {
+          // Snapshot for undo BEFORE applying.
+          historyRef.current.push({ state, humanColor });
+          setCanUndo(true);
           setState((prev) => apply(prev, dest));
+          fx(dest.captured.length > 0 ? "capture" : "move");
           setSelected(null);
           setMessage("");
           return;
@@ -154,6 +198,7 @@ export default function RoyalCheckersBoard() {
       if (piece && piece.color === humanColor) {
         if (legalBySource.has(`${sq.col},${sq.row}`)) {
           setSelected(sq);
+          fx("select");
           setMessage("");
         } else if (legal.some((m) => m.captured.length > 0)) {
           setMessage("Captures are mandatory — pick a jumping piece.");
@@ -172,8 +217,24 @@ export default function RoyalCheckersBoard() {
     setState(initial());
     setSelected(null);
     setMessage("");
+    setResigned(false);
+    historyRef.current = [];
+    setCanUndo(false);
+    setShowEndModal(false);
+    setClockKey((k) => k + 1);
     resetRanking();
   }, [resetRanking]);
+
+  const undoLast = useCallback(() => {
+    const prev = historyRef.current.pop();
+    if (!prev) return;
+    setState(prev.state);
+    setHumanColor(prev.humanColor);
+    setSelected(null);
+    setMessage("Undid last move.");
+    setResigned(false);
+    setCanUndo(historyRef.current.length > 0);
+  }, []);
 
   const flipSides = useCallback(() => {
     const next = humanColor === "red" ? "black" : "red";
@@ -189,6 +250,19 @@ export default function RoyalCheckersBoard() {
   const width = COLS * sqSize;
   const height = ROWS * sqSize;
 
+  // Flatten the board into the piece list the sphere renderer expects.
+  const spherePieces: SpherePiece[] = useMemo(() => {
+    const out: SpherePiece[] = [];
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const p = state.board[r][c];
+        if (!p) continue;
+        out.push({ col: c + 1, row: r + 1, color: p.color, kind: "checker" });
+      }
+    }
+    return out;
+  }, [state.board]);
+
   const renderRow = humanColor === "red" ? (r: number) => ROWS - r : (r: number) => r - 1;
 
   return (
@@ -198,6 +272,29 @@ export default function RoyalCheckersBoard() {
         <ControlGroup>
           <button onClick={flipSides}>Switch sides</button>
           <button onClick={newGame}>New game</button>
+          <button
+            onClick={undoLast}
+            disabled={!canUndo || thinking || term.kind !== "ongoing"}
+            title="Undo your last move (also undoes the computer's reply)"
+          >
+            Undo
+          </button>
+          <ResignButton
+            disabled={term.kind !== "ongoing"}
+            onResign={() => {
+              setResigned(true);
+              setSelected(null);
+              setMessage("");
+            }}
+          />
+          <button
+            onClick={() => { setClockOn((v) => !v); setClockKey((k) => k + 1); }}
+            title="Toggle a 10-minute per-side chess clock"
+            aria-pressed={clockOn}
+            style={clockOn ? { borderColor: "#c9a227", color: "#f0c040" } : {}}
+          >
+            Clock: {clockOn ? "10 min on" : "off"}
+          </button>
         </ControlGroup>
       </Controls>
       <Status>
@@ -220,13 +317,52 @@ export default function RoyalCheckersBoard() {
         )}
       </Status>
 
-      <BoardFrame>
+      {clockOn && (
+        <GameClock
+          key={clockKey}
+          perSideSeconds={600}
+          toMove={state.toMove === "red" ? "a" : "b"}
+          running={term.kind === "ongoing"}
+          myLabel="You"
+          opponentLabel="Computer"
+          mySide={humanColor === "red" ? "a" : "b"}
+          onFlag={(side) => {
+            // Flag → treat as a loss for whoever ran out of time.
+            // Easiest: if the flagged side is us, mark resigned; else
+            // mark the opposite as resigned (opponent). resigned maps
+            // to a win for the OTHER side.
+            if (
+              (side === "a" && humanColor === "red") ||
+              (side === "b" && humanColor === "black")
+            ) {
+              setResigned(true);
+            } else {
+              // AI's clock ran out — synthesize a win by resigning for
+              // the AI side. We flip humanColor momentarily so the
+              // resigned-overlay flips the winner.
+              setResigned(true);
+              setHumanColor((c) => (c === "red" ? "black" : "red"));
+            }
+          }}
+        />
+      )}
+
+      <BoardViewToggle
+        cols={COLS}
+        rows={ROWS}
+        pieces={spherePieces}
+        selected={selected}
+        legalDests={sphereLegalDests}
+        onCellClick={onSquareClick}
+      >
+      <BoardChrome>
         <svg
           viewBox={`0 0 ${width} ${height}`}
           preserveAspectRatio="xMidYMid meet"
           role="img"
           aria-label="Royal Checkers board"
         >
+          <BoardDefs />
           {/* Squares */}
           {Array.from({ length: ROWS }).map((_, rIdx) =>
             Array.from({ length: COLS }).map((__, cIdx) => {
@@ -236,35 +372,27 @@ export default function RoyalCheckersBoard() {
               const y = renderRow(row) * sqSize;
               const x = cIdx * sqSize;
               const isSelected =
-                selected && selected.col === col && selected.row === row;
+                selected !== null && selected.col === col && selected.row === row;
               const legalDest = legalForSelected.find((m) => {
                 const land = m.path[m.path.length - 1];
                 return land.col === col && land.row === row;
               });
               return (
                 <g key={`${col}-${row}`}>
-                  <rect
+                  <SkinSquare
                     x={x}
                     y={y}
-                    width={sqSize}
-                    height={sqSize}
-                    fill={dark ? "var(--board-dark, #2b2210)" : "var(--board-light, #f3e1a7)"}
-                    stroke={isSelected ? "var(--board-seam, #f0c040)" : "none"}
-                    strokeWidth={isSelected ? 3 : 0}
+                    size={sqSize}
+                    dark={dark}
+                    selected={isSelected}
                     onClick={() => onSquareClick({ col, row })}
-                    style={{ cursor: dark ? "pointer" : "default" }}
                   />
                   {legalDest && (
-                    <circle
+                    <LegalDot
                       cx={x + sqSize / 2}
                       cy={y + sqSize / 2}
-                      r={8}
-                      fill={
-                        legalDest.captured.length > 0
-                          ? "var(--board-capture-move, rgba(198,43,68,0.45))"
-                          : "var(--board-legal-move, rgba(79,176,125,0.45))"
-                      }
-                      pointerEvents="none"
+                      size={sqSize}
+                      capture={legalDest.captured.length > 0}
                     />
                   )}
                 </g>
@@ -273,24 +401,8 @@ export default function RoyalCheckersBoard() {
           )}
 
           {/* Seam line between col 14 and col 1 (wraps the cylinder). */}
-          <line
-            x1={0}
-            y1={0}
-            x2={0}
-            y2={height}
-            stroke="var(--board-seam, #f0c040)"
-            strokeWidth={2}
-            strokeDasharray="4 4"
-          />
-          <line
-            x1={width}
-            y1={0}
-            x2={width}
-            y2={height}
-            stroke="var(--board-seam, #f0c040)"
-            strokeWidth={2}
-            strokeDasharray="4 4"
-          />
+          <SeamLine x={0} height={height} />
+          <SeamLine x={width} height={height} />
 
           {/* Pieces */}
           {Array.from({ length: ROWS }).map((_, rIdx) =>
@@ -301,43 +413,46 @@ export default function RoyalCheckersBoard() {
               if (!piece) return null;
               const y = renderRow(row) * sqSize + sqSize / 2;
               const x = cIdx * sqSize + sqSize / 2;
-              const fill =
-                piece.color === "red"
-                  ? "var(--piece-red, #c62b44)"
-                  : "var(--piece-black, #1a1510)";
-              const stroke =
-                piece.color === "red"
-                  ? "var(--piece-red-stroke, #8a1420)"
-                  : "var(--piece-black-stroke, #000)";
               return (
-                <g key={`p-${col}-${row}`} onClick={() => onSquareClick({ col, row })}
-                   style={{ cursor: "pointer" }}>
-                  <circle cx={x} cy={y} r={sqSize * 0.38} fill={fill} stroke={stroke} strokeWidth={2} />
-                  {piece.kind === "king" && (
-                    <text
-                      x={x}
-                      y={y + 5}
-                      textAnchor="middle"
-                      fontSize={16}
-                      fill="var(--king-crown, #f0c040)"
-                      fontWeight={700}
-                      pointerEvents="none"
-                    >
-                      ♔
-                    </text>
-                  )}
-                </g>
+                <CheckerPiece
+                  key={`p-${col}-${row}`}
+                  cx={x}
+                  cy={y}
+                  size={sqSize}
+                  color={piece.color}
+                  king={piece.kind === "king"}
+                  onClick={() => onSquareClick({ col, row })}
+                />
               );
             }),
           )}
         </svg>
-      </BoardFrame>
+      </BoardChrome>
+      </BoardViewToggle>
 
       <Legend>
-        <span><Dot $color="var(--piece-red, #c62b44)" /> Red (home row 1)</span>
-        <span><Dot $color="var(--piece-black, #1a1510)" /> Black (home row 8)</span>
+        <span><Dot $color="#d8324c" /> Red team (home row 1)</span>
+        <span><Dot $color="#1a1510" /> Black team (home row 8)</span>
         <span><SeamSwatch /> Cylinder seam — columns 14 & 1 are neighbours</span>
       </Legend>
+      <FirstTimeWelcome gameSlug="royal-checkers" gameName="Royal Checkers" />
+      {showEndModal && (term.kind === "win" || term.kind === "draw") && (
+        <PostGameModal
+          outcome={
+            term.kind === "draw"
+              ? "draw"
+              : term.winner === humanColor
+                ? "win"
+                : "loss"
+          }
+          reason={term.reason ?? (term.kind === "draw" ? "No further moves" : "")}
+          gameName="Royal Checkers"
+          onRematch={() => { newGame(); }}
+          onClose={() => setShowEndModal(false)}
+          shareText="I just played Royal Checkers on sphereofkings.com — checkers on a spherical board."
+          newRating={newRating}
+        />
+      )}
     </Wrap>
   );
 }

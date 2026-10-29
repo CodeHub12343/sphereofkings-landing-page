@@ -170,13 +170,20 @@ function pawnMoves(state: GameState, from: Square, piece: Piece, moves: Move[]) 
   const altStartRow = piece.color === "white" ? 3 : ROWS - 2;
   const promoRow = piece.color === "white" ? ROWS : 1;
 
+  // Four promotion options when landing on the promotion rank — the
+  // UI prompts the player to pick which one. For non-promoting moves
+  // we emit a single move with no promotion field.
+  const PROMO_KINDS: PieceKind[] = ["queen", "rook", "bishop", "knight"];
+
   // One forward.
   const oneRow = from.row + dir;
   if (oneRow >= 1 && oneRow <= ROWS) {
     const oneSq: Square = { col: from.col, row: oneRow };
     if (!pieceAt(state, oneSq)) {
       if (oneRow === promoRow) {
-        moves.push({ from, to: oneSq, captured: null, promotion: "queen" });
+        for (const kind of PROMO_KINDS) {
+          moves.push({ from, to: oneSq, captured: null, promotion: kind });
+        }
       } else {
         moves.push({ from, to: oneSq, captured: null });
       }
@@ -197,7 +204,9 @@ function pawnMoves(state: GameState, from: Square, piece: Piece, moves: Move[]) 
     const target = pieceAt(state, to);
     if (target && target.color !== piece.color) {
       if (row === promoRow) {
-        moves.push({ from, to, captured: target, promotion: "queen" });
+        for (const kind of PROMO_KINDS) {
+          moves.push({ from, to, captured: target, promotion: kind });
+        }
       } else {
         moves.push({ from, to, captured: target });
       }

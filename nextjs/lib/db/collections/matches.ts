@@ -52,6 +52,16 @@ export interface Match {
   tournamentId?: string;
   tournamentRoundIdx?: number;
   tournamentNodeIdx?: number;
+  // In-match chat — ephemeral, capped to the last ~50 messages per
+  // match. Only the two players can send; spectators see it read-only.
+  chatMessages?: MatchChatMessage[];
+}
+
+export interface MatchChatMessage {
+  playerId: string;
+  displayName: string;
+  text: string;
+  iso: string;
 }
 
 export async function ensureMatchIndexes(): Promise<void> {

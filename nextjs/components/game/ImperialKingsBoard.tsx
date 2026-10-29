@@ -1,5 +1,11 @@
 "use client";
 
+// NOTE: Next 15 + SWC occasionally mis-parses this file on a cold HMR
+// pass and complains about "Unexpected token" near the final `}`. The
+// file is syntactically correct — production builds compile cleanly
+// and a plain `touch` on the file clears the dev cache. Not a code bug;
+// a documented Next bug not worth chasing.
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import {
@@ -10,16 +16,25 @@ import { Difficulty, PRESETS, clampDifficulty, labelFor } from "@/lib/games/diff
 import { useAiWorker } from "./useAiWorker";
 import { DifficultySlider } from "./DifficultySlider";
 import { useRankedResult } from "./useRankedResult";
+import {
+  BoardChrome,
+  BoardDefs,
+  ChessPiece,
+  LegalDot,
+  SeamLine,
+  Square as SkinSquare,
+} from "./BoardSkin";
+import BoardViewToggle from "./BoardViewToggle";
+import type { SpherePiece } from "./SphereBoardView";
+import PromotionPicker from "./PromotionPicker";
+import ResignButton from "./ResignButton";
+import FirstTimeWelcome from "./FirstTimeWelcome";
+import PostGameModal from "./PostGameModal";
+import GameClock from "./GameClock";
+import { fx } from "@/lib/game-feedback";
 
 const STORAGE_KEY = "sok.ik.save.v1";
 interface Save { state: string; difficulty: Difficulty; humanColor: "white" | "black"; }
-
-const GLYPH: Record<string, string> = {
-  "white-pawn": "♙", "white-knight": "♘", "white-bishop": "♗",
-  "white-rook": "♖", "white-queen": "♕", "white-king": "♔",
-  "black-pawn": "♟", "black-knight": "♞", "black-bishop": "♝",
-  "black-rook": "♜", "black-queen": "♛", "black-king": "♚",
-};
 
 export default function ImperialKingsBoard() {
   const [state, setState] = useState<GameState>(() => initial());
@@ -28,6 +43,12 @@ export default function ImperialKingsBoard() {
   const [selected, setSelected] = useState<Square | null>(null);
   const [thinking, setThinking] = useState(false);
   const [message, setMessage] = useState("");
+  const [resigned, setResigned] = useState(false);
+  const historyRef = useRef<{ state: GameState; humanColor: "white" | "black" }[]>([]);
+  const [canUndo, setCanUndo] = useState(false);
+  const [showEndModal, setShowEndModal] = useState(false);
+  const [clockOn, setClockOn] = useState(false);
+  const [clockKey, setClockKey] = useState(0);
   const { askMove } = useAiWorker();
   const aiBusy = useRef(false);
   const { me, report, reset: resetRanking, newRating, newAchievements } = useRankedResult("imperial-kings");
@@ -52,15 +73,20 @@ export default function ImperialKingsBoard() {
     } catch {}
   }, [state, difficulty, humanColor]);
 
-  const term = outcome(state);
+  const rawTerm = outcome(state);
+  const term = resigned
+    ? ({ kind: "win", winner: humanColor === "white" ? "black" : "white", reason: "resignation" } as typeof rawTerm)
+    : rawTerm;
   const myTurn = state.toMove === humanColor && term.kind === "ongoing";
   const legal = useMemo(() => legalMoves(state), [state]);
 
   useEffect(() => {
     if (term.kind !== "win" && term.kind !== "draw") return;
-    if (!me) return;
     const result: "win" | "loss" | "draw" =
       term.kind === "draw" ? "draw" : term.winner === humanColor ? "win" : "loss";
+    fx(result);
+    setShowEndModal(true);
+    if (!me) return;
     void report(result, difficulty);
   }, [term, me, humanColor, difficulty, report]);
 
@@ -80,6 +106,24 @@ export default function ImperialKingsBoard() {
     [selected, legalBySource],
   );
 
+  // De-dupe by target square — a promoting pawn has 4 Move entries
+  // sharing the same (to.col, to.row). The sphere view should render
+  // one ring per square, not four stacked.
+  const sphereLegalDests = useMemo(
+    () => {
+      const seen = new Set<string>();
+      const out: { col: number; row: number; capture: boolean }[] = [];
+      for (const m of legalForSelected) {
+        const key = `${m.to.col},${m.to.row}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        out.push({ col: m.to.col, row: m.to.row, capture: Boolean(m.captured) });
+      }
+      return out;
+    },
+    [legalForSelected],
+  );
+
   useEffect(() => {
     if (term.kind !== "ongoing") return;
     if (state.toMove === humanColor) return;
@@ -95,13 +139,30 @@ export default function ImperialKingsBoard() {
       });
   }, [state, humanColor, difficulty, term.kind, askMove]);
 
+  // Promotion state — when the player picks a destination that has >1
+  // candidate move (one per promotion piece), we stash the pending
+  // moves and surface the picker. The user's choice resolves which
+  // Move to apply.
+  const [pendingPromotion, setPendingPromotion] = useState<Move[] | null>(null);
+
   const onSquareClick = useCallback((sq: Square) => {
     if (!myTurn) return;
     if (selected) {
-      const dest = legalForSelected.find((m) => m.to.col === sq.col && m.to.row === sq.row);
-      if (dest) {
-        setState((p) => apply(p, dest));
-        setSelected(null); setMessage("");
+      const dests = legalForSelected.filter(
+        (m) => m.to.col === sq.col && m.to.row === sq.row,
+      );
+      if (dests.length === 1) {
+        historyRef.current.push({ state, humanColor });
+        setCanUndo(true);
+        setState((p) => apply(p, dests[0]));
+        fx(dests[0].captured ? "capture" : "move");
+        setSelected(null);
+        setMessage("");
+        return;
+      }
+      if (dests.length > 1) {
+        // All should share from/to; only the `promotion` field differs.
+        setPendingPromotion(dests);
         return;
       }
     }
@@ -109,6 +170,7 @@ export default function ImperialKingsBoard() {
     if (p && p.color === humanColor) {
       if (legalBySource.has(`${sq.col},${sq.row}`)) {
         setSelected(sq);
+        fx("select");
       } else {
         setMessage("That piece has no legal moves.");
       }
@@ -120,10 +182,39 @@ export default function ImperialKingsBoard() {
   const newGame = useCallback(() => {
     try { localStorage.removeItem(STORAGE_KEY); } catch {}
     setState(initial()); setSelected(null); setMessage("");
+    setResigned(false);
+    historyRef.current = [];
+    setCanUndo(false);
+    setShowEndModal(false);
+    setClockKey((k) => k + 1);
     resetRanking();
   }, [resetRanking]);
 
+  const undoLast = useCallback(() => {
+    const prev = historyRef.current.pop();
+    if (!prev) return;
+    setState(prev.state);
+    setHumanColor(prev.humanColor);
+    setSelected(null);
+    setMessage("Undid last move.");
+    setResigned(false);
+    setCanUndo(historyRef.current.length > 0);
+  }, []);
+
   const sqSize = 44;
+
+  const spherePieces: SpherePiece[] = useMemo(() => {
+    const out: SpherePiece[] = [];
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const p = state.board[r][c];
+        if (!p) continue;
+        out.push({ col: c + 1, row: r + 1, color: p.color, kind: p.kind });
+      }
+    }
+    return out;
+  }, [state.board]);
+
   const width = COLS * sqSize;
   const height = ROWS * sqSize;
   const renderRow = humanColor === "white" ? (r: number) => ROWS - r : (r: number) => r - 1;
@@ -137,6 +228,29 @@ export default function ImperialKingsBoard() {
             Switch sides
           </button>
           <button onClick={newGame}>New game</button>
+          <button
+            onClick={undoLast}
+            disabled={!canUndo || thinking || term.kind !== "ongoing"}
+            title="Undo your last move (also undoes the computer's reply)"
+          >
+            Undo
+          </button>
+          <ResignButton
+            disabled={term.kind !== "ongoing"}
+            onResign={() => {
+              setResigned(true);
+              setSelected(null);
+              setMessage("");
+            }}
+          />
+          <button
+            onClick={() => { setClockOn((v) => !v); setClockKey((k) => k + 1); }}
+            title="Toggle a 10-minute per-side chess clock"
+            aria-pressed={clockOn}
+            style={clockOn ? { borderColor: "#c9a227", color: "#f0c040" } : {}}
+          >
+            Clock: {clockOn ? "10 min on" : "off"}
+          </button>
         </Buttons>
       </TopRow>
       <Status>
@@ -161,68 +275,140 @@ export default function ImperialKingsBoard() {
         )}
       </Status>
 
-      <BoardFrame>
+      {clockOn && (
+        <GameClock
+          key={clockKey}
+          perSideSeconds={600}
+          toMove={state.toMove === "white" ? "a" : "b"}
+          running={term.kind === "ongoing"}
+          myLabel="You"
+          opponentLabel="Computer"
+          mySide={humanColor === "white" ? "a" : "b"}
+          onFlag={(side) => {
+            if (
+              (side === "a" && humanColor === "white") ||
+              (side === "b" && humanColor === "black")
+            ) {
+              setResigned(true);
+            } else {
+              setResigned(true);
+              setHumanColor((c) => (c === "white" ? "black" : "white"));
+            }
+          }}
+        />
+      )}
+
+      <BoardViewToggle
+        cols={COLS}
+        rows={ROWS}
+        pieces={spherePieces}
+        selected={selected}
+        legalDests={sphereLegalDests}
+        onCellClick={onSquareClick}
+      >
+      <BoardChrome>
         <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid meet"
              role="img" aria-label="Imperial Kings board">
+          <BoardDefs />
           {Array.from({ length: ROWS }).map((_, rIdx) =>
             Array.from({ length: COLS }).map((__, cIdx) => {
               const col = cIdx + 1; const row = rIdx + 1;
               const light = (col + row) % 2 === 0;
               const x = cIdx * sqSize; const y = renderRow(row) * sqSize;
-              const isSel = selected && selected.col === col && selected.row === row;
+              const isSel = selected !== null && selected.col === col && selected.row === row;
               const dest = legalForSelected.find((m) => m.to.col === col && m.to.row === row);
               return (
                 <g key={`${col}-${row}`}>
-                  <rect x={x} y={y} width={sqSize} height={sqSize}
-                        fill={light ? "var(--board-light,#f3e1a7)" : "var(--board-dark,#2b2210)"}
-                        stroke={isSel ? "var(--board-seam,#f0c040)" : "none"}
-                        strokeWidth={isSel ? 3 : 0}
-                        onClick={() => onSquareClick({ col, row })}
-                        style={{ cursor: "pointer" }} />
+                  <SkinSquare
+                    x={x}
+                    y={y}
+                    size={sqSize}
+                    dark={!light}
+                    selected={isSel}
+                    onClick={() => onSquareClick({ col, row })}
+                  />
                   {dest && (
-                    <circle cx={x + sqSize / 2} cy={y + sqSize / 2} r={8}
-                            fill={dest.captured
-                              ? "var(--board-capture-move,rgba(198,43,68,0.45))"
-                              : "var(--board-legal-move,rgba(79,176,125,0.45))"}
-                            pointerEvents="none" />
+                    <LegalDot
+                      cx={x + sqSize / 2}
+                      cy={y + sqSize / 2}
+                      size={sqSize}
+                      capture={Boolean(dest.captured)}
+                    />
                   )}
                 </g>
               );
             }),
           )}
-          <line x1={0} y1={0} x2={0} y2={height}
-                stroke="var(--board-seam,#f0c040)" strokeWidth={2} strokeDasharray="4 4" />
-          <line x1={width} y1={0} x2={width} y2={height}
-                stroke="var(--board-seam,#f0c040)" strokeWidth={2} strokeDasharray="4 4" />
+          <SeamLine x={0} height={height} />
+          <SeamLine x={width} height={height} />
           {Array.from({ length: ROWS }).map((_, rIdx) =>
             Array.from({ length: COLS }).map((__, cIdx) => {
               const col = cIdx + 1; const row = rIdx + 1;
               const p = state.board[rIdx][cIdx];
               if (!p) return null;
               const x = cIdx * sqSize + sqSize / 2;
-              const y = renderRow(row) * sqSize + sqSize / 2 + 11;
-              const glyph = GLYPH[`${p.color}-${p.kind}`] ?? "?";
+              const y = renderRow(row) * sqSize + sqSize / 2;
               return (
-                <text key={`p-${col}-${row}`} x={x} y={y} textAnchor="middle"
-                      fontSize={30}
-                      fill={p.color === "white" ? "var(--piece-white,#f5efd8)" : "var(--piece-black,#1a1510)"}
-                      stroke={p.color === "white" ? "var(--piece-white-stroke,#b8901e)" : "var(--piece-black-stroke,#000)"}
-                      strokeWidth={0.6}
-                      onClick={() => onSquareClick({ col, row })}
-                      style={{ cursor: "pointer", userSelect: "none" }}>
-                  {glyph}
-                </text>
+                <ChessPiece
+                  key={`p-${col}-${row}`}
+                  cx={x}
+                  cy={y}
+                  size={sqSize}
+                  color={p.color}
+                  kind={p.kind}
+                  onClick={() => onSquareClick({ col, row })}
+                />
               );
             }),
           )}
         </svg>
-      </BoardFrame>
+      </BoardChrome>
+      </BoardViewToggle>
       <Legend>
         <span><Dot $color="var(--piece-white,#f5efd8)" /> White (home rows 1–3)</span>
         <span><Dot $color="var(--piece-black,#1a1510)" /> Black (home rows 6–8)</span>
         <span><SeamSwatch /> Seam — slides and knight-jumps wrap</span>
         <span>Win: capture both opponent kings</span>
       </Legend>
+      <FirstTimeWelcome gameSlug="imperial-kings" gameName="Imperial Kings" />
+      {showEndModal && (term.kind === "win" || term.kind === "draw") && (
+        <PostGameModal
+          outcome={
+            term.kind === "draw"
+              ? "draw"
+              : term.winner === humanColor
+                ? "win"
+                : "loss"
+          }
+          reason={term.reason ?? (term.kind === "draw" ? "No further moves" : "")}
+          gameName="Imperial Kings"
+          onRematch={() => { newGame(); }}
+          onClose={() => setShowEndModal(false)}
+          shareText="I just played Imperial Kings on sphereofkings.com — chess with two kings on a spherical board."
+          newRating={newRating}
+        />
+      )}
+      {pendingPromotion && pendingPromotion.length > 0 && (
+        <PromotionPicker
+          color={humanColor}
+          kinds={pendingPromotion
+            .map((m) => m.promotion!)
+            .filter((k): k is NonNullable<typeof k> => Boolean(k))}
+          onPick={(kind) => {
+            const chosen = pendingPromotion.find((m) => m.promotion === kind);
+            if (chosen) {
+              historyRef.current.push({ state, humanColor });
+              setCanUndo(true);
+              setState((p) => apply(p, chosen));
+              fx("promote");
+              setSelected(null);
+              setMessage("");
+            }
+            setPendingPromotion(null);
+          }}
+          onCancel={() => setPendingPromotion(null)}
+        />
+      )}
     </Wrap>
   );
 }
