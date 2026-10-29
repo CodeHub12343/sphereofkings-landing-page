@@ -8,6 +8,11 @@ import { Product, availability, formatMoney, pricing } from "@/lib/products";
 import { useCart } from "@/lib/cart";
 import FullDetailsTrigger from "./FullDetailsTrigger";
 
+// Kickstarter-only mode (James, 2026-10-29): direct checkout is
+// retired until further notice; the Buy button routes to the campaign.
+const KICKSTARTER_URL =
+  process.env.NEXT_PUBLIC_KICKSTARTER_URL ?? "/#signup";
+
 const Crumbs = styled.nav`
   font-family: "Inter", sans-serif;
   font-size: 0.8rem;
@@ -590,11 +595,12 @@ export default function ProductDetail({ product, children }: { product: Product;
                   </QtyBtn>
                 </QtyBox>
                 <BuyBtn
-                  type="button"
-                  disabled={!canAdd}
-                  onClick={() => canAdd && addItem(product.slug, qty)}
+                  as="a"
+                  href={KICKSTARTER_URL}
+                  target={KICKSTARTER_URL.startsWith("http") ? "_blank" : undefined}
+                  rel={KICKSTARTER_URL.startsWith("http") ? "noreferrer" : undefined}
                 >
-                  Add {qty > 1 ? `${qty} ` : ""}to cart
+                  Back {qty > 1 ? `${qty} ` : ""}on Kickstarter
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                     <path
                       d="M3 7h8m-3-3 3 3-3 3"

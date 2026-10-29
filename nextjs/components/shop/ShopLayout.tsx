@@ -69,13 +69,17 @@ export default function ShopLayout({ products }: { products: Product[] }) {
             <SectionEyebrow>Kickstarter Rewards</SectionEyebrow>
             <Heading>Seven games. One royal sphere.</Heading>
             <Lede>
-              Back the campaign to join the first families playing on
-              Christmas morning. Pick a reward, then switch to Add-ons
-              to extend your pledge.
+              Every reward below ships through our Kickstarter campaign.
+              Browse the lineup, then back the campaign to lock in your
+              pledge.
             </Lede>
-            <NoticeRow>
-              <DeliveryNotice variant="early-bird" />
-            </NoticeRow>
+            <KickstarterCta
+              href={process.env.NEXT_PUBLIC_KICKSTARTER_URL ?? "/#signup"}
+              target={(process.env.NEXT_PUBLIC_KICKSTARTER_URL ?? "").startsWith("http") ? "_blank" : undefined}
+              rel={(process.env.NEXT_PUBLIC_KICKSTARTER_URL ?? "").startsWith("http") ? "noreferrer" : undefined}
+            >
+              Back the Kickstarter campaign →
+            </KickstarterCta>
 
             {products.length === 0 ? (
               <Empty>
@@ -308,5 +312,32 @@ const Empty = styled.div`
     font-family: "Cinzel", serif;
     font-size: 1.2rem;
     margin-bottom: 8px;
+  }
+`;
+
+const KickstarterCta = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 18px auto 0;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #b8901e 0%, #f0c040 50%, #b8901e 100%);
+  color: #0a0a0a;
+  border-radius: 999px;
+  font-family: "Cinzel", serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(240, 192, 64, 0.14);
+  transition: box-shadow 0.2s, transform 0.1s;
+  &:hover {
+    box-shadow: 0 0 32px rgba(240, 192, 64, 0.45);
+    transform: translateY(-1px);
+  }
+  @media (max-width: 640px) {
+    font-size: 0.9rem;
+    padding: 12px 20px;
   }
 `;

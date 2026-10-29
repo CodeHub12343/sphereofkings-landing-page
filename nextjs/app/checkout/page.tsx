@@ -1,28 +1,24 @@
-"use client";
+// Direct checkout is retired in Kickstarter-only mode (James,
+// 2026-10-29). Any visitor landing on /checkout is sent to the
+// Kickstarter campaign; a tiny holding page shows briefly while the
+// redirect fires so the request doesn't look broken if the Kickstarter
+// link is misconfigured.
 
-import styled from "styled-components";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import CheckoutStepper from "@/components/checkout/CheckoutStepper";
-import { Wrap } from "@/components/shared";
+import { redirect } from "next/navigation";
 
-const Section = styled.section`
-  padding: clamp(32px, 5vw, 72px) 0 clamp(60px, 8vw, 112px);
-  background: #0a0a0a;
-`;
+export const dynamic = "force-dynamic";
 
-export default function CheckoutPage() {
-  return (
-    <>
-      <Header />
-      <main>
-        <Section>
-          <Wrap>
-            <CheckoutStepper />
-          </Wrap>
-        </Section>
-      </main>
-      <Footer />
-    </>
-  );
+export const metadata = {
+  title: "On Kickstarter · Sphere of Kings",
+  robots: { index: false, follow: false },
+};
+
+export default function CheckoutRedirectPage() {
+  const url = process.env.NEXT_PUBLIC_KICKSTARTER_URL;
+  if (url && url.startsWith("http")) {
+    redirect(url);
+  }
+  // Fallback — no Kickstarter URL configured yet; send them to the
+  // reward preview instead of a dead checkout flow.
+  redirect("/shop");
 }

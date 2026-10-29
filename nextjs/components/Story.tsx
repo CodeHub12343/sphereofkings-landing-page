@@ -243,7 +243,7 @@ export default function Story() {
                 Read the full story
                 {Arrow}
               </Primary>
-              <Ghost href="/shop">Shop the Early Bird →</Ghost>
+              <Ghost href="/shop">View the Rewards →</Ghost>
             </Actions>
           </TextCol>
         </Row>

@@ -183,8 +183,8 @@ export default function Tiers() {
         </Grid>
         <BottomNote>
           Kickstarter deliveries are expected around mid-December 2026 — an
-          expectation, not a guarantee. For in-stock Christmas delivery,
-          shop the Christmas Early Bird collection above.
+          expectation, not a guarantee. All rewards are fulfilled exclusively
+          through the campaign.
         </BottomNote>
         <SignupWrap id="signup">
           <SignupForm

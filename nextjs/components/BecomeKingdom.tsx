@@ -172,13 +172,13 @@ export default function BecomeKingdom() {
                 />
               </svg>
             </CardIcon>
-            <CardTitle>Shop the Collection</CardTitle>
+            <CardTitle>Browse the Rewards</CardTitle>
             <CardBody>
-              Explore the available products and Christmas Early Bird
-              preorder opportunities. Pricing is finalised per product.
+              Explore the full reward lineup. All pledges are backed
+              exclusively through our Kickstarter campaign.
             </CardBody>
             <CardCta>
-              Shop Now
+              View Rewards
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
                 <path
                   d="M2 5h6m-2-2 2 2-2 2"

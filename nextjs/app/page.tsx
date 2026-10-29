@@ -1,7 +1,8 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import KingdomCollection from "@/components/KingdomCollection";
-import ChristmasPanel from "@/components/ChristmasPanel";
+// ChristmasPanel removed on client request (James, 2026-10-29) —
+// all sales are routed through Kickstarter until further notice.
 import Features from "@/components/Features";
 import Story from "@/components/Story";
 import Showcase from "@/components/Showcase";
@@ -30,7 +31,7 @@ export default function Home() {
       <GiveawayBand />
       {/* <PlayGamesBand /> — temporarily hidden per owner request */}
       <KingdomCollection />
-      <ChristmasPanel />
+      {/* ChristmasPanel removed — Kickstarter-only mode (James, 2026-10-29) */}
       <Features />
       <Story />
       <Showcase />

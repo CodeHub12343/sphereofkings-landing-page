@@ -5,6 +5,12 @@ import Link from "next/link";
 import { Product, availability, formatMoney, pricing } from "@/lib/products";
 import { useCart } from "@/lib/cart";
 
+// Kickstarter-only mode: all reward cards route to the campaign
+// (James, 2026-10-29). addItem/useCart stays imported for backwards
+// compatibility with other consumers but is not wired into the CTA.
+const KICKSTARTER_URL =
+  process.env.NEXT_PUBLIC_KICKSTARTER_URL ?? "/#signup";
+
 const Card = styled.article<{ $featured?: boolean }>`
   background: #0e0c09;
   border: 1px solid ${(p) => (p.$featured ? "#c9a227" : "#1e1a12")};
@@ -327,13 +333,13 @@ export default function ProductCard({
         {soldOut ? (
           <SecondaryAction href="/#signup">Notify me</SecondaryAction>
         ) : (
-          <PrimaryAction
-            type="button"
-            disabled={!canAdd}
-            onClick={() => addItem(product.slug, 1)}
+          <SecondaryAction
+            href={KICKSTARTER_URL}
+            target={KICKSTARTER_URL.startsWith("http") ? "_blank" : undefined}
+            rel={KICKSTARTER_URL.startsWith("http") ? "noreferrer" : undefined}
           >
-            Add to cart
-          </PrimaryAction>
+            Back on Kickstarter →
+          </SecondaryAction>
         )}
       </Foot>
     </Card>

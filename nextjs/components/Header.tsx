@@ -19,14 +19,71 @@ const HeaderEl = styled.header`
 
 // Spacer that reserves vertical room equal to the fixed header so page
 // content never slides under it. The height mirrors the Row heights
-// below — keep them in sync.
-const HeaderSpacer = styled.div`
-  height: 70px;
+// below — keep them in sync. +40px when the Kickstarter strip renders
+// (it adds its own row above the nav row inside the same fixed block).
+const HeaderSpacer = styled.div<{ $withBar?: boolean }>`
+  height: ${(p) => (p.$withBar ? "110px" : "70px")};
 
   @media (max-width: 720px) {
-    height: 64px;
+    height: ${(p) => (p.$withBar ? "112px" : "64px")};
   }
 `;
+
+// Kickstarter-only-mode strip (James, 2026-10-29). Lives INSIDE the
+// fixed header so it scrolls with the nav as one unit instead of being
+// overlapped by it — a standalone fixed banner above a fixed header
+// just gets painted over, since fixed elements position against the
+// viewport, not document flow.
+const KsBar = styled.div`
+  background: linear-gradient(90deg, #15110c 0%, #2a1b06 50%, #15110c 100%);
+  border-bottom: 1px solid #c9a227;
+  color: #f5f0e8;
+  font-family: "Inter", sans-serif;
+  font-size: 0.82rem;
+  padding: 8px 0;
+`;
+
+const KsBarInner = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 clamp(14px, 3vw, 28px);
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  strong { color: #f0c040; }
+  span { color: #d1c7b4; }
+  @media (max-width: 640px) {
+    font-size: 0.74rem;
+  }
+`;
+
+const KsDot = styled.span`
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4fb07d;
+  box-shadow: 0 0 10px rgba(79, 176, 125, 0.7);
+  flex-shrink: 0;
+`;
+
+const KsCta = styled.a`
+  color: #0a0a0a;
+  background: linear-gradient(135deg, #b8901e 0%, #f0c040 50%, #b8901e 100%);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  white-space: nowrap;
+`;
+
+const KICKSTARTER_URL =
+  process.env.NEXT_PUBLIC_KICKSTARTER_URL ?? "/#signup";
 
 const Row = styled.div`
   display: flex;
@@ -225,8 +282,11 @@ const DrawerCta = styled(BtnGoldLink)`
   font-size: 0.95rem;
 `;
 
+// "Shop" renamed to "Rewards" — the page now previews what the
+// Kickstarter campaign offers rather than routing to a direct-sale
+// checkout (James, 2026-10-29).
 const NAV = [
-  ["/shop", "Shop"],
+  ["/shop", "Rewards"],
   ["/how-to-play", "How to Play"],
   ["/videos", "Videos"],
   ["/sweepstakes", "Giveaway"],
@@ -238,7 +298,7 @@ const NAV = [
   ["/#contact", "Contact"],
 ] as const;
 
-export default function Header() {
+export default function Header({ kickstarterBar = false }: { kickstarterBar?: boolean }) {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
 
@@ -257,10 +317,28 @@ export default function Header() {
     };
   }, [open]);
 
+  const isExternal = KICKSTARTER_URL.startsWith("http");
+
   return (
     <>
-      <HeaderSpacer aria-hidden="true" />
+      <HeaderSpacer aria-hidden="true" $withBar={kickstarterBar} />
       <HeaderEl>
+        {kickstarterBar && (
+          <KsBar>
+            <KsBarInner>
+              <KsDot aria-hidden="true" />
+              <strong>Live on Kickstarter.</strong>{" "}
+              <span>All Sphere of Kings orders go through our campaign.</span>
+              <KsCta
+                href={KICKSTARTER_URL}
+                target={isExternal ? "_blank" : undefined}
+                rel={isExternal ? "noreferrer" : undefined}
+              >
+                Back the campaign →
+              </KsCta>
+            </KsBarInner>
+          </KsBar>
+        )}
         <Wrap>
         <Row>
           <Logo href="/" aria-label="Sphere of Kings — back to top">
@@ -279,7 +357,9 @@ export default function Header() {
           </DesktopNav>
           <RightRow>
             <Cta href="/#signup">Notify Me</Cta>
-            <CartIcon />
+            {/* CartIcon hidden — all sales routed through Kickstarter
+                (James, 2026-10-29). Restore when direct sales resume. */}
+            {false && <CartIcon />}
             <Toggle
               type="button"
               aria-label={open ? "Close menu" : "Open menu"}

@@ -329,13 +329,13 @@ export default function Hero() {
                 </svg>
               </EBIcon>
               <EBBody>
-                <EBTitle>Christmas Early Bird Preorders Available</EBTitle>
-                <EBSub>Deliveries start December 1, 2026.</EBSub>
+                <EBTitle>Live on Kickstarter</EBTitle>
+                <EBSub>All rewards ship exclusively through our campaign.</EBSub>
               </EBBody>
             </EarlyBird>
             <Ctas>
               <Primary href="/shop">
-                Explore the Collection
+                Explore the Rewards
                 <svg
                   width="12"
                   height="12"

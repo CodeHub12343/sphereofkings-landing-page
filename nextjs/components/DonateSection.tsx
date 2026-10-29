@@ -155,16 +155,16 @@ export default function DonateSection({
                 <Dot aria-hidden="true" />
                 <span>
                   <strong>Launch day.</strong> Shipping, printing and the
-                  first Early Bird batch.
+                  first Kickstarter fulfillment batch.
                 </span>
               </li>
             </Pills>
             <Divider />
-            <h2>How it is different from a preorder</h2>
+            <h2>How it is different from a pledge</h2>
             <p>
               Donations are not purchases. You will not receive a product in
-              exchange. If you want the game, visit the Christmas Early Bird
-              shop instead.
+              exchange. If you want the game, back our Kickstarter campaign
+              instead.
             </p>
             <Divider />
             <Fine>
