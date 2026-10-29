@@ -332,6 +332,7 @@ const NAV = [
   { href: "/admin/products", label: "Products" },
   { href: "/admin/affiliates", label: "Affiliates" },
   { href: "/admin/wholesale", label: "Wholesale" },
+  { href: "/admin/sponsorships", label: "Sponsorships" },
   { href: "/admin/finance", label: "Finance" },
   { href: "/admin/subscribers", label: "Subscribers" },
   { href: "/admin/emails", label: "Emails" },

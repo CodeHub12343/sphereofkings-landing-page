@@ -33,9 +33,9 @@ const Row = styled.div`
   align-items: center;
   justify-content: space-between;
   height: 70px;
-  gap: 20px;
+  gap: 16px;
 
-  @media (max-width: 720px) {
+  @media (max-width: 980px) {
     height: 64px;
     gap: 12px;
   }
@@ -55,14 +55,19 @@ const Logo = styled.a`
   }
 `;
 
-/* Desktop nav: inline links. Hidden on mobile. */
+/* Desktop nav: single-row inline links. Shrinks gap/font as viewport
+   narrows so all 10 items stay on one line down to ~980px; the mobile
+   drawer takes over below that. */
 const DesktopNav = styled.nav`
   display: flex;
-  gap: 24px;
   align-items: center;
-  flex-wrap: wrap;
+  gap: clamp(10px, 1.6vw, 22px);
+  flex-wrap: nowrap;
+  min-width: 0;
+  flex: 1;
+  justify-content: center;
 
-  @media (max-width: 720px) {
+  @media (max-width: 980px) {
     display: none;
   }
 `;
@@ -70,8 +75,9 @@ const DesktopNav = styled.nav`
 const NavLink = styled.a`
   color: #7a6a5a;
   text-decoration: none;
-  font-size: 0.88rem;
+  font-size: clamp(0.78rem, 0.9vw, 0.88rem);
   letter-spacing: 0.03em;
+  white-space: nowrap;
   transition: color 0.2s;
 
   &:hover,
@@ -90,7 +96,7 @@ const Cta = styled(BtnGoldLink)`
   padding: 10px 22px;
   font-size: 0.82rem;
 
-  @media (max-width: 720px) {
+  @media (max-width: 980px) {
     display: none;
   }
 `;
@@ -114,7 +120,7 @@ const Toggle = styled.button<{ $open: boolean }>`
   position: relative;
   z-index: 1102;
 
-  @media (max-width: 720px) {
+  @media (max-width: 980px) {
     display: block;
   }
 
@@ -146,7 +152,7 @@ const Toggle = styled.button<{ $open: boolean }>`
 const Scrim = styled.div<{ $open: boolean }>`
   display: none;
 
-  @media (max-width: 720px) {
+  @media (max-width: 980px) {
     display: block;
     position: fixed;
     inset: 0;
@@ -163,7 +169,7 @@ const Scrim = styled.div<{ $open: boolean }>`
 const Drawer = styled.nav<{ $open: boolean }>`
   display: none;
 
-  @media (max-width: 720px) {
+  @media (max-width: 980px) {
     display: flex;
     position: fixed;
     top: 0;
@@ -226,6 +232,7 @@ const NAV = [
   ["/sweepstakes", "Giveaway"],
   ["/our-story", "Our Story"],
   ["/wholesale", "Wholesale"],
+  ["/sponsorship", "Sponsor"],
   ["/affiliate", "Affiliate"],
   ["/donate", "Donate"],
   ["/#contact", "Contact"],

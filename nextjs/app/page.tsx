@@ -7,6 +7,7 @@ import Story from "@/components/Story";
 import Showcase from "@/components/Showcase";
 import Video from "@/components/Video";
 import BecomeKingdom from "@/components/BecomeKingdom";
+import SponsorshipBand from "@/components/SponsorshipBand";
 import Tiers from "@/components/Tiers";
 import Countdown from "@/components/Countdown";
 import DonateSection from "@/components/DonateSection";
@@ -14,6 +15,7 @@ import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import SmoothScroll from "@/components/SmoothScroll";
 import GiveawayBand from "@/components/GiveawayBand";
+// import PlayGamesBand from "@/components/PlayGamesBand"; // temporarily hidden per owner request
 
 // Section order (commerce-forward):
 // Hero → Collection → Early Bird promo → Features & Story → Seven-in-one
@@ -26,6 +28,7 @@ export default function Home() {
       <Header />
       <Hero />
       <GiveawayBand />
+      {/* <PlayGamesBand /> — temporarily hidden per owner request */}
       <KingdomCollection />
       <ChristmasPanel />
       <Features />
@@ -33,6 +36,7 @@ export default function Home() {
       <Showcase />
       <Video />
       <BecomeKingdom />
+      <SponsorshipBand />
       <Tiers />
       <Countdown />
       <DonateSection />

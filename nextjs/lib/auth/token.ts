@@ -11,10 +11,12 @@
 export const ADMIN_SESSION_COOKIE = "sok_admin_session";
 export const AFF_SESSION_COOKIE = "sok_aff_session";
 export const PLAYER_SESSION_COOKIE = "sok_player_session";
+export const SPONSOR_SESSION_COOKIE = "sok_sponsor_session";
 export const DEFAULT_SESSION_TTL_SECONDS = 60 * 60 * 8; // 8 hours
 export const PLAYER_SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days — a player session lives longer than an admin one.
+export const SPONSOR_SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days — sponsors come back weeks later to check reports.
 
-export type SessionKind = "admin" | "affiliate" | "player";
+export type SessionKind = "admin" | "affiliate" | "player" | "sponsor";
 
 export type SessionPayload = {
   kind: SessionKind;

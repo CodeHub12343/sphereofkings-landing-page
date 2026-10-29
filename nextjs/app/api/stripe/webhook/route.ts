@@ -15,6 +15,17 @@ import {
 import { recomputeAffiliateTier } from "@/lib/affiliate-promotion";
 import { sendEmail } from "@/lib/email/send";
 import OrderConfirmationEmail from "@/components/emails/OrderConfirmationEmail";
+import SponsorshipConfirmationEmail from "@/components/emails/SponsorshipConfirmationEmail";
+import {
+  findSponsorshipByPaymentIntent,
+  findSponsorshipByRef,
+  updateSponsorshipPayment,
+} from "@/lib/db/collections/sponsorships";
+import {
+  isTierId,
+  KICKSTARTER_LAUNCH_DATE,
+  tier as tierOf,
+} from "@/lib/sponsorship";
 import { createElement } from "react";
 
 // Stripe webhook endpoint. Verifies the signature with
@@ -78,6 +89,91 @@ export async function POST(req: NextRequest) {
   try {
     if (event.type === "payment_intent.succeeded") {
       const pi = event.data.object;
+      // Sponsorship intents are tagged with metadata.kind === "sponsorship".
+      // Route them to a separate handler so order attribution/fulfillment
+      // logic doesn't run against a sponsorship row that has no lines.
+      if (pi.metadata?.kind === "sponsorship") {
+        const sponRef =
+          (pi.metadata.sponsorshipRef as string | undefined) || undefined;
+        const spon = sponRef
+          ? await findSponsorshipByRef(sponRef)
+          : await findSponsorshipByPaymentIntent(pi.id);
+        if (spon && spon.state !== "paid") {
+          await updateSponsorshipPayment(spon.ref, "paid", {
+            stripePaymentIntentId: pi.id,
+          });
+          await recordAuditEvent({
+            actor: { kind: "system" },
+            action: "sponsorship.paid",
+            target: { collection: "sponsorships", id: spon.ref },
+            summary: `Sponsorship payment confirmed · $${(pi.amount / 100).toFixed(2)} ${pi.currency.toUpperCase()}`,
+            details: {
+              paymentIntentId: pi.id,
+              amountMinor: pi.amount,
+              currency: pi.currency,
+              tier: spon.tier,
+              businessName: spon.businessName,
+            },
+          }).catch(() => {});
+
+          const tObj = isTierId(spon.tier) ? tierOf(spon.tier) : null;
+          if (tObj && spon.contactEmail) {
+            const emailResult = await sendEmail({
+              to: spon.contactEmail,
+              subject: `Sponsorship confirmed · ${spon.ref} · ${tObj.name}`,
+              react: createElement(SponsorshipConfirmationEmail, {
+                tierName: tObj.name,
+                priceDisplay: tObj.priceDisplay,
+                businessName: spon.businessName,
+                contactName: spon.contactName,
+                ref: spon.ref,
+                kickstarterLaunchDate: KICKSTARTER_LAUNCH_DATE,
+              }),
+            }).catch(
+              (e) =>
+                ({
+                  ok: false,
+                  reason: (e as Error).message,
+                }) as const,
+            );
+            await recordAuditEvent({
+              actor: { kind: "system" },
+              action: emailResult.ok
+                ? "sponsorship.email.confirmation.sent"
+                : "sponsorship.email.confirmation.failed",
+              target: { collection: "sponsorships", id: spon.ref },
+              summary: emailResult.ok
+                ? `Sponsorship confirmation sent to ${spon.contactEmail}`
+                : `Sponsorship confirmation NOT sent: ${emailResult.reason}`,
+              details: {
+                to: spon.contactEmail,
+                resendId: emailResult.ok ? emailResult.id : null,
+                reason: emailResult.ok ? null : emailResult.reason,
+              },
+            }).catch(() => {});
+          }
+
+          // Owner heads-up: a paying sponsor just came through.
+          const ownerEmail = process.env.SPONSORSHIP_NOTIFY_EMAIL;
+          if (ownerEmail && tObj) {
+            await sendEmail({
+              to: ownerEmail,
+              subject: `✅ Sponsorship PAID · ${tObj.name} · ${spon.businessName}`,
+              html: `<p><strong>${spon.businessName}</strong> just paid for a <strong>${tObj.name}</strong> (${tObj.priceDisplay}).</p>
+              <p>Ref: <strong>${spon.ref}</strong><br/>
+              Contact: ${spon.contactName} &lt;${spon.contactEmail}&gt;${
+                spon.contactPhone ? ` · ${spon.contactPhone}` : ""
+              }<br/>
+              ${spon.businessWebsite ? `Website: ${spon.businessWebsite}<br/>` : ""}
+              Amount: $${(pi.amount / 100).toFixed(2)} ${pi.currency.toUpperCase()}</p>
+              <p>Reach out within one business day to confirm brand assets and the promotional calendar.</p>`,
+              replyTo: spon.contactEmail,
+            }).catch(() => {});
+          }
+        }
+        return NextResponse.json({ received: true });
+      }
+
       const ref =
         (pi.metadata && (pi.metadata.orderRef as string | undefined)) ||
         undefined;
@@ -178,6 +274,31 @@ export async function POST(req: NextRequest) {
       }
     } else if (event.type === "payment_intent.payment_failed") {
       const pi = event.data.object;
+      if (pi.metadata?.kind === "sponsorship") {
+        const sponRef =
+          (pi.metadata.sponsorshipRef as string | undefined) || undefined;
+        const spon = sponRef
+          ? await findSponsorshipByRef(sponRef)
+          : await findSponsorshipByPaymentIntent(pi.id);
+        if (spon) {
+          await updateSponsorshipPayment(spon.ref, "failed", {
+            stripePaymentIntentId: pi.id,
+          });
+          await recordAuditEvent({
+            actor: { kind: "system" },
+            action: "sponsorship.payment_failed",
+            target: { collection: "sponsorships", id: spon.ref },
+            summary: `Sponsorship payment failed · ${
+              pi.last_payment_error?.message ?? "unknown reason"
+            }`,
+            details: {
+              paymentIntentId: pi.id,
+              reason: pi.last_payment_error?.code ?? null,
+            },
+          }).catch(() => {});
+        }
+        return NextResponse.json({ received: true });
+      }
       const ref =
         (pi.metadata && (pi.metadata.orderRef as string | undefined)) ||
         undefined;
