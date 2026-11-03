@@ -55,6 +55,27 @@ export interface Match {
   // In-match chat — ephemeral, capped to the last ~50 messages per
   // match. Only the two players can send; spectators see it read-only.
   chatMessages?: MatchChatMessage[];
+  // Open invite ("play a friend by link"): the opponent seat is
+  // OPEN_SEAT until someone with the link claims it via /join. The
+  // invite lapses at inviteExpiresAt if nobody does.
+  openInvite?: boolean;
+  inviteExpiresAt?: string;
+  // How the match was created. Absent on older records = direct challenge.
+  source?: "challenge" | "invite-link" | "quick-match";
+}
+
+/** Placeholder opponent for an open invite whose seat is unclaimed. */
+export const OPEN_SEAT: MatchSide = {
+  playerId: "",
+  username: "",
+  displayName: "Open seat",
+};
+
+export const OPEN_INVITE_TTL_MS = 24 * 60 * 60 * 1000;
+export const TURN_SECONDS = 120;
+
+export function isOpenSeat(m: Match): boolean {
+  return !!m.openInvite && m.status === "pending" && m.opponent.playerId === "";
 }
 
 export interface MatchChatMessage {
@@ -109,6 +130,7 @@ export async function listMatchesForPlayer(playerId: string, status?: MatchStatu
  * and credit the win to the side NOT on move.
  */
 export async function enforceTurnTimeout(match: Match): Promise<Match> {
+  if (match.status === "pending") return enforceInviteExpiry(match);
   if (match.status !== "active") return match;
   if (!match.turnExpiresAt) return match;
   if (new Date(match.turnExpiresAt).getTime() > Date.now()) return match;
@@ -124,4 +146,58 @@ export async function enforceTurnTimeout(match: Match): Promise<Match> {
   };
   await updateMatch(match.id, patch);
   return { ...match, ...patch };
+}
+
+/** Lazily lapse an unclaimed open invite once its deadline passes. */
+export async function enforceInviteExpiry(match: Match): Promise<Match> {
+  if (!isOpenSeat(match) || !match.inviteExpiresAt) return match;
+  if (new Date(match.inviteExpiresAt).getTime() > Date.now()) return match;
+  const patch: Partial<Match> = { status: "declined", endedAt: new Date().toISOString(), outcome: "invite-expired" };
+  await updateMatch(match.id, patch);
+  return { ...match, ...patch };
+}
+
+/**
+ * Atomically seat `joiner` in an open invite and start the match.
+ * The filter re-checks the seat is still empty and the invite is
+ * live, so two people opening the same link can't both claim it —
+ * the loser gets null.
+ */
+export async function claimOpenInvite(id: string, joiner: MatchSide): Promise<Match | null> {
+  const db = await getDb();
+  const now = new Date();
+  return db.collection<Match>("matches").findOneAndUpdate(
+    {
+      id,
+      status: "pending",
+      openInvite: true,
+      "opponent.playerId": "",
+      "challenger.playerId": { $ne: joiner.playerId },
+      inviteExpiresAt: { $gt: now.toISOString() },
+    },
+    {
+      $set: {
+        opponent: joiner,
+        status: "active",
+        acceptedAt: now.toISOString(),
+        startedAt: now.toISOString(),
+        turnExpiresAt: new Date(now.getTime() + TURN_SECONDS * 1000).toISOString(),
+      },
+    },
+    { returnDocument: "after", projection: { _id: 0 } },
+  );
+}
+
+/**
+ * Settle every match in a list whose turn clock or invite has lapsed,
+ * so lists (home screen, tab badge) never show a dead match as "your
+ * move". Only touches the ones that actually expired.
+ */
+export async function settleExpired(matches: Match[]): Promise<Match[]> {
+  const now = Date.now();
+  return Promise.all(matches.map((m) => {
+    const turnLapsed = m.status === "active" && !!m.turnExpiresAt && new Date(m.turnExpiresAt).getTime() <= now;
+    const inviteLapsed = isOpenSeat(m) && !!m.inviteExpiresAt && new Date(m.inviteExpiresAt).getTime() <= now;
+    return turnLapsed || inviteLapsed ? enforceTurnTimeout(m) : m;
+  }));
 }

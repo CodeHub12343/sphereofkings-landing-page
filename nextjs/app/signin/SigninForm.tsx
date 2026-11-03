@@ -6,10 +6,11 @@ import styled from "styled-components";
 import { signinAction } from "../(player)/account-actions";
 import { FField, FLabel, FInput, FBtnGold, FBanner } from "@/components/feature/primitives";
 
-export default function SigninForm() {
+export default function SigninForm({ next }: { next?: string }) {
   const [state, formAction, pending] = useActionState(signinAction, {} as { error?: string; ok?: boolean });
   return (
     <Form action={formAction}>
+      {next && <input type="hidden" name="next" value={next} />}
       <FField>
         <FLabel htmlFor="identifier">Username or email</FLabel>
         <FInput id="identifier" name="identifier" required autoComplete="username" />
@@ -22,7 +23,7 @@ export default function SigninForm() {
       <FBtnGold type="submit" disabled={pending} style={{ marginTop: 10 }}>
         {pending ? "Signing in…" : "Sign in"}
       </FBtnGold>
-      <AltLink>No account yet? <Link href="/signup">Create one</Link></AltLink>
+      <AltLink>No account yet? <Link href={next ? `/signup?next=${encodeURIComponent(next)}` : "/signup"}>Create one</Link></AltLink>
     </Form>
   );
 }

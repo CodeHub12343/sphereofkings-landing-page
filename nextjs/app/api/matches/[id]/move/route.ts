@@ -5,7 +5,8 @@ import {
 } from "@/lib/db/collections/matches";
 import { applyServerMove } from "@/lib/realtime/match-engine";
 import { broadcast, matchChannel } from "@/lib/realtime/pusher";
-import { recordRankedResult, ratingForDifficulty } from "@/lib/db/collections/players";
+import { getRanking, recordRankedResult, Ranking } from "@/lib/db/collections/players";
+import type { Rating } from "@/lib/games/glicko2";
 import { onTournamentMatchFinish } from "@/lib/tournaments/engine";
 
 export const runtime = "nodejs";
@@ -88,10 +89,7 @@ export async function POST(
   const updated = { ...match, ...patch };
 
   // Ranked update: an opponent is a known-rated human (not AI), so
-  // we feed each side's rating into the Glicko-2 update. For MVP we
-  // approximate the opponent's rating as 1500 (unknown) and let it
-  // converge over play. Phase 5 will join opponent rating via a
-  // single read of the rankings collection.
+  // we feed each side's actual rating into the other's Glicko-2 update.
   if (outcome.finished && outcome.winnerSide) {
     const result1 = outcome.winnerSide === "draw"
       ? 0.5
@@ -99,20 +97,28 @@ export async function POST(
     const result2 = outcome.winnerSide === "draw"
       ? 0.5
       : outcome.winnerSide === "red-or-white" ? 0 : 1;
-    const synthOpponent = ratingForDifficulty(50); // placeholder: 1500 nominal
     // Record both sides. Failures must not block the match-finish.
     try {
+      // Snapshot both pre-game ratings first so the second update
+      // isn't computed against the first player's already-updated one.
+      const [cr, or] = await Promise.all([
+        getRanking(match.challenger.playerId, match.game),
+        getRanking(match.opponent.playerId, match.game),
+      ]);
+      const toRating = (r: Ranking): Rating => ({
+        rating: r.rating, deviation: r.deviation, volatility: r.volatility,
+      });
       await recordRankedResult({
         playerId: match.challenger.playerId,
         game: match.game,
         score: result1 as 0 | 0.5 | 1,
-        opponentRating: synthOpponent,
+        opponentRating: toRating(or),
       });
       await recordRankedResult({
         playerId: match.opponent.playerId,
         game: match.game,
         score: result2 as 0 | 0.5 | 1,
-        opponentRating: synthOpponent,
+        opponentRating: toRating(cr),
       });
     } catch (err) {
       console.warn("ranking update failed:", err instanceof Error ? err.message : err);

@@ -5,11 +5,21 @@ import { useRouter } from "next/navigation";
 import styled from "styled-components";
 import type { GameId } from "@/lib/db/collections/players";
 
-interface Props { opponentUsername: string; opponentDisplayName: string; }
+interface Props {
+  opponentUsername: string;
+  opponentDisplayName: string;
+  // Button text; defaults to "Challenge <name>".
+  label?: string;
+  defaultGame?: GameId;
+  // Small inline button for lists (leaderboard rows, match history).
+  compact?: boolean;
+}
 
-export default function ChallengeButton({ opponentUsername, opponentDisplayName }: Props) {
+export default function ChallengeButton({
+  opponentUsername, opponentDisplayName, label, defaultGame = "royal-checkers", compact = false,
+}: Props) {
   const [open, setOpen] = useState(false);
-  const [game, setGame] = useState<GameId>("royal-checkers");
+  const [game, setGame] = useState<GameId>(defaultGame);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -36,11 +46,14 @@ export default function ChallengeButton({ opponentUsername, opponentDisplayName 
   };
 
   if (!open) {
-    return <Primary onClick={() => setOpen(true)}>Challenge {opponentDisplayName}</Primary>;
+    const text = label ?? `Challenge ${opponentDisplayName}`;
+    return compact
+      ? <Compact type="button" onClick={() => setOpen(true)} aria-label={`${text} (${opponentDisplayName})`}>{text}</Compact>
+      : <Primary type="button" onClick={() => setOpen(true)}>{text}</Primary>;
   }
 
   return (
-    <Panel>
+    <Panel role="group" aria-label={`Challenge ${opponentDisplayName}`}>
       <Row>
         <label>
           Game
@@ -76,6 +89,11 @@ const Primary = styled.button`
   background:var(--gold,#c9a227);color:#000;border:none;border-radius:6px;
   padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer;
   &:hover{background:var(--gold-light,#f0c040);} &:disabled{opacity:.6;}
+`;
+const Compact = styled.button`
+  background:transparent;color:var(--gold-light,#f0c040);border:1px solid var(--gold,#c9a227);
+  border-radius:5px;padding:4px 10px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;
+  &:hover{background:rgba(201,162,39,.12);}
 `;
 const Secondary = styled.button`
   background:transparent;color:var(--text-muted,#a89880);border:1px solid var(--border,#2a2218);

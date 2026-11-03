@@ -12,12 +12,22 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "Sphere of Kings",
     description:
       "Spherical strategy games — Royal Checkers, Imperial Kings, and more. The companion app to the Sphere of Kings 7-in-1 board game.",
-    start_url: "/",
+    // The installed app opens on the game home, not the marketing page.
+    // `id` pins the app's identity so changing start_url later doesn't
+    // make browsers treat it as a different app.
+    id: "/play",
+    start_url: "/play?source=pwa",
     scope: "/",
     display: "standalone",
-    orientation: "portrait",
+    orientation: "any",
     background_color: "#0a0806",
-    theme_color: "#c9a227",
+    theme_color: "#0a0806",
+    categories: ["games", "entertainment"],
+    shortcuts: [
+      { name: "Quick match", short_name: "Quick match", url: "/play?source=pwa#online" },
+      { name: "Daily puzzle", short_name: "Puzzles", url: "/puzzles?source=pwa" },
+      { name: "Your matches", short_name: "Matches", url: "/matches?source=pwa" },
+    ],
     icons: [
       {
         src: "/icon",

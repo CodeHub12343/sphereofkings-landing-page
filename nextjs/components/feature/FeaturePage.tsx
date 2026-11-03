@@ -9,6 +9,9 @@ import styled from "styled-components";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Wrap, GoldTitle, SectionEyebrow } from "@/components/shared";
+import { usePathname } from "next/navigation";
+import { appMode } from "@/lib/app-routes";
+import AppScreen from "@/components/app/AppScreen";
 
 interface Props {
   eyebrow?: string;
@@ -27,6 +30,17 @@ interface Props {
 export default function FeaturePage({
   eyebrow, title, subtitle, centered = false, narrow = false, action, children,
 }: Props) {
+  // Inside the game app the persistent AppChrome supplies navigation,
+  // so the page renders a compact app header instead of the marketing
+  // header, hero and footer.
+  const mode = appMode(usePathname());
+  if (mode !== "site") {
+    return (
+      <AppScreen mode={mode} title={title} subtitle={subtitle} action={action} narrow={narrow}>
+        {children}
+      </AppScreen>
+    );
+  }
   return (
     <>
       <Header />

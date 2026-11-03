@@ -7,6 +7,7 @@ import {
 import { findPlayerByUsername, GameId } from "@/lib/db/collections/players";
 import { initialState } from "@/lib/realtime/match-engine";
 import { broadcast, matchChannel } from "@/lib/realtime/pusher";
+import { pushNotification } from "@/lib/notifications";
 import { canSendChallenges, canReceiveChallenges, minorGateMessage } from "@/lib/safety-gates";
 
 export const runtime = "nodejs";
@@ -68,8 +69,14 @@ export async function POST(req: Request) {
     toMoveSide: "red-or-white",
     moves: [],
     invitedAt: new Date().toISOString(),
+    source: "challenge",
   };
   await insertMatch(match);
   await broadcast(matchChannel(match.id), "match-created", { matchId: match.id });
+  await pushNotification({
+    recipientId: opp.id,
+    kind: "challenge-received",
+    payload: { matchId: match.id, fromDisplayName: me.displayName },
+  });
   return NextResponse.json({ match });
 }

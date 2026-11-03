@@ -5,6 +5,8 @@ import { REGION_LABELS, Region } from "@/lib/db/collections/tournaments";
 import { getDb } from "@/lib/db/mongo";
 import FeaturePage from "@/components/feature/FeaturePage";
 import { FChip } from "@/components/feature/primitives";
+import ChallengeButton from "@/components/game/ChallengeButton";
+import { currentPlayer } from "@/lib/auth/player-session";
 
 export const metadata: Metadata = { title: "Leaderboards · Sphere of Kings" };
 export const dynamic = "force-dynamic";
@@ -45,6 +47,7 @@ export default async function LeaderboardsPage({ searchParams }: Props) {
     return !!p?.publicProfile && p?.consentStatus === "parental-granted";
   });
   rows = rows.slice(0, 50);
+  const me = await currentPlayer();
 
   return (
     <FeaturePage
@@ -53,16 +56,20 @@ export default async function LeaderboardsPage({ searchParams }: Props) {
       subtitle="Top 50 by Glicko-2 rating. Minors are shown only with granted parental consent."
       centered
     >
-      <nav style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap", justifyContent: "center" }}>
+      <nav aria-label="Game" style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
         {GAMES.map((gm) => (
           <Link key={gm.id} href={`/leaderboards?game=${gm.id}&region=${region}`} style={{ textDecoration: "none" }}>
             <FChip $tone={game === gm.id ? "gold" : "muted"}>{gm.label}</FChip>
           </Link>
         ))}
       </nav>
-      <nav style={{ display: "flex", gap: 6, marginBottom: 24, flexWrap: "wrap", justifyContent: "center" }}>
+      {/* One swipeable row of regions rather than three wrapped rows on phones. */}
+      <nav aria-label="Region" style={{
+        display: "flex", gap: 6, marginBottom: 24, overflowX: "auto",
+        paddingBottom: 4, scrollbarWidth: "none", WebkitOverflowScrolling: "touch",
+      }}>
         {(Object.keys(REGION_LABELS) as Region[]).map((rg) => (
-          <Link key={rg} href={`/leaderboards?game=${game}&region=${rg}`} style={{ textDecoration: "none" }}>
+          <Link key={rg} href={`/leaderboards?game=${game}&region=${rg}`} style={{ textDecoration: "none", flexShrink: 0 }}>
             <FChip $tone={region === rg ? "gold" : "muted"}>{REGION_LABELS[rg]}</FChip>
           </Link>
         ))}
@@ -75,6 +82,7 @@ export default async function LeaderboardsPage({ searchParams }: Props) {
           {rows.map((row, i) => (
             <li key={row.playerId} style={{
               display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10,
+              flexWrap: "wrap",
               padding: "12px 16px",
               background: i < 3 ? "rgba(201,162,39,.06)" : "var(--bg2,#0d0b08)",
               border: `1px solid ${i < 3 ? "var(--gold,#c9a227)" : "var(--border,#2a2218)"}`,
@@ -90,7 +98,7 @@ export default async function LeaderboardsPage({ searchParams }: Props) {
                   {row.displayName}
                 </Link>
               </span>
-              <span style={{ display: "flex", gap: 12, alignItems: "baseline" }}>
+              <span style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
                 <span style={{ fontFamily: "'Cinzel',serif",
                                 color: "var(--gold-light,#f0c040)", fontSize: 20, fontWeight: 700 }}>
                   {row.rating}
@@ -98,6 +106,15 @@ export default async function LeaderboardsPage({ searchParams }: Props) {
                 <span style={{ color: "var(--text-muted,#a89880)", fontSize: 12 }}>
                   ±{row.deviation} · {row.wins}W/{row.losses}L
                 </span>
+                {me && me.id !== row.playerId && (
+                  <ChallengeButton
+                    opponentUsername={row.username}
+                    opponentDisplayName={row.displayName}
+                    defaultGame={game}
+                    label="Challenge"
+                    compact
+                  />
+                )}
               </span>
             </li>
           ))}

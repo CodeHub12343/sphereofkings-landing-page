@@ -19,6 +19,15 @@ import { setPlayerSession, clearPlayerSession, currentPlayer } from "@/lib/auth/
 export interface AccountFormState { error?: string; ok?: boolean; }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Post-auth destination from the form's hidden `next` field (e.g. an
+// invite link). Only same-site paths are honoured — "//evil.com" and
+// "/\evil.com" are protocol-relative to browsers, so both are refused.
+function nextPath(formData: FormData): string {
+  const next = String(formData.get("next") ?? "");
+  if (!next.startsWith("/") || next.startsWith("//") || next.startsWith("/\\")) return "/me";
+  return next;
+}
 const CURRENT_YEAR = new Date().getUTCFullYear();
 
 export async function signupAction(
@@ -75,7 +84,7 @@ export async function signupAction(
   };
   await createPlayer(player);
   await setPlayerSession(id);
-  redirect("/me");
+  redirect(nextPath(formData));
 }
 
 export async function signinAction(
@@ -94,7 +103,7 @@ export async function signinAction(
   if (!ok) return { error: "That password does not match." };
   await markLogin(player.id);
   await setPlayerSession(player.id);
-  redirect("/me");
+  redirect(nextPath(formData));
 }
 
 export async function signoutAction(): Promise<void> {

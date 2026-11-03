@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import styled from "styled-components";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -30,6 +31,22 @@ const Head = styled.header`
   }
 `;
 
+const PlayLink = styled(Link)`
+  display: inline-block;
+  margin-top: 18px;
+  font-family: "Cinzel", serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #d4af37;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
 export default function HowToPlayPage() {
   return (
     <>
@@ -45,6 +62,7 @@ export default function HowToPlayPage() {
                 sections below start with Royal Checkers and Imperial Kings;
                 the other five modes are still being finalised.
               </p>
+              <PlayLink href="/play">Play it now in your browser →</PlayLink>
             </Head>
             <HowToPlay />
           </Wrap>

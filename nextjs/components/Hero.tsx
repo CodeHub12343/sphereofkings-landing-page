@@ -352,6 +352,7 @@ export default function Hero() {
                   />
                 </svg>
               </Primary>
+              <Secondary href="/play">Play Online</Secondary>
               <Secondary href="/how-to-play">Discover How to Play</Secondary>
             </Ctas>
 

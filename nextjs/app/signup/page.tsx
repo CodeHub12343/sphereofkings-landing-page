@@ -7,7 +7,10 @@ export const metadata: Metadata = {
   description: "Create a free player account to track your rating.",
 };
 
-export default function SignupPage() {
+export default async function SignupPage(
+  { searchParams }: { searchParams: Promise<{ next?: string }> },
+) {
+  const { next } = await searchParams;
   return (
     <FeaturePage
       eyebrow="Join the court"
@@ -16,7 +19,7 @@ export default function SignupPage() {
       centered
       narrow
     >
-      <SignupForm />
+      <SignupForm next={next} />
     </FeaturePage>
   );
 }

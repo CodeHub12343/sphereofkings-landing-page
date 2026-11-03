@@ -4,7 +4,7 @@
 // and the 3D sphere "overview" preview. The sphere view imports Three
 // dynamically so the WebGL stack code-splits off the main bundle.
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import styled from "styled-components";
 import dynamic from "next/dynamic";
 import type { SpherePiece, SphereCell, LegalDest } from "./SphereBoardView";
@@ -28,7 +28,12 @@ type Props = {
   selected?: SphereCell | null;
   legalDests?: LegalDest[];
   onCellClick?: (cell: SphereCell) => void;
+  // Viewer plays the side whose home rows are the high row numbers.
+  flipped?: boolean;
 };
+
+// The player's flat/sphere choice carries across games and visits.
+const VIEW_KEY = "sok.board.view";
 
 export default function BoardViewToggle({
   cols,
@@ -38,8 +43,18 @@ export default function BoardViewToggle({
   selected,
   legalDests,
   onCellClick,
+  flipped,
 }: Props) {
-  const [mode, setMode] = useState<"flat" | "sphere">("flat");
+  const [mode, setModeState] = useState<"flat" | "sphere">("flat");
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(VIEW_KEY) === "sphere") setModeState("sphere");
+    } catch { /* storage blocked — default to flat */ }
+  }, []);
+  const setMode = (m: "flat" | "sphere") => {
+    setModeState(m);
+    try { localStorage.setItem(VIEW_KEY, m); } catch { /* not persisted */ }
+  };
   return (
     <>
       <Switcher role="tablist" aria-label="Board view">
@@ -83,10 +98,11 @@ export default function BoardViewToggle({
             selected={selected}
             legalDests={legalDests}
             onCellClick={onCellClick}
+            flipped={flipped}
           />
           <SphereHint>
-            Tap a piece to select it, then tap a gold ring to move.
-            Drag empty space to rotate · scroll to zoom.
+            Tap a piece, then a highlighted square. Drag to turn the
+            sphere · pinch or scroll to zoom.
           </SphereHint>
         </>
       )}

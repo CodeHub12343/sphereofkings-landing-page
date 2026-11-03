@@ -4,7 +4,10 @@ import SigninForm from "./SigninForm";
 
 export const metadata: Metadata = { title: "Sign in · Sphere of Kings" };
 
-export default function SigninPage() {
+export default async function SigninPage(
+  { searchParams }: { searchParams: Promise<{ next?: string }> },
+) {
+  const { next } = await searchParams;
   return (
     <FeaturePage
       eyebrow="Return to the court"
@@ -12,7 +15,7 @@ export default function SigninPage() {
       centered
       narrow
     >
-      <SigninForm />
+      <SigninForm next={next} />
     </FeaturePage>
   );
 }

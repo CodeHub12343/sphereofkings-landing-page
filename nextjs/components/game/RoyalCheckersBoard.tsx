@@ -23,8 +23,8 @@ import {
 } from "@/lib/games/royal-checkers/engine";
 import { Difficulty, PRESETS, clampDifficulty, labelFor } from "@/lib/games/difficulty";
 import { useAiWorker } from "./useAiWorker";
-import { DifficultySlider } from "./DifficultySlider";
 import { useRankedResult } from "./useRankedResult";
+import VsComputerDock from "./VsComputerDock";
 import {
   BoardChrome,
   BoardDefs,
@@ -35,7 +35,6 @@ import {
 } from "./BoardSkin";
 import BoardViewToggle from "./BoardViewToggle";
 import type { SpherePiece } from "./SphereBoardView";
-import ResignButton from "./ResignButton";
 import FirstTimeWelcome from "./FirstTimeWelcome";
 import PostGameModal from "./PostGameModal";
 import GameClock from "./GameClock";
@@ -267,37 +266,7 @@ export default function RoyalCheckersBoard() {
 
   return (
     <Wrap>
-      <Controls>
-        <DifficultySlider value={difficulty} onChange={setDifficulty} />
-        <ControlGroup>
-          <button onClick={flipSides}>Switch sides</button>
-          <button onClick={newGame}>New game</button>
-          <button
-            onClick={undoLast}
-            disabled={!canUndo || thinking || term.kind !== "ongoing"}
-            title="Undo your last move (also undoes the computer's reply)"
-          >
-            Undo
-          </button>
-          <ResignButton
-            disabled={term.kind !== "ongoing"}
-            onResign={() => {
-              setResigned(true);
-              setSelected(null);
-              setMessage("");
-            }}
-          />
-          <button
-            onClick={() => { setClockOn((v) => !v); setClockKey((k) => k + 1); }}
-            title="Toggle a 10-minute per-side chess clock"
-            aria-pressed={clockOn}
-            style={clockOn ? { borderColor: "#c9a227", color: "#f0c040" } : {}}
-          >
-            Clock: {clockOn ? "10 min on" : "off"}
-          </button>
-        </ControlGroup>
-      </Controls>
-      <Status>
+      <Status aria-live="polite">
         {term.kind === "win" && (
           <strong>{term.winner === humanColor ? "You win." : "Computer wins."}</strong>
         )}
@@ -354,6 +323,7 @@ export default function RoyalCheckersBoard() {
         selected={selected}
         legalDests={sphereLegalDests}
         onCellClick={onSquareClick}
+        flipped={humanColor === "black"}
       >
       <BoardChrome>
         <svg
@@ -430,11 +400,31 @@ export default function RoyalCheckersBoard() {
       </BoardChrome>
       </BoardViewToggle>
 
-      <Legend>
-        <span><Dot $color="#d8324c" /> Red team (home row 1)</span>
-        <span><Dot $color="#1a1510" /> Black team (home row 8)</span>
-        <span><SeamSwatch /> Cylinder seam — columns 14 & 1 are neighbours</span>
-      </Legend>
+      <VsComputerDock
+        difficulty={difficulty}
+        onDifficulty={setDifficulty}
+        onUndo={undoLast}
+        canUndo={canUndo && !thinking && term.kind === "ongoing"}
+        onNewGame={newGame}
+        inProgress={canUndo && term.kind === "ongoing"}
+        onSwitchSides={flipSides}
+        sideLabel={humanColor === "red" ? "Red — moves first" : "Black"}
+        clockOn={clockOn}
+        onToggleClock={() => { setClockOn((v) => !v); setClockKey((k) => k + 1); }}
+        onResign={() => {
+          setResigned(true);
+          setSelected(null);
+          setMessage("");
+        }}
+        gameOver={term.kind !== "ongoing"}
+        legend={
+          <>
+            <span><Dot $color="#d8324c" /> Red team (home row 1)</span>
+            <span><Dot $color="#1a1510" /> Black team (home row 8)</span>
+            <span><SeamSwatch /> Cylinder seam — columns 14 & 1 are neighbours</span>
+          </>
+        }
+      />
       <FirstTimeWelcome gameSlug="royal-checkers" gameName="Royal Checkers" />
       {showEndModal && (term.kind === "win" || term.kind === "draw") && (
         <PostGameModal
@@ -460,45 +450,16 @@ export default function RoyalCheckersBoard() {
 const Wrap = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
   color: var(--text, #f5f0e8);
 `;
 
-const Controls = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 20px;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const ControlGroup = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-
-  label {
-    display: inline-flex;
-    gap: 8px;
-    align-items: center;
-    font-size: 14px;
-    color: var(--text-muted, #a89880);
-  }
-
-  select, button {
-    background: var(--bg2, #0d0b08);
-    color: var(--text, #f5f0e8);
-    border: 1px solid var(--border, #2a2218);
-    border-radius: 6px;
-    padding: 7px 12px;
-    font-size: 14px;
-    cursor: pointer;
-  }
-  button:hover, select:hover { border-color: var(--gold, #c9a227); }
-`;
-
+// One line, always: a wrapping hint would push the board down mid-tap.
 const Status = styled.div`
+  min-height: 1.5em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 14px;
   color: var(--text, #f5f0e8);
   strong { color: var(--gold-light, #f0c040); }
@@ -532,14 +493,6 @@ const BoardFrame = styled.div`
     height: auto;
     display: block;
   }
-`;
-
-const Legend = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  font-size: 13px;
-  color: var(--text-muted, #a89880);
 `;
 
 const Dot = styled.span<{ $color: string }>`

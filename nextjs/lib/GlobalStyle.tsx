@@ -35,6 +35,18 @@ export const GlobalStyle = createGlobalStyle`
     -webkit-font-smoothing: antialiased;
   }
 
+  /* Game app (class set by AppChrome): behave like an installed app —
+     no rubber-band bounce or pull-to-refresh, no grey tap flash. */
+  /* Root element only: body is itself a (non-scrolling) scroll
+     container here because of the overflow-x rule above, and
+     overscroll-behavior on it would stop wheel/touch scrolls from
+     chaining up to the page — the page would not scroll at all. */
+  html.sok-app {
+    overscroll-behavior: none;
+    scroll-padding-top: calc(72px + env(safe-area-inset-top));
+  }
+  html.sok-app body { -webkit-tap-highlight-color: transparent; }
+
   a { color: #c9a227; }
   a:hover { color: #f0c040; }
 

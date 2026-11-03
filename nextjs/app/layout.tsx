@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import StyledRegistry from "@/lib/StyledRegistry";
 import { GlobalStyle } from "@/lib/GlobalStyle";
 import Providers from "./providers";
+import AppChrome from "@/components/app/AppChrome";
 import "./fonts.css";
 
 export const metadata: Metadata = {
@@ -34,12 +35,16 @@ export const metadata: Metadata = {
   },
 };
 
-// Separate viewport export (Next 15 convention) sets the mobile browser
-// theme color so the status bar matches the brand gold instead of white.
-export const viewport = {
-  themeColor: "#c9a227",
+// Separate viewport export (Next 15 convention). Theme colour matches
+// the near-black app chrome so the phone's status bar blends into the
+// top bar. viewport-fit=cover lets the installed app draw edge to edge;
+// the app chrome pads itself with env(safe-area-inset-*) so nothing
+// sits under the notch or home indicator.
+export const viewport: Viewport = {
+  themeColor: "#0a0806",
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -48,7 +53,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <StyledRegistry>
           <GlobalStyle />
-          <Providers>{children}</Providers>
+          <Providers>
+            <AppChrome>{children}</AppChrome>
+          </Providers>
         </StyledRegistry>
       </body>
     </html>

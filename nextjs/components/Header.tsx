@@ -287,6 +287,7 @@ const DrawerCta = styled(BtnGoldLink)`
 // checkout (James, 2026-10-29).
 const NAV = [
   ["/shop", "Rewards"],
+  ["/play", "Play"],
   ["/how-to-play", "How to Play"],
   ["/videos", "Videos"],
   ["/sweepstakes", "Giveaway"],

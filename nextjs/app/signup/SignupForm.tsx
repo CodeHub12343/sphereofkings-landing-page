@@ -8,10 +8,11 @@ import {
   FField, FLabel, FInput, FBtnGold, FBanner,
 } from "@/components/feature/primitives";
 
-export default function SignupForm() {
+export default function SignupForm({ next }: { next?: string }) {
   const [state, formAction, pending] = useActionState(signupAction, {} as { error?: string; ok?: boolean });
   return (
     <Form action={formAction}>
+      {next && <input type="hidden" name="next" value={next} />}
       <FField>
         <FLabel htmlFor="username">Username</FLabel>
         <FInput id="username" name="username" required
@@ -44,7 +45,7 @@ export default function SignupForm() {
       <FBtnGold type="submit" disabled={pending} style={{ marginTop: 10 }}>
         {pending ? "Creating…" : "Create account"}
       </FBtnGold>
-      <AltLink>Already have one? <Link href="/signin">Sign in</Link></AltLink>
+      <AltLink>Already have one? <Link href={next ? `/signin?next=${encodeURIComponent(next)}` : "/signin"}>Sign in</Link></AltLink>
     </Form>
   );
 }

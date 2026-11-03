@@ -14,7 +14,7 @@ import {
 } from "@/lib/games/imperial-kings/engine";
 import { Difficulty, PRESETS, clampDifficulty, labelFor } from "@/lib/games/difficulty";
 import { useAiWorker } from "./useAiWorker";
-import { DifficultySlider } from "./DifficultySlider";
+import VsComputerDock from "./VsComputerDock";
 import { useRankedResult } from "./useRankedResult";
 import {
   BoardChrome,
@@ -27,7 +27,6 @@ import {
 import BoardViewToggle from "./BoardViewToggle";
 import type { SpherePiece } from "./SphereBoardView";
 import PromotionPicker from "./PromotionPicker";
-import ResignButton from "./ResignButton";
 import FirstTimeWelcome from "./FirstTimeWelcome";
 import PostGameModal from "./PostGameModal";
 import GameClock from "./GameClock";
@@ -221,39 +220,7 @@ export default function ImperialKingsBoard() {
 
   return (
     <Wrap>
-      <TopRow>
-        <DifficultySlider value={difficulty} onChange={setDifficulty} />
-        <Buttons>
-          <button onClick={() => setHumanColor(humanColor === "white" ? "black" : "white")}>
-            Switch sides
-          </button>
-          <button onClick={newGame}>New game</button>
-          <button
-            onClick={undoLast}
-            disabled={!canUndo || thinking || term.kind !== "ongoing"}
-            title="Undo your last move (also undoes the computer's reply)"
-          >
-            Undo
-          </button>
-          <ResignButton
-            disabled={term.kind !== "ongoing"}
-            onResign={() => {
-              setResigned(true);
-              setSelected(null);
-              setMessage("");
-            }}
-          />
-          <button
-            onClick={() => { setClockOn((v) => !v); setClockKey((k) => k + 1); }}
-            title="Toggle a 10-minute per-side chess clock"
-            aria-pressed={clockOn}
-            style={clockOn ? { borderColor: "#c9a227", color: "#f0c040" } : {}}
-          >
-            Clock: {clockOn ? "10 min on" : "off"}
-          </button>
-        </Buttons>
-      </TopRow>
-      <Status>
+      <Status aria-live="polite">
         {term.kind === "win" && (
           <strong>
             {term.winner === humanColor ? "You win" : "Computer wins"} — {term.reason}.
@@ -305,6 +272,7 @@ export default function ImperialKingsBoard() {
         selected={selected}
         legalDests={sphereLegalDests}
         onCellClick={onSquareClick}
+        flipped={humanColor === "black"}
       >
       <BoardChrome>
         <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid meet"
@@ -364,12 +332,32 @@ export default function ImperialKingsBoard() {
         </svg>
       </BoardChrome>
       </BoardViewToggle>
-      <Legend>
-        <span><Dot $color="var(--piece-white,#f5efd8)" /> White (home rows 1–3)</span>
-        <span><Dot $color="var(--piece-black,#1a1510)" /> Black (home rows 6–8)</span>
-        <span><SeamSwatch /> Seam — slides and knight-jumps wrap</span>
-        <span>Win: capture both opponent kings</span>
-      </Legend>
+      <VsComputerDock
+        difficulty={difficulty}
+        onDifficulty={setDifficulty}
+        onUndo={undoLast}
+        canUndo={canUndo && !thinking && term.kind === "ongoing"}
+        onNewGame={newGame}
+        inProgress={canUndo && term.kind === "ongoing"}
+        onSwitchSides={() => setHumanColor(humanColor === "white" ? "black" : "white")}
+        sideLabel={humanColor === "white" ? "White — moves first" : "Black"}
+        clockOn={clockOn}
+        onToggleClock={() => { setClockOn((v) => !v); setClockKey((k) => k + 1); }}
+        onResign={() => {
+          setResigned(true);
+          setSelected(null);
+          setMessage("");
+        }}
+        gameOver={term.kind !== "ongoing"}
+        legend={
+          <>
+            <span><Dot $color="var(--piece-white,#f5efd8)" /> White (home rows 1–3)</span>
+            <span><Dot $color="var(--piece-black,#1a1510)" /> Black (home rows 6–8)</span>
+            <span><SeamSwatch /> Seam — slides and knight-jumps wrap</span>
+            <span>Win: capture both opponent kings</span>
+          </>
+        }
+      />
       <FirstTimeWelcome gameSlug="imperial-kings" gameName="Imperial Kings" />
       {showEndModal && (term.kind === "win" || term.kind === "draw") && (
         <PostGameModal
@@ -413,15 +401,10 @@ export default function ImperialKingsBoard() {
   );
 }
 
-const Wrap = styled.div`display:flex;flex-direction:column;gap:14px;color:var(--text,#f5f0e8);`;
-const TopRow = styled.div`display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center;justify-content:space-between;`;
-const Buttons = styled.div`
-  display:flex;gap:10px;
-  button{background:var(--bg2,#0d0b08);color:var(--text,#f5f0e8);border:1px solid var(--border,#2a2218);
-    border-radius:6px;padding:7px 12px;font-size:14px;cursor:pointer;}
-  button:hover{border-color:var(--gold,#c9a227);}
-`;
-const Status = styled.div`font-size:14px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;
+const Wrap = styled.div`display:flex;flex-direction:column;gap:10px;color:var(--text,#f5f0e8);`;
+// One line, always: a wrapping hint would push the board down mid-tap.
+const Status = styled.div`min-height:1.5em;font-size:14px;display:flex;flex-wrap:nowrap;gap:12px;align-items:center;
+  white-space:nowrap;overflow:hidden;
   strong{color:var(--gold-light,#f0c040);}`;
 const Tier = styled.span`color:var(--text-muted,#a89880);font-size:13px;`;
 const RankBadge = styled.span`
@@ -434,7 +417,6 @@ const BoardFrame = styled.div`
   width:100%;max-width:980px;margin:0 auto;background:var(--bg2,#0d0b08);
   border:1px solid var(--border,#2a2218);border-radius:10px;padding:10px;overflow-x:auto;
   svg{width:100%;height:auto;display:block;}`;
-const Legend = styled.div`display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--text-muted,#a89880);`;
 const Dot = styled.span<{ $color: string }>`display:inline-block;width:12px;height:12px;border-radius:50%;
   background:${(p)=>p.$color};margin-right:6px;vertical-align:middle;border:1px solid #000;`;
 const SeamSwatch = styled.span`display:inline-block;width:14px;height:2px;background:var(--board-seam,#f0c040);

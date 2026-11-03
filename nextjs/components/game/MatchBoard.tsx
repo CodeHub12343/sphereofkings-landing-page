@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import * as rc from "@/lib/games/royal-checkers/engine";
 import * as ik from "@/lib/games/imperial-kings/engine";
 import type { Match } from "@/lib/db/collections/matches";
@@ -20,6 +21,8 @@ import BoardViewToggle from "./BoardViewToggle";
 import type { SpherePiece } from "./SphereBoardView";
 import ResignButton from "./ResignButton";
 import MatchChat from "./MatchChat";
+import { GameDock, DockButton } from "@/components/app/GameDock";
+import BottomSheet from "@/components/app/BottomSheet";
 
 interface Props {
   initial: Match;
@@ -36,6 +39,15 @@ export default function MatchBoard({ initial, viewerId, spectator = false }: Pro
   const [submitting, setSubmitting] = useState(false);
 
   const current = match ?? initial;
+  // Pending → active (friend joined / invite accepted): refresh the
+  // server-rendered page title and subtitle around the board.
+  const router = useRouter();
+  const [lastStatus, setLastStatus] = useState(initial.status);
+  useEffect(() => {
+    if (current.status === lastStatus) return;
+    setLastStatus(current.status);
+    if (lastStatus === "pending") router.refresh();
+  }, [current.status, lastStatus, router]);
   const amChallenger = current.challenger.playerId === viewerId;
   const amOpponent = current.opponent.playerId === viewerId;
   const myTurn =
@@ -86,22 +98,42 @@ export default function MatchBoard({ initial, viewerId, spectator = false }: Pro
   // Turn countdown
   const turnLeft = useTurnCountdown(current.turnExpiresAt);
 
+  const [panel, setPanel] = useState<"chat" | "resign" | null>(null);
+  const [shared, setShared] = useState(false);
+  const shareSpectate = useCallback(async () => {
+    const url = `${window.location.origin}/match/${current.id}/watch`;
+    try {
+      if (typeof navigator.share === "function") {
+        await navigator.share({ title: "Watch this Sphere of Kings match", url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      setShared(true);
+      setTimeout(() => setShared(false), 2000);
+    } catch { /* share sheet dismissed */ }
+  }, [current.id]);
+
   if (current.status === "pending") {
     return (
       <Wrap>
         <Panel>
-          <h2>Challenge pending</h2>
+          <h2>{current.openInvite ? "Invite a friend" : "Challenge pending"}</h2>
           {amOpponent ? (
             <>
               <p><strong>{current.challenger.displayName}</strong> invited you to a game of {current.game.replace("-", " ")}.</p>
               <Row><Primary onClick={accept}>Accept</Primary><Secondary onClick={decline}>Decline</Secondary></Row>
             </>
+          ) : current.openInvite ? (
+            <InviteShare
+              matchId={current.id}
+              game={current.game.replace("-", " ")}
+              expiresAt={current.inviteExpiresAt}
+              onCancel={decline}
+            />
           ) : (
             <>
               <p>Waiting for <strong>{current.opponent.displayName}</strong> to accept.</p>
-              <ShareLine>
-                Shareable link: <code>{typeof window !== "undefined" ? window.location.href : ""}</code>
-              </ShareLine>
+              <Row><Secondary onClick={decline}>Cancel challenge</Secondary></Row>
             </>
           )}
         </Panel>
@@ -164,29 +196,6 @@ export default function MatchBoard({ initial, viewerId, spectator = false }: Pro
         />
       )}
 
-      {current.status === "active" && !spectator && (
-        <ControlsRow>
-          <ResignButton onResign={resign} />
-          <button
-            type="button"
-            onClick={() => {
-              const url = typeof window !== "undefined"
-                ? `${window.location.origin}/match/${current.id}/watch`
-                : "";
-              try { navigator.clipboard.writeText(url); } catch {}
-            }}
-            title="Copies a share link that lets anyone spectate this match"
-            style={{
-              background: "transparent", color: "#a89880",
-              border: "1px solid #2e2618", padding: "7px 12px",
-              borderRadius: 6, fontSize: 14, cursor: "pointer",
-              fontFamily: "'Inter', sans-serif",
-            }}
-          >
-            Share spectator link
-          </button>
-        </ControlsRow>
-      )}
       {spectator && (
         <ControlsRow>
           <span style={{ color: "#a89880", fontFamily: "'Inter', sans-serif", fontSize: 13 }}>
@@ -195,13 +204,87 @@ export default function MatchBoard({ initial, viewerId, spectator = false }: Pro
         </ControlsRow>
       )}
 
-      <MatchChat
-        matchId={current.id}
-        viewerId={viewerId}
-        readOnly={spectator}
-        initialMessages={current.chatMessages ?? []}
-      />
+      <GameDock>
+        <DockButton icon="chat" label="Chat" onClick={() => setPanel("chat")} />
+        {current.status === "active" && !spectator && (
+          <>
+            <DockButton icon="share" label={shared ? "Link copied" : "Spectate link"} onClick={shareSpectate} />
+            <DockButton icon="flag" label="Resign" onClick={() => setPanel("resign")} />
+          </>
+        )}
+        {current.status !== "active" && current.moves.length > 0 && (
+          <DockButton icon="undo" label="Replay" onClick={() => router.push(`/match/${current.id}/replay`)} />
+        )}
+        {(current.status !== "active" || spectator) && (
+          <DockButton icon="swords" label="Matches" onClick={() => router.push("/matches")} />
+        )}
+      </GameDock>
+
+      {/* Kept mounted so chat keeps polling and keeps a half-typed message. */}
+      <BottomSheet open={panel === "chat"} onClose={() => setPanel(null)} title="Match chat" keepMounted>
+        <MatchChat
+          matchId={current.id}
+          viewerId={viewerId}
+          readOnly={spectator}
+          initialMessages={current.chatMessages ?? []}
+        />
+      </BottomSheet>
+      <BottomSheet open={panel === "resign"} onClose={() => setPanel(null)} title="Resign this game?">
+        <p style={{ margin: "0 0 14px", color: "#a89880" }}>
+          Your opponent is credited with the win and both ratings update.
+        </p>
+        <ResignButton onResign={async () => { await resign(); setPanel(null); }} />
+      </BottomSheet>
     </Wrap>
+  );
+}
+
+// Waiting room for the creator of an open invite: the link to send,
+// copy / native-share buttons, and a cancel. The board opens on its own
+// (via useMatchStream) the moment a friend joins.
+function InviteShare({ matchId, game, expiresAt, onCancel }: {
+  matchId: string;
+  game: string;
+  expiresAt?: string;
+  onCancel: () => void;
+}) {
+  const [url, setUrl] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [canShare, setCanShare] = useState(false);
+  useEffect(() => {
+    setUrl(`${window.location.origin}/match/${matchId}`);
+    setCanShare(typeof navigator.share === "function");
+  }, [matchId]);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // Clipboard API blocked (http, old browser) — select the field
+      // so the user can copy by hand.
+      (document.getElementById("invite-link") as HTMLInputElement | null)?.select();
+      return;
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  const share = () => {
+    navigator.share({ title: "Play me on Sphere of Kings", text: `Join my game of ${game}.`, url }).catch(() => {});
+  };
+
+  return (
+    <>
+      <p>Send this link to a friend. The game starts as soon as they open it and sign in.</p>
+      <LinkRow>
+        <input id="invite-link" readOnly value={url} onFocus={(e) => e.currentTarget.select()} aria-label="Invite link" />
+        <Primary onClick={copy}>{copied ? "Copied!" : "Copy link"}</Primary>
+        {canShare && <Secondary onClick={share}>Share…</Secondary>}
+      </LinkRow>
+      <ShareLine>
+        You play first.{expiresAt && <> Link expires {new Date(expiresAt).toLocaleString()}.</>}
+      </ShareLine>
+      <Row><Secondary onClick={onCancel}>Cancel invite</Secondary></Row>
+    </>
   );
 }
 
@@ -315,6 +398,7 @@ function RcMatchBoard({
       selected={selected}
       legalDests={sphereLegalDests}
       onCellClick={(cell) => squareClick(cell.col, cell.row)}
+      flipped={myColor === "black"}
     >
     <BoardChrome>
       <svg viewBox={`0 0 ${boardW} ${boardH}`}>
@@ -458,6 +542,7 @@ function IkMatchBoard({
       selected={selected}
       legalDests={sphereLegalDests}
       onCellClick={(cell) => squareClick(cell.col, cell.row)}
+      flipped={myColor === "black"}
     >
     <BoardChrome>
       <svg viewBox={`0 0 ${boardW} ${boardH}`}>
@@ -579,4 +664,9 @@ const Secondary = styled.button`
 const ShareLine = styled.p`
   font-size:13px;color:var(--text-muted,#a89880);
   code{background:var(--bg3,#111009);padding:3px 6px;border-radius:4px;}
+`;
+const LinkRow = styled.div`
+  display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 10px;
+  input{flex:1;min-width:200px;background:var(--bg3,#111009);color:var(--text,#f5f0e8);
+    border:1px solid var(--border,#2a2218);border-radius:6px;padding:9px 10px;font-size:13px;}
 `;

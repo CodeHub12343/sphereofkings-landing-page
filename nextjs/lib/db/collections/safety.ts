@@ -56,6 +56,7 @@ export interface Message {
 
 export type NotificationKind =
   | "challenge-received"
+  | "opponent-joined"
   | "match-your-turn"
   | "match-ended"
   | "message-received"
