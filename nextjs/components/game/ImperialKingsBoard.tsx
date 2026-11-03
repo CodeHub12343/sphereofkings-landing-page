@@ -219,7 +219,7 @@ export default function ImperialKingsBoard() {
   const renderRow = humanColor === "white" ? (r: number) => ROWS - r : (r: number) => r - 1;
 
   return (
-    <Wrap>
+    <Wrap className="sok-game-layout">
       <Status aria-live="polite">
         {term.kind === "win" && (
           <strong>

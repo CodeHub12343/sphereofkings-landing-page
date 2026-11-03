@@ -25,7 +25,7 @@ export default function AppScreen({ mode, title, subtitle, action, narrow, child
   if (mode === "game") {
     return (
       <GameMain>
-        <GameHead>
+        <GameHead className="sok-game-head">
           <h1>{title}</h1>
           {subtitle && (
             <RulesBtn type="button" onClick={() => setRulesOpen(true)}>

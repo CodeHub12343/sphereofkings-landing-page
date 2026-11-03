@@ -4,11 +4,25 @@
 // tab bar while a game is on screen: a few big thumb-reach buttons,
 // with everything else behind "Options" in a BottomSheet.
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import styled from "styled-components";
+import { PHONE_LANDSCAPE, backHref } from "@/lib/app-routes";
 import AppIcon, { AppIconName } from "./AppIcon";
 
 export function GameDock({ children }: { children: React.ReactNode }) {
-  return <Bar role="toolbar" aria-label="Game controls">{children}</Bar>;
+  const back = backHref(usePathname() ?? "/play");
+  return (
+    <Bar role="toolbar" aria-label="Game controls">
+      {/* Only shown on a sideways phone, where the top bar is hidden. */}
+      {back && (
+        <RailBack href={back} aria-label="Back">
+          <AppIcon name="back" />
+        </RailBack>
+      )}
+      {children}
+    </Bar>
+  );
 }
 
 interface DockButtonProps {
@@ -47,11 +61,41 @@ const Bar = styled.div`
   background: rgba(10, 8, 6, 0.96);
   border-top: 1px solid #2a2218;
   backdrop-filter: blur(10px);
+
+  /* Sideways phone: a slim rail down the right edge. */
+  @media ${PHONE_LANDSCAPE} {
+    top: 0;
+    left: auto;
+    width: calc(76px + env(safe-area-inset-right));
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    padding: max(8px, env(safe-area-inset-top)) env(safe-area-inset-right) max(8px, env(safe-area-inset-bottom)) 4px;
+    border-top: 0;
+    border-left: 1px solid #2a2218;
+  }
+`;
+const RailBack = styled(Link)`
+  display: none;
+  @media ${PHONE_LANDSCAPE} {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: max(8px, env(safe-area-inset-top));
+    left: 4px;
+    right: env(safe-area-inset-right);
+    height: 44px;
+    border-radius: 10px;
+    color: var(--text, #f5f0e8);
+    &:active { background: rgba(201, 162, 39, 0.12); }
+  }
 `;
 const Btn = styled.button<{ $tone: "default" | "armed" }>`
   flex: 1;
   max-width: 120px;
   min-height: 52px;
+  @media ${PHONE_LANDSCAPE} { flex: 0 0 auto; max-width: none; width: 100%; min-height: 56px; }
   display: flex;
   flex-direction: column;
   align-items: center;

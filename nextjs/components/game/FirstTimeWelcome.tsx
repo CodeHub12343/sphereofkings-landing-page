@@ -96,8 +96,9 @@ const Scrim = styled.div`
   backdrop-filter: blur(5px);
   display: grid;
   place-items: center;
-  z-index: 150;
-  padding: 20px;
+  /* Above the app chrome (top bar 1000, dock 900), below sheets (1200). */
+  z-index: 1100;
+  padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
   animation: sokFadeIn 0.25s ease-out;
   @keyframes sokFadeIn {
     from { opacity: 0; }
@@ -110,6 +111,9 @@ const Panel = styled.div`
   border: 1px solid #c9a227;
   border-radius: 14px;
   padding: 28px clamp(18px, 4vw, 32px);
+  max-height: calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  overflow-y: auto;
+  overscroll-behavior: contain;
   max-width: 540px;
   width: 100%;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(240, 192, 64, 0.08) inset;

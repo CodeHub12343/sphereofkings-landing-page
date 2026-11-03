@@ -12,7 +12,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styled from "styled-components";
-import { APP_TABS, activeTab, appMode, backHref } from "@/lib/app-routes";
+import { APP_TABS, PHONE_LANDSCAPE, activeTab, appMode, backHref } from "@/lib/app-routes";
 import NotificationBell from "@/components/NotificationBell";
 import AppIcon from "./AppIcon";
 
@@ -24,6 +24,7 @@ interface Summary {
 const TOP_BAR = 56;
 const TAB_BAR = 62;
 const DOCK = 66;
+const RAIL = 76; // GameDock's width when it becomes a side rail
 
 function useAppSummary(enabled: boolean, pathname: string) {
   const [summary, setSummary] = useState<Summary | null>(null);
@@ -80,7 +81,7 @@ export default function AppChrome({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <TopBar>
+      <TopBar $mode={mode}>
         <TopInner>
           <Left>
             {back ? (
@@ -136,7 +137,7 @@ export default function AppChrome({ children }: { children: React.ReactNode }) {
   );
 }
 
-const TopBar = styled.header`
+const TopBar = styled.header<{ $mode: "tab" | "game" }>`
   position: fixed;
   top: 0;
   left: 0;
@@ -146,6 +147,9 @@ const TopBar = styled.header`
   background: rgba(10, 8, 6, 0.94);
   border-bottom: 1px solid #2a2218;
   backdrop-filter: blur(12px);
+  /* Sideways phone during a game: every pixel of height goes to the
+     board; Back moves into the control rail (GameDock). */
+  ${(p) => p.$mode === "game" && `@media ${PHONE_LANDSCAPE} { display: none; }`}
 `;
 const TopInner = styled.div`
   height: ${TOP_BAR}px;
@@ -288,6 +292,40 @@ const Frame = styled.div<{ $mode: "tab" | "game" }>`
        longer overflows here, so it must lose to that rule. */
     .sok-pan-hint { display: none !important; }
     input, textarea { user-select: text; -webkit-user-select: text; }
+
+    /* Sideways phone: info column | board (full height) | control rail.
+       Screens opt in with .sok-game-layout and mark the board with
+       .sok-board-area; everything else stacks in the left column. */
+    @media ${PHONE_LANDSCAPE} {
+      padding-top: max(8px, env(safe-area-inset-top));
+      padding-bottom: max(8px, env(safe-area-inset-bottom));
+      padding-right: calc(${RAIL}px + env(safe-area-inset-right));
+      .sok-game-head { display: none; }
+      .sok-game-layout {
+        display: grid;
+        grid-template-columns: minmax(120px, 150px) minmax(0, 1fr);
+        grid-auto-rows: min-content;
+        column-gap: 12px;
+        /* No row-gap: the board spans many implicit rows, and each empty
+           row's gap would add invisible height. Items space themselves. */
+        row-gap: 0;
+        align-items: start;
+      }
+      .sok-game-layout > * { grid-column: 1; min-width: 0; margin-bottom: 8px; }
+      .sok-game-layout > .sok-board-area { grid-column: 2; grid-row: 1 / span 30; margin-bottom: 0; }
+      /* Thinner frame around the flat board: those pixels go to squares. */
+      .sok-game-layout > .sok-board-area:not(.sok-sphere) { padding: 8px; }
+      /* The status line may wrap here: the board is in its own column,
+         so a longer hint can't shift it. */
+      .sok-game-layout > [aria-live] { white-space: normal; flex-wrap: wrap; }
+      .sok-board-scroll svg {
+        /* 16 above + 8 below the board + 16 of board frame + slack. */
+        max-height: calc(100dvh - 44px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+        min-height: 0;
+      }
+      .sok-sphere { height: calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important; }
+      .sok-sphere-hint, .sok-rotate-hint { display: none !important; }
+    }
   `}
 `;
 

@@ -100,8 +100,9 @@ const Scrim = styled.div`
   backdrop-filter: blur(5px);
   display: grid;
   place-items: center;
-  z-index: 180;
-  padding: 20px;
+  /* Above the app chrome (top bar 1000, dock 900), below sheets (1200). */
+  z-index: 1100;
+  padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
   animation: pgFade 0.3s ease-out;
   @keyframes pgFade { from { opacity: 0; } to { opacity: 1; } }
 `;
@@ -111,6 +112,9 @@ const Panel = styled.div<{ $tone: string }>`
   border: 1px solid ${(p) => p.$tone};
   border-radius: 14px;
   padding: 28px clamp(20px, 4vw, 36px);
+  max-height: calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  overflow-y: auto;
+  overscroll-behavior: contain;
   max-width: 440px;
   width: 100%;
   text-align: center;

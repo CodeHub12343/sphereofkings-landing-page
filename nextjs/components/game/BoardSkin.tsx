@@ -341,7 +341,7 @@ export function SeamLine({ x, height }: { x: number; height: number }) {
 
 export function BoardChrome({ children }: { children: ReactNode }) {
   return (
-    <BoardChromeOuter>
+    <BoardChromeOuter className="sok-board-area">
       <div className="sok-board-scroll">{children}</div>
       <div className="sok-pan-hint" aria-hidden="true">
         swipe sideways to see more board

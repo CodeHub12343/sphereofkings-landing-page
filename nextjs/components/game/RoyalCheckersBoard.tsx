@@ -265,7 +265,7 @@ export default function RoyalCheckersBoard() {
   const renderRow = humanColor === "red" ? (r: number) => ROWS - r : (r: number) => r - 1;
 
   return (
-    <Wrap>
+    <Wrap className="sok-game-layout">
       <Status aria-live="polite">
         {term.kind === "win" && (
           <strong>{term.winner === humanColor ? "You win." : "Computer wins."}</strong>

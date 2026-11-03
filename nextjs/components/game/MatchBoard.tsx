@@ -142,7 +142,7 @@ export default function MatchBoard({ initial, viewerId, spectator = false }: Pro
   }
 
   return (
-    <Wrap>
+    <Wrap className="sok-game-layout">
       <Header>
         <PlayerTag $you={amChallenger}>
           {current.challenger.displayName}

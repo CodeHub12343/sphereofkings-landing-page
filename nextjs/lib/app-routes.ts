@@ -25,6 +25,12 @@ const GAME_PATTERNS = [
 
 export type AppMode = "site" | "tab" | "game";
 
+// A phone held sideways. Game screens switch to a side-by-side layout
+// (info column · board · control rail) so the board gets the height.
+// Tablets and desktops in landscape are taller than this and keep the
+// normal layout.
+export const PHONE_LANDSCAPE = "(orientation: landscape) and (max-height: 520px)";
+
 function matchesPrefix(pathname: string, prefix: string): boolean {
   if (prefix.endsWith("/")) return pathname.startsWith(prefix);
   return pathname === prefix || pathname.startsWith(`${prefix}/`);

@@ -502,6 +502,7 @@ export default function SphereBoardView(props: SphereBoardViewProps) {
 
   return (
     <div
+      className="sok-board-area sok-sphere"
       style={{
         position: "relative",
         width: "100%",
