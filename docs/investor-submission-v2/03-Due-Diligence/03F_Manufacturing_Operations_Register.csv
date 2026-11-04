@@ -1,0 +1,37 @@
+ID,Area,Item,Current / planned,Status,Evidence available,Evidence missing,Responsible,Next action,Priority
+MFG-01,Current equipment,Bambu Lab printer fleet,Current — small-batch per Nov-3 response,MANAGEMENT-REPORTED,S3,Equipment list with counts and serial numbers,Founder,Inventory,P1
+MFG-02,Current equipment,Printer ownership or access terms,Ownership not evidenced,PENDING,,Purchase receipts or lease,Founder,Document,P1
+MFG-03,Current equipment,Printer specs and capabilities,Not documented,PENDING,,Model + specs,Founder,Document,P1
+MFG-04,Current equipment,Printer maintenance records,Not documented,PENDING,,Service log,Founder,Start log,P2
+MFG-05,Production,Unit cost per flagship 7-in-1,~$30 target per Blueprint,MANAGEMENT-REPORTED,Blueprint,Validated BOM + cycle times + scrap,Operations,Measure,P0
+MFG-06,Production,Cycle times per SKU,Not measured,PENDING,,Cycle-time study,Operations,Measure,P1
+MFG-07,Production,Scrap / defect rate,Not measured,PENDING,,Rate per machine/material,Operations,Measure,P1
+MFG-08,Production,Labor hours per completed unit,Not measured,PENDING,,Labor study,Operations,Measure,P1
+MFG-09,Production,Material cost per unit,Not measured,PENDING,,Material cost per component,Operations,Measure,P1
+MFG-10,Production,Production yield,Not measured,PENDING,,Yield rate,Operations,Measure,P1
+MFG-11,Production,Target utilization (1/2/3-shift),Not modeled,PROPOSED,Blueprint Part III §14,Capacity model,Operations + CFO,Build,P1
+MFG-12,Materials,Supplier list,Not supplied,PENDING,,Vendor list with terms,Operations,Compile,P1
+MFG-13,Materials,Supplier contracts / terms,None on file,PENDING,,Signed terms per vendor,Operations,Collect,P1
+MFG-14,Materials,Inventory tracking system,None in place,PROPOSED,,System selection + rollout,Operations,Select at Stage 1,P2
+MFG-15,Materials,Hazardous-material handling (metal powders),N/A yet; applies when metal division starts,NOT APPLICABLE (today),Blueprint Part II Division C,,Future Metal Director,—,P3 (gate for Stage 3)
+MFG-16,Quality,QC procedures / manual,Not drafted,PROPOSED,Blueprint Part III §14,Quality manual,Quality Director,Draft at Stage 2,P1
+MFG-17,Quality,First-article inspection process,Not in place,PROPOSED,,Process doc,Quality Director,Define at Stage 2,P1
+MFG-18,Quality,Lot / machine / material traceability,Not in place,PROPOSED,,Traceability policy + system,Quality Director,Build at Stage 2,P1
+MFG-19,Quality,ISO 9001 certification,Not held,NOT APPLICABLE (today) — target for Stage 2-3,Blueprint,,Quality Director,Plan,P2
+MFG-20,Facility,Initial facility,Not leased; illustrative 150K sqft case only,PENDING,Blueprint Part III §12,Three-site shortlist + lease proposal,Operations + broker,Right-sized pilot feasibility,P1
+MFG-21,Facility,Electrical capacity,N/A,PENDING,,Utility letter for selected site,Operations,Request,P1
+MFG-22,Facility,HVAC / process ventilation,N/A,PENDING,,HVAC design study,Operations,Commission per site,P1
+MFG-23,Facility,Fire suppression / combustible-dust (metal),N/A,PENDING,,Hazard assessment + design,Operations + safety,Gate for Stage 3,P2
+MFG-24,Facility,Zoning,N/A,PENDING,,Zoning confirmation per site,Operations + broker,Request,P1
+MFG-25,Facility,Permits timeline,N/A,PENDING,,Permit schedule,Operations,Request,P1
+MFG-26,Facility,Insurance (premises + equipment),N/A,PENDING,,Policy quotes,Founder + broker,Bind before Kickstarter fulfillment,P1
+MFG-27,Equipment procurement,Three quotations per equipment class,None on file,PENDING,,RFQ responses,Operations,Start RFQs for Stage-1 and Stage-2 classes,P0
+MFG-28,Equipment procurement,Preferred-supplier short-list,Not compiled,PENDING,,Short-list memo,Operations,Compile,P1
+MFG-29,Scalability,Capacity model inputs,Not modeled,PENDING,Blueprint Part III §14,"Machine-hours, cycle, scrap, labor, material, OH, OEE",Operations + CFO,Build,P1
+MFG-30,Scalability,Secondary site business case (Stage 4),Not drafted,PROPOSED,Blueprint,Business case document,Operations,Draft at Stage 3,P2
+MFG-31,Fulfillment,Current warehousing,Not described,PENDING,,Space + process,Founder,Document,P2
+MFG-32,Fulfillment,Current shipping / 3PL,Not described,PENDING,,Carrier list + process,Founder,Document,P2
+MFG-33,Fulfillment,Returns process,Not formal,PROPOSED,,Returns policy + workflow,Operations + CS,Draft,P2
+MFG-34,Metal division,Equipment ordered,None,NOT APPLICABLE (today),Blueprint,,Metal Director,Gate for Stage 3,P2
+MFG-35,Metal division,Anchor customer,None,PENDING,Blueprint go/no-go gate,Signed LOI,Industrial Sales,Hunt from Stage 2,P1
+MFG-36,Metal division,Insurance in principle,None,PENDING,,Underwriter letter,Founder + broker,Secure before buying equipment,P2

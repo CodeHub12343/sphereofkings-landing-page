@@ -1,0 +1,39 @@
+ID,Item,Current known position,Status,Evidence available,Evidence missing,Responsible,Next action,Priority
+FIN-01,Revenue to date,None reported; pre-launch per S3,PENDING,S3,P&L from accounting system,Founder + bookkeeper,Back-populate from bank statements,P0
+FIN-02,Trailing 12-month revenue,None reported,PENDING,,P&L (TTM),Founder + bookkeeper,Produce after accounting setup,P0
+FIN-03,Gross margin,Not measured,PENDING,,Validated COGS per SKU,Operations + CFO,Compute from validated BOM,P1
+FIN-04,Contribution margin,Not measured,PENDING,,Direct variable cost + revenue per order,Operations + CFO,Compute per channel,P1
+FIN-05,Net profit / loss,Not measured,PENDING,,Audited or reviewed financial statements,Accountant,Build opening P&L,P1
+FIN-06,CAC,Not measured; no paid acquisition at scale,PENDING,,Attributed marketing spend / new customers,Marketing lead,Track from Kickstarter campaign launch,P2
+FIN-07,LTV,Not measured,PENDING,,Repeat-purchase and expansion-pack data,Marketing lead,Model post-launch,P2
+FIN-08,Burn rate,Not measured,PENDING,,Trailing-3-month operating outflow,Founder + bookkeeper,Document,P1
+FIN-09,Current cash reserves,Not disclosed in writing,PENDING,,Bank balance as of DD date,Founder,Report,P0
+FIN-10,Company runway,Not measured,PENDING,,Cash / burn,Founder + bookkeeper,Report,P1
+FIN-11,Outstanding liabilities,Not disclosed in writing,PENDING,,Debt schedule / vendor payables,Founder,Document,P0
+FIN-12,Debt and financing obligations,None disclosed,PENDING,,Any loans / factoring / lines of credit,Founder,Disclose,P0
+FIN-13,Accounts receivable / payable,Not disclosed,PENDING,,AR / AP aging,Founder,Produce,P1
+FIN-14,Historical operating expenses,Not disclosed,PENDING,,Trailing OpEx by category,Founder + bookkeeper,Produce,P1
+FIN-15,Historical capital expenditures,Not disclosed,PENDING,,Capex schedule,Founder,Produce,P1
+FIN-16,Valuation logic,Hypothetical $300M pre-money used only as a modeling convention,ILLUSTRATIVE,Blueprint Part IV §20,Independent valuation memo,Valuation professional,Commission if investor requires,P1
+FIN-17,Proposed use of funds,70-line envelope totaling $100M,PROPOSED,Blueprint Part IV §17,Procurement schedule linking to quotes,Operations + CFO,Attach quotes per line,P0
+FIN-18,Integrated five-year financial model (bottom-up),Not built; top-down targets only,TO BUILD,Blueprint Part IV §18-19,"Monthly P&L, cash flow, BS for 36 months",External financial consultant,Engage,P0
+FIN-19,Break-even analysis,Illustrative between Y2 and Y3,ILLUSTRATIVE,Blueprint Part IV §19,Model-driven break-even,CFO,Compute from bottom-up model,P1
+FIN-20,Sensitivity analysis,ASP sensitivity + ROI table in Blueprint,ILLUSTRATIVE,Blueprint Part IV §18 §20,Base/downside/upside scenarios,CFO,Build in model,P1
+FIN-A,Bank statements last 12 months,Not supplied,PENDING,,Monthly statements,Founder,Upload to DD folder,P0
+FIN-B,Accounting / general ledger,No accounting system reported,PENDING,,QuickBooks (or equivalent) file,Founder + bookkeeper,Set up and populate,P0
+FIN-C,Tax returns (if applicable),Not supplied,PENDING,,Prior-year returns,Founder,Request from accountant,P1
+FIN-D,Invoices / sales records,None reported,PENDING,,Invoice ledger,Founder,Collect,P1
+FIN-E,Expense records,None supplied,PENDING,,Expense ledger / receipts,Founder,Collect,P1
+FIN-F,Debt schedules,Not disclosed,PENDING,,Debt schedule,Founder,Disclose,P0
+FIN-G,Existing financial commitments,Not disclosed,PENDING,,Any vendor commitments / leases,Founder,Disclose,P0
+FIN-H,Accounting policies,Not adopted,PROPOSED,,Policy memo,CFO + accountant,Adopt at Stage 1,P1
+FIN-MR-01,Divisional revenue totals reconcile to $250M Y5,A $100M + B $80M + C $50M + D $20M = $250M (correct),ILLUSTRATIVE,Blueprint Part IV §18,,Documentation team,None — math reconciles,
+FIN-MR-02,Five funding stages sum to $100M,2+8+20+30+40 = 100 (correct),PROPOSED,Blueprint Part IV §16,,Documentation team,None,
+FIN-MR-03,Use-of-funds categories sum to $100M,12+12+18+12+10+10+8+7+4+3+4 = 100 (correct),PROPOSED,Blueprint Part IV §17,,Documentation team,None,
+FIN-MR-04,Use-of-funds line items for A-F sum to their category totals,Each verified equal (A 12 B 12 C 18 D 12 E 10 F 10),PROPOSED,Blueprint Part IV §17,G-K line detail to be inserted,Documentation team,Add G-K line detail,P2
+FIN-MR-05,Y5 free cash flow bridge arithmetic,50 - 2 - 7 - 8 - 5 = 28 (correct),ILLUSTRATIVE,Blueprint Part IV §19,,Documentation team,,
+FIN-MR-06,Investor ROI scenarios (25% stake),"$500M -> $125M -> 25%; $1B -> $250M -> 150%; $2B -> $500M -> 400%; $3B -> $750M -> 650% (all correct given no dilution)",ILLUSTRATIVE,Blueprint Part IV §20,,Documentation team,,
+FIN-MR-07,Gaming volume at $130 ASP for $100M,$100M / $130 = 769231 units (correct),ILLUSTRATIVE,Blueprint Part IV §18,,Documentation team,,
+FIN-MR-08,420-customer industrial mix implies $130M,20*2.5 + 100*0.5 + 300*0.1 = 50+50+30 = 130 (correct),ILLUSTRATIVE,Blueprint Part IV §18,,Documentation team,,
+FIN-MR-09,Equipment payback example,$5M / $1.5M = 3.33 years (correct),ILLUSTRATIVE,Blueprint Part III §13,,Documentation team,,
+FIN-MR-10,Make-or-buy break-even,$180K / $18 = 10000 units (correct),ILLUSTRATIVE,Blueprint Part II Division B,,Documentation team,,

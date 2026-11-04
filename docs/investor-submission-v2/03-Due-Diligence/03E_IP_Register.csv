@@ -1,0 +1,21 @@
+IP ID,Asset / IP description,Claimed owner,Creator / contributor,Date created,Registration / filing status,Assignment agreement status,Third-party rights / restrictions,Required legal action,Status
+IP-01,"Sphere of Kings brand (word mark)",Creative Design Networks (asserted),Founder,—,Not filed,—,Clearance pending,"USPTO clearance + file 1(a) or 1(b)",PROPOSED
+IP-02,"Sphere of Kings logo / brand identity",CDN (asserted),Designer(s) — identity to be confirmed,—,Not filed,Not executed,"Confirm whether logo designer executed an assignment",Collect assignment; copyright + trademark registration,PENDING
+IP-03,"Spherical hardware design (ornamental)",CDN (asserted),Founder + contractors — to confirm,—,Not filed,Not executed,—,Design-patent application (US & key jurisdictions),PROPOSED
+IP-04,"Modular board / seam mechanism (functional)",CDN (asserted),Founder + contractors — to confirm,—,Not filed,Not executed,—,"Provisional utility patent before Kickstarter launch; FTO memo first",PROPOSED
+IP-05,"Game rules — Royal Checkers",CDN (asserted),Founder,—,Not filed,—,Abstract game rules generally not patentable,Copyright rulebook,PROPOSED
+IP-06,"Game rules — Imperial Kings",CDN (asserted),Founder,—,Not filed,—,Same as above,Copyright rulebook,PROPOSED
+IP-07,"Puzzle artwork — Earth",CDN (asserted),Artist(s) to confirm,—,Not registered,Not executed,"Confirm whether artist executed work-for-hire or assignment",Copyright registration + assignment,PENDING
+IP-08,"Puzzle artwork — Galaxy",CDN (asserted),Same,—,Not registered,Not executed,Same,Same,PENDING
+IP-09,"Puzzle artwork — Lion",CDN (asserted),Same,—,Not registered,Not executed,Same,Same,PENDING
+IP-10,"Puzzle artwork — Moon",CDN (asserted),Same,—,Not registered,Not executed,Same,Same,PENDING
+IP-11,"Puzzle artwork — Ocean",CDN (asserted),Same,—,Not registered,Not executed,Same,Same,PENDING
+IP-12,"Product photography (36 catalog images)",CDN (asserted),Photographer / designer to confirm,—,Not registered,Not executed,"Confirm copyright chain",Copyright registration + assignment,PENDING
+IP-13,"Source code (nextjs/) — playable 3D sphere + multiplayer + sponsorship",CDN (asserted),Founder + any contributors,2025-2026 commits,Not registered,"Not executed for past contractors",—,"Contractor IP assignment agreements; copyright registration of key releases",PENDING
+IP-14,"Platform ADRs / policy documents",CDN (asserted),Founder,2026-10,—,—,—,—,CONFIRMED (as works authored by founder)
+IP-15,"Manufacturing methods / parameters",CDN (asserted),Founder,TBD,Trade secret,—,—,Trade-secret program; NDAs with manufacturers,PROPOSED
+IP-16,Third-party licensed content (creator marketplace),Varies per creator,External creators,—,—,Not executed,Rights depend on each creator contract,"Draft creator-marketplace template; execute per submission",PROPOSED
+IP-17,Brand / sports / entertainment licenses (inbound),Varies per licensor,External,—,—,Not executed,—,Negotiate per partner,PROPOSED
+IP-18,"Freedom-to-operate (FTO) memo — spherical game system",N/A — process,External IP counsel,—,Not commissioned,—,—,Commission before any patent filing,PENDING
+IP-19,Patent-landscape review,N/A,External IP counsel,—,Not commissioned,—,—,Commission with FTO,PENDING
+IP-20,NDAs on file for contractors / consultants,N/A,Varies,TBD,—,Not inventoried,—,Inventory and chase,PENDING

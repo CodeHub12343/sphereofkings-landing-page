@@ -1,0 +1,24 @@
+ID,Role,Name,Status (current vs planned),Hire stage,Agreement on file,Evidence available,Evidence missing,Responsible,Next action,Priority
+TM-01,Founder / CEO,James Scott Bowser,Current,In post,PROPOSED (no formal employment agreement),"S3; git log attributable to founder",Resume + biography + founder-employment agreement,Founder,Supply biography,P0
+TM-02,Chief Financial Officer,TBD,Planned,Stage 1,—,—,Role spec + candidate pipeline,Founder,Open search at Stage 1,P0
+TM-03,Chief Operating Officer (industrial),TBD,Planned,Stage 2,—,—,Role spec,Founder,Open search at Stage 2,P1
+TM-04,Chief Technology Officer,TBD,Planned,Stage 1-2,—,—,Role spec,Founder,Open search at Stage 1,P0
+TM-05,Manufacturing Engineering Director,TBD,Planned,Stage 2,—,—,Role spec,Operations,Open search at Stage 2,P1
+TM-06,Metal Manufacturing Director (qualified),TBD,Gate for Stage 3,Stage 3,—,—,Role spec,Operations,Open before any owned metal cell,P1
+TM-07,Quality Director,TBD,Planned,Stage 2,—,—,Role spec,Operations,Open at Stage 2,P1
+TM-08,Head of Industrial Sales (B2B),TBD,Planned,Stage 2,—,—,Role spec,Founder,Open at Stage 2,P1
+TM-09,Head of Licensing & Creator Programs,TBD,Planned,Stage 3,—,—,Role spec,Founder,Open at Stage 3,P2
+TM-10,Head of Consumer Marketing / Community,TBD,Planned,Stage 1,—,—,Role spec,Founder,Open at Stage 1,P1
+TM-11,Head of People / HR,TBD,Planned,Stage 2,—,—,Role spec,Founder,Open at Stage 2,P2
+TM-12,General Counsel (or outside counsel of record),TBD,Planned,Stage 1,—,—,Engagement letter,Founder,Engage,P0
+TM-13,Current contractors / designers / developers,TBD,Current (per S3 'founder-led' + repo commits imply contributors),—,None on file,git log (no attribution of specific names in commits),List of contributors + roles + agreements,Founder,Compile + chase IP assignments,P0
+TM-14,Advisors,None documented,PROPOSED,—,—,—,Advisor agreements,Founder,Recruit 2-3 named advisors,P1
+TM-15,Board of directors,Not formally constituted,PROPOSED,Stage 1-4,—,Blueprint Part V,Board resolution,Founder + counsel,Appoint incrementally,P1
+TM-16,Audit committee,Not formed,PROPOSED,Stage 2+,—,—,Committee charter,Board,Form at Stage 2,P2
+TM-17,Compensation committee,Not formed,PROPOSED,Stage 2+,—,—,Committee charter,Board,Form at Stage 2,P2
+TM-18,Organization chart,Not drafted,PENDING,—,—,—,Org chart,Founder,Draft at Stage 1,P1
+TM-19,Capital-expenditure authorization matrix,Not formally adopted,PROPOSED,Stage 1,—,Blueprint Part V,Matrix document,Founder + CFO,Adopt at Stage 1,P1
+TM-20,Financial controls (purchasing / reconciliation / SoD),Not formalized,PROPOSED,Stage 1-2,—,—,Controls doc,CFO,Design at Stage 1,P1
+TM-21,Conflict-of-interest policy,Not adopted,PROPOSED,Stage 1,—,—,Policy doc,Counsel,Draft at Stage 1,P1
+TM-22,Founder key-person insurance,Not held,PROPOSED,Stage 2,—,—,Policy,Insurance broker,Bind at Stage 2,P2
+TM-23,Succession / business-continuity plan,Not drafted,PROPOSED,Stage 2,—,—,Plan document,Board,Draft at Stage 2,P2

@@ -1,0 +1,35 @@
+ID,Asset / feature,Development stage,Status,Evidence available,Evidence missing,Responsible,Next action,Priority
+PROD-01,SOK 7-in-1 spherical game board hardware,Designed,MANAGEMENT-REPORTED,Blueprint; 36 product images in repo,Physical prototype photographs; CAD files; drawings,Founder,Upload to DD folder,P1
+PROD-02,Complete 7-in-1 BOM,Not validated,PENDING,,BOM document with vendors and costs,Operations lead,Compile,P0
+PROD-03,Royal Checkers experience,Designed,MANAGEMENT-REPORTED,royal-checkers.png in repo,Rules document; piece specs,Founder,Document,P2
+PROD-04,Imperial Kings experience,Designed,MANAGEMENT-REPORTED,imperial-kings.png,Rules document; piece specs,Founder,Document,P2
+PROD-05,Pre-designed Puzzle (Earth / Galaxy / Lion / Moon / Ocean),Designed,CONFIRMED (artwork),puzzle-*.jpg in repo,Print-ready files,Founder,Export,P2
+PROD-06,Custom Upload Puzzle,Designed,MANAGEMENT-REPORTED,custom-upload-puzzle.webp,End-to-end upload workflow spec,Founder + CTO,Spec + build,P1
+PROD-07,DIY Paint Puzzle,Designed,CONFIRMED (artwork),diy-puzzle-pieces.jpg,Blank-piece production spec,Operations,Document,P2
+PROD-08,Paintable Royal Checkers,Designed,CONFIRMED (artwork),royal-checkers-diy.jpg,Production spec,Operations,Document,P2
+PROD-09,Paintable Imperial Kings,Designed,CONFIRMED (artwork),imperial-kings-diy.jpg,Production spec,Operations,Document,P2
+PROD-10,Expansion packs (x3 x5 x10 x20 x50),Designed,CONFIRMED (artwork),pack-*.webp,SKU + pricing model,Founder,Document,P2
+PROD-11,Creator Edition,Designed,MANAGEMENT-REPORTED,creator-edition.webp,Marketplace workflow,Founder + CTO,Spec + build,P1
+PROD-12,Prototype testing reports,None reported,PENDING,,Durability / drop / wear test logs,Operations + test lab,Commission,P1
+PROD-13,Toy-safety testing (ASTM F963 / EN71),Not performed,PENDING,,CPSC-accepted lab report,Operations + lab,Engage lab pre-launch,P0 (pre-launch)
+PROD-14,Age-grading / children's edition compliance,Not assessed,PENDING,,Age-grade statement + supporting testing,Founder + lab,Assess,P1
+PROD-15,Playable 3D sphere game,Implemented,CONFIRMED (code),commit 7871689 in repo,Walkthrough video; live demo URL,CTO,Record / link,P1
+PROD-16,Online multiplayer,Implemented,CONFIRMED,commit 7871689,Live deployment URL + user docs,CTO,Document,P1
+PROD-17,Phone-app shell (PWA),Implemented,CONFIRMED,commit 7871689 + manifest.ts,Install instructions + QA pass,CTO,Document,P1
+PROD-18,Spectator / promotion / resign / clock / chat,Implemented,CONFIRMED,commit 99b320b,,CTO,None,
+PROD-19,Sideways-phone layout + rotate tip + opt-in fullscreen,Implemented,CONFIRMED,commit f1f7e7a,,CTO,None,
+PROD-20,Sponsor dashboard,Implemented,CONFIRMED,commit bc72406,,CTO,None,
+PROD-21,DTC storefront (Stripe + MongoDB),Implemented (currently Kickstarter-only mode),CONFIRMED,nextjs/app routes + commit 7679016,DTC reopen plan,CTO,Plan reopen after fulfillment,P2
+PROD-22,Wholesale checkout,Implemented,CONFIRMED,nextjs/app/wholesale-checkout,Wholesale terms and pricing matrix,Founder + CTO,Finalize terms,P2
+PROD-23,Platform ADRs (seams 2D-MVP tournaments Pusher min-age-13 parental-consent),Implemented,CONFIRMED,content/adr/0001-0006,,CTO,None,
+PROD-24,Customer portal (quoting / orders / files),Not built,PROPOSED,Blueprint Division D,Scope document,CTO + Product,Scope at Stage 1,P1
+PROD-25,AI-assisted quoting,Not built,PROPOSED,Blueprint Division D,Scope document + pricing rules,CTO,Scope at Stage 2,P2
+PROD-26,Manufacturing Execution System (MES),Not built,PROPOSED,Blueprint Division D,Architecture document + build vs buy analysis,CTO,Scope at Stage 2,P1
+PROD-27,Quality & traceability platform,Not built,PROPOSED,,Spec + process map,Quality lead,Scope at Stage 2,P1
+PROD-28,Creator royalties platform,Not built,PROPOSED,,Spec + example royalty statement,CTO + Legal,Scope at Stage 3,P2
+PROD-29,ERP,Not built,PROPOSED,,Vendor selection + scope,CFO + CTO,Evaluate at Stage 2,P2
+PROD-30,Cybersecurity program,Not formal,PROPOSED,,Policy + controls,CTO,Adopt at Stage 1,P1
+PROD-31,Software security review,Not performed,PENDING,,Vulnerability assessment report,Third-party assessor,Commission pre-launch,P1
+PROD-32,Product differentiation evidence,Spherical form + 7-in-1 + customization + licensing,MANAGEMENT-REPORTED,Blueprint; product art,Comparative analysis vs. incumbents,Product lead,Memo,P2
+PROD-33,Copyability / defensibility,Depends on IP program,PROPOSED,Blueprint; 03E IP Register,FTO memo + filings,IP counsel,See 03E,P0
+PROD-34,Product retention / repeat purchase,Not measured (pre-launch),PENDING,,Post-launch repeat-order data,Marketing,Measure from Y1,P2

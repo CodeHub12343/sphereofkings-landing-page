@@ -1,0 +1,19 @@
+ID,Organization,Relationship type,Contact / responsible person,Current status,Discussions held,Proposed scope,Financial commitment (if documented),Agreement status,Supporting document,Outstanding action
+PART-01,Jellop,Kickstarter marketing collaboration,Founder-side: James; counterparty contact TBC,Discussion only,Yes (per S3),Kickstarter campaign marketing,None documented,Not executed,None on file,Request engagement letter; confirm scope + budget + deliverables
+PART-02,PostcardMania,Direct-mail marketing,TBC,Exploration only,Preliminary (per S3),Direct-mail outreach,None documented,Not executed,None on file,Decide: convert to proposal or drop
+PART-03,"IP / licensing firm — 90-day exclusive pilot",Patent / licensing partner,TBC,Proposal under development,Yes (per S3),"Patent strategy, licensing services, possible referral compensation + revenue participation",None documented,Not executed,None on file,"Draft term sheet (fees, commissions, revenue participation, deliverables, exit)"
+PART-04,Bambu Lab,Equipment supplier (printers),Direct purchase channel,Prospect / customer,Reported ownership/access,Polymer printer fleet,Unknown,Not documented,None on file,"Document current printer inventory, purchase receipts, service terms"
+PART-05,Independent creators,Licensing (creator marketplace),Various,Proposal — platform not built,None,50/50 net-profit royalty to creator,None,Not executed,Draft template not written,Draft standard creator marketplace contract; define 'net profit'
+PART-06,Brands (consumer goods),Brand licensing (inbound),TBC,Prospect,None,Themed SOK editions,None,Not executed,None on file,Draft brand-licensing term sheet
+PART-07,Sports organizations,Licensing (inbound),TBC,Prospect,None,Themed SOK editions,None,Not executed,None on file,Draft sports-licensing term sheet
+PART-08,Entertainment IP holders,Licensing (inbound),TBC,Prospect,None,Themed SOK editions,None,Not executed,None on file,Draft entertainment-licensing term sheet
+PART-09,Manufacturing suppliers (polymer materials),Supplier,TBC,Prospect,None documented,Material supply,None,Not executed,None on file,Qualify two suppliers per critical material
+PART-10,Manufacturing suppliers (metal powder),Supplier,TBC,Prospect (gate for Stage 3),None,Material supply,None,Not executed,None on file,Qualify after metal division gate
+PART-11,Distribution — specialty retail,Distribution (gaming),TBC,Prospect,None documented,Wholesale,None,Not executed,None on file,Meeting log + wholesale pricing matrix
+PART-12,Distribution — national retail chains,Distribution (gaming),TBC,Prospect,None documented,Wholesale,None,Not executed,None on file,Approach post-launch
+PART-13,Distribution — international,Distribution (gaming),TBC,Prospect,None documented,Wholesale,None,Not executed,None on file,Country-by-country review
+PART-14,3PL / fulfillment providers,Service provider,TBC,Prospect,None documented,Fulfillment,None,Not executed,None on file,RFQ for Kickstarter fulfillment
+PART-15,Payment processing — Stripe,Service provider (integrated),Direct,Live (embedded in app),N/A,Payment processing,Standard Stripe fees,Standard terms (click-through),Stripe account,Treat as commodity; no formal partnership claim
+PART-16,Infrastructure — MongoDB / Pusher / Vercel Blob,Service providers (integrated),Direct,Live (embedded in app),N/A,Infrastructure,Standard fees,Standard terms,Service accounts,Treat as vendors
+PART-17,Shark Ready,Investor-preparation / syndication,TBC,Engagement discussed,Yes (per user instruction),Investor preparation; possible syndication,Unknown,Not executed,None on file,"Request engagement letter; clarify role (placement agent / syndicator / pay-to-pitch)"
+PART-18,Rabbit Capital,Potential investor,TBC,Discussion only,Yes (per user instruction),Potential capital,None,Not executed,None on file,"Any correspondence to data room; do not represent as committed"

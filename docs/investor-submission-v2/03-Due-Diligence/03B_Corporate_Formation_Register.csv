@@ -1,0 +1,18 @@
+ID,Item,Current known position,Status,Evidence available,Evidence missing,Responsible,Next action,Priority
+CF-01,Legal entity type (LLC/C-Corp/S-Corp),Not confirmed; developed through Creative Design Networks per founder,PENDING,James Nov-3 response (S3),Certificate of formation/incorporation,Founder + corp counsel,Confirm/elect entity type and file,P0
+CF-02,State of formation / jurisdiction,Not confirmed,PENDING,,Certificate / state filing,Founder + corp counsel,Document on file,P0
+CF-03,Year founded or incorporated,Not confirmed,PENDING,,Formation date in filing,Founder,Confirm and record,P0
+CF-04,Registered agent,Not appointed,PENDING,,Registered-agent contract,Founder + corp counsel,Appoint; document,P0
+CF-05,EIN,None held; founder uses personal tax ID per Nov-3 response,IN PROGRESS,S3,IRS CP-575 letter,Founder,Apply for EIN after entity formation,P0
+CF-06,Current capitalization table,Founder-led; cap table not finalized per S3,PENDING,S3,Fully-diluted cap table,Founder + corp counsel,Draft founder stock allocation + outstanding commitments,P0
+CF-07,Founder ownership,Not formally allocated,PENDING,,Founder stock purchase agreement,Founder + corp counsel,Execute,P0
+CF-08,Other shareholders / investors,None known,PENDING,S3 'founder-led',Written disclosure of any prior promises,Founder,Disclose,P0
+CF-09,Outstanding options / SAFEs / convertibles,None known,PENDING,,Any prior-promise disclosure,Founder,Disclose any prior equity promises,P0
+CF-10,Operating agreement or bylaws,None on file,PENDING,,Executed doc,Founder + corp counsel,Draft and adopt,P0
+CF-11,Articles of incorporation / certificate of formation,Not filed,PENDING,,Filed copy,Founder + corp counsel,File with secretary of state,P0
+CF-12,Relationship between Creative Design Networks and Sphere of Kings,Not legally structured; SOK developed through CDN per S3,PENDING,S3,Entity doc specifying structure (division/subsidiary/separate),Founder + corp counsel,Decide structure; document,P0
+CF-13,Ownership of company assets (brand / designs / software / IP),Not legally confirmed,PENDING,,Asset list + ownership record,Founder + IP counsel,Chain-of-title memo,P0
+CF-14,Board structure and governance,Not formally constituted,PROPOSED,Blueprint Part V,Board resolution establishing board,Founder + counsel,Appoint at Stage 1,P1
+CF-15,Corporate policies (conflict of interest / spending authority / information security),Not formally adopted,PROPOSED,,Policy documents,Founder + counsel,Adopt before Stage 1,P1
+CF-16,Corporate good standing certificate,N/A pre-formation,PENDING,,Good-standing certificate once formed,Founder,Request after formation,P2
+CF-17,Business registrations and licenses,Not confirmed,PENDING,,Local business license as applicable,Founder,Check per jurisdiction,P2

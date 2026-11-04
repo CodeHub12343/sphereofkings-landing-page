@@ -1,0 +1,27 @@
+ID,Metric / claim,Reported figure,Reporting period,Source,Evidence file,Status,Verification action
+TR-01,Lifetime revenue to date,None reported,—,S3,,PENDING,Request from accounting
+TR-02,Trailing-12-month revenue,None reported,—,S3,,PENDING,Request after accounting setup
+TR-03,Paying customers,None reported,—,S3,,PENDING,None yet
+TR-04,Active users (digital companion),None reported,—,,Pre-launch; staging only,PENDING,Request analytics
+TR-05,Website traffic to sphereofkings.com,Not supplied,—,,,PENDING,Request analytics export
+TR-06,Prelaunch Kickstarter sign-ups,Not supplied,—,,Kickstarter prelaunch dashboard,PENDING,Request dashboard export
+TR-07,Email list size,Not supplied,—,,CRM / ESP export,PENDING,Request export
+TR-08,Growth rate,Not measurable,—,,,PENDING,Measure after launch
+TR-09,Customer retention,Not measurable,—,,,PENDING,Measure post-launch
+TR-10,Signed LOIs (gaming),None,—,,,PENDING,Prospect
+TR-11,Signed LOIs (industrial contract manufacturing),None,—,,,PENDING,Prospect from Stage 2
+TR-12,Signed MOUs,None,—,,,PENDING,Prospect
+TR-13,Executed distribution agreements,None,—,,,PENDING,Prospect
+TR-14,Executed retail / wholesale agreements,None,—,,,PENDING,Prospect
+TR-15,Executed licensing agreements (inbound),None,—,,,PENDING,Prospect
+TR-16,Executed licensing agreements (outbound to creators),None,—,,,PROPOSED,Draft template before marketplace launch
+TR-17,Media coverage (earned),Not supplied,—,,,PENDING,Collect if any
+TR-18,Testimonials / endorsements,None,—,,,PENDING,Collect with written consent only
+TR-19,Shipped product to repo — playable 3D sphere / multiplayer / sponsor dashboard / PWA,Shipped to repo,2025-2026,git log (commits 7871689 f1f7e7a 99b320b bc72406 7679016),commits in nextjs/,CONFIRMED,Already evidenced
+TR-20,7-in-1 product catalog designed,36 approved images,2025-2026,nextjs/public/images/products/,36 files,CONFIRMED,Already evidenced
+TR-21,Kickstarter launch planned 2026-11-19,Launch planned,n/a,site metadata,nextjs/app/layout.tsx,CONFIRMED (planned),Confirm launch on/after 2026-11-19
+TR-22,Public Kickstarter goal $10000,$10000,n/a,S3,,CONFIRMED (public goal),—
+TR-23,Internal Kickstarter stretch $30M,$30M,n/a,S3,,MANAGEMENT-REPORTED (aspirational),Do not treat as traction
+TR-24,Jellop engagement,Discussed and planned,n/a,S3,,PROPOSED,Request engagement letter
+TR-25,PostcardMania engagement,Exploration only,n/a,S3,,PROPOSED,Confirm scope
+TR-26,IP / licensing-firm 90-day pilot,Proposed,n/a,S3,,PROPOSED,Confirm pilot terms

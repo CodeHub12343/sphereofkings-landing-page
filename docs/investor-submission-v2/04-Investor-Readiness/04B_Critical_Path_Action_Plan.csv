@@ -1,0 +1,43 @@
+Phase,Action,Why it matters,Owner,Proof of completion,Dependency,Professional required,Priority,Target window
+Immediate,Compile list of past SOK contractors/designers/developers,Chain-of-title for IP; §A P0,Founder,Written list + contact info,—,—,P0,Week 1
+Immediate,Send IP-assignment agreements to every past contractor,Secure IP ownership before investor diligence,Founder + IP counsel,Executed assignments on file,Contractor list,IP counsel,P0,Weeks 1-3
+Immediate,Download bank statements last 12 months,Financial evidence baseline,Founder,Bank statements uploaded to DD folder,—,—,P0,Week 1
+Immediate,Set up accounting system (QuickBooks or equivalent),Historical P&L/cash records,Founder + bookkeeper,Opening ledger populated,Bank statements,Bookkeeper,P0,Weeks 1-4
+Immediate,Provision secure DD folder (Drive/Dropbox/data room),Shark Ready DD folder placeholder replacement,Founder,Shared folder URL,—,—,P0,Week 1
+Immediate,Disclose every past equity promise or commitment,Clean cap table,Founder,Written disclosure,—,—,P0,Week 1
+Immediate,Supply founder biography + full-time status + personal capital contribution,Buybox beat 05 upgrade,Founder,Supplied in writing,—,—,P0,Week 1
+Immediate,Request Jellop engagement letter / email trail,Partnership classification,Founder,Written response from Jellop or definitive 'no agreement',—,—,P1,Week 1
+Immediate,Request PostcardMania scope confirmation,Partnership classification,Founder,Quote or 'exploration only',—,—,P1,Week 1
+Immediate,Request IP firm 90-day pilot term sheet,Define partnership terms,Founder + IP counsel,Term sheet draft,—,IP counsel,P1,Weeks 1-3
+Short-term,Choose and file legal entity (LLC/C-Corp/S-Corp),Pre-condition for financing,Founder + corp counsel,Filed certificate,—,Corporate counsel,P0,Weeks 2-4
+Short-term,Appoint registered agent,Entity formation,Founder + corp counsel,Agent agreement,Entity type,Corporate counsel,P0,Weeks 2-4
+Short-term,Apply for EIN after entity formation,Tax ID required for banking + investment,Founder,IRS CP-575 letter,Entity formation,—,P0,Weeks 3-5
+Short-term,Draft operating agreement or bylaws,Core governance doc,Corp counsel,Executed doc,Entity type,Corporate counsel,P0,Weeks 3-6
+Short-term,Execute founder stock-purchase agreement,Baseline cap-table entry,Founder + corp counsel,Executed agreement,Entity formation,Corporate counsel,P0,Weeks 3-6
+Short-term,Compile fully-diluted cap table,Investor diligence requirement,Founder + corp counsel,Cap table on file,Equity promises disclosed; founder stock executed,Corporate counsel,P0,Weeks 4-6
+Short-term,Engage securities counsel,Required before any external circulation,Founder,Engagement letter,—,Securities counsel,P0,Week 2
+Short-term,Commission freedom-to-operate memo (spherical game system),Reduce IP-challenge risk,IP counsel,FTO memo,—,IP counsel,P0,Weeks 4-8
+Short-term,File provisional utility patent + design patent before Kickstarter,Protect novelty,IP counsel,Filing receipts,FTO memo,IP counsel,P0,Weeks 6-10
+Short-term,Trademark clearance + USPTO filing (Sphere of Kings),Protect brand,IP counsel,Clearance letter + filing receipt,—,IP counsel,P0,Weeks 4-8
+Short-term,Engage external financial consultant for bottom-up model,Replace top-down targets,CFO (interim),Signed engagement,—,Financial consultant,P0,Week 3
+Short-term,Build bottom-up 5-year financial model,Investor-grade financials,Financial consultant,Monthly P&L / cash / BS for 36 months,Accounting setup,Financial consultant,P0,Weeks 4-10
+Short-term,Commission toy-safety testing (ASTM F963),Required before Kickstarter fulfillment,Operations + lab,Lab report,Final product spec,CPSC-accepted lab,P0,Weeks 2-8
+Short-term,Bind product liability insurance,Required before Kickstarter fulfillment,Founder + broker,Policy,Entity formed,Insurance broker,P1,Weeks 6-10
+Short-term,Review + update privacy policy and ToS for Kickstarter,Pre-launch compliance,Legal,Updated policies live,—,Privacy counsel,P1,Weeks 4-8
+Short-term,Confirm Kickstarter launch 2026-11-19 and capture 48-hour metrics,Traction evidence,Founder,Campaign URL + metrics report,Campaign creative,—,P1,Nov 19 + 2 days
+Medium-term,Validate flagship 7-in-1 BOM + cycle time + scrap rate,Base-case unit economics,Operations,BOM document + measured data,—,—,P0,Weeks 8-16
+Medium-term,RFQ 3+ vendors per Stage-1/Stage-2 equipment class,Procurement evidence,Operations,RFQ responses on file,—,—,P1,Weeks 8-16
+Medium-term,Shortlist 3 candidate pilot facilities,Replace illustrative 150K sqft case,Operations + broker,Three-site comparison memo,Capacity model,Commercial broker,P1,Weeks 10-20
+Medium-term,Identify + sign first industrial pilot customer,Gate for Stage 2 → Stage 3,Industrial Sales lead,Signed LOI,Capacity + quoting capability,—,P1,Months 3-9
+Medium-term,Draft creator-marketplace contract template,Define 'net profit' deductions,Legal counsel,Template on file,—,Legal counsel,P2,Weeks 10-16
+Medium-term,Hire CFO and CTO,Institutional-grade team,Founder,Executed employment agreements,Stage 1 capital,—,P1,Months 2-6
+Medium-term,Draft board resolution and appoint initial board,Governance,Founder + counsel,Board minutes,Entity formed,Corporate counsel,P1,Months 2-4
+Pre-submission,Replace every [PENDING MANAGEMENT CONFIRMATION] placeholder,Final quality,Document team,Clean documents,All P0 blockers,—,P0,Pre-submission week
+Pre-submission,Replace [DD folder link — pending] with actual URL in Buybox and DD Questionnaire,Mandatory per Shark Ready,Document team,Updated documents,DD folder provisioned,—,P0,Pre-submission week
+Pre-submission,Re-render both PDFs,Delivery,Document team,PDFs updated,All corrections,—,P0,Pre-submission week
+Pre-submission,Independent accountant review of financial model,Model integrity,External accountant,Accountant memo,Financial model built,External accountant,P1,Pre-submission week
+Pre-submission,Securities-counsel review of Blueprint and Buybox,Pre-circulation review,Securities counsel,Counsel sign-off,All documents final,Securities counsel,P0,Pre-submission week
+Pre-submission,Sign off approval blocks (DD Questionnaire + Blueprint Appendix C),Management approval,Founder + counsel + CFO,Signed pages,All reviews complete,—,P0,Pre-submission week
+Post-submission,Prepare rapid-response team for investor follow-up questions,DD support,Founder + document team,Q&A triage process,—,—,P1,Ongoing
+Post-submission,Populate 07-Supporting-Evidence/ subfolders with each verified document as it arrives,Keep DD folder current,Document team,Each subfolder's manifest marked complete per item,—,—,P1,Ongoing
+Post-submission,Update 05 Source & Assumption Register and 04 Readiness Checklist on each change,Keep provenance tied-up,Document team,Change log entries,—,—,P2,Ongoing

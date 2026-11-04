@@ -1,0 +1,26 @@
+ID,Item,Current / planned,Status,Evidence available,Evidence missing,Responsible,Next action,Priority
+KS-01,Campaign title,"Sphere of Kings 7-in-1 — Coming to Kickstarter November 19 2026" per site metadata,CONFIRMED (title stated on site),nextjs/app/layout.tsx,Campaign URL,Founder,Confirm URL at launch,P1
+KS-02,Planned launch date,November 19 2026,CONFIRMED (planned),S3 + site metadata,Launch confirmation,Founder,Confirm on/after 2026-11-19,P1
+KS-03,Public campaign goal,$10000,CONFIRMED,S3,,Founder,—,—
+KS-04,Internal stretch objective,$30M (aspirational),MANAGEMENT-REPORTED,S3,,Founder,Internal only — not public,—
+KS-05,Reward tiers,Not documented in package,PROPOSED,,Reward structure with pricing + fulfillment,Founder,Finalize before launch,P0
+KS-06,Product reward pricing,"Flagship $179; board-only $129; expansion packs $12-$79",MANAGEMENT-REPORTED,Blueprint; S3,Confirm final campaign prices,Founder,Confirm pre-launch,P0
+KS-07,Manufacturing assumptions,"Bambu Lab printers; validated BOM pending",MANAGEMENT-REPORTED,S3; Blueprint,Validated BOM; capacity plan,Operations,Validate pre-launch,P0
+KS-08,Fulfillment assumptions,Not documented,PENDING,,Fulfillment plan (3PL / in-house),Operations,Draft,P0
+KS-09,Shipping assumptions,Not documented,PENDING,,Carrier rate quotes; shipping policy,Operations,Request,P0
+KS-10,Marketing budget,Not documented,PENDING,,Budget memo,Founder + marketing,Draft,P1
+KS-11,Advertising strategy,Jellop proposed; PostcardMania exploration,PROPOSED,S3,Agreements; media plan,Founder,Secure,P1
+KS-12,Jellop agreement,Not executed,PROPOSED,S3,Engagement letter + campaign plan,Founder,Secure,P1
+KS-13,Jellop advertising budget,Not documented,PENDING,,Budget,Founder,Confirm,P1
+KS-14,Campaign creative (video / imagery),Not supplied,PENDING,,Campaign preview; product video,Founder + creative,Produce,P1
+KS-15,Audience-building activity,Not detailed,PENDING,,Prelaunch audience strategy,Marketing,Document,P1
+KS-16,Prelaunch registrations,Not supplied,PENDING,,Prelaunch dashboard export,Founder,Export,P1
+KS-17,Campaign conversion assumptions,Not modeled,PENDING,,Conversion model,Marketing,Build,P2
+KS-18,Backer communications plan,Not documented,PENDING,,Comms plan,CS,Draft,P1
+KS-19,Refund / cancellation policy,Not documented,PENDING,,Policy document,Legal + CS,Draft,P1
+KS-20,Product delivery risks,Discussed in Blueprint,PROPOSED,Blueprint Part V risk register,Risk register mapped to Kickstarter obligations,Operations,Map,P1
+KS-21,Manufacturing contingencies,Discussed in Blueprint,PROPOSED,Blueprint,"Backup capacity, subcontractor options",Operations,Document,P1
+KS-22,Customer support plan,Not documented,PENDING,,CS staffing + tooling,CS,Draft,P1
+KS-23,Campaign reporting (post-launch),Not planned,PROPOSED,,Weekly report template,Marketing,Design,P2
+KS-24,Terms of service for backers,Not drafted,PENDING,,ToS tailored to Kickstarter obligations,Legal,Draft,P0
+KS-25,Privacy policy on campaign domain,Exists on site but needs review,IN PROGRESS,nextjs/app/,Policy review,Legal,Review pre-launch,P1

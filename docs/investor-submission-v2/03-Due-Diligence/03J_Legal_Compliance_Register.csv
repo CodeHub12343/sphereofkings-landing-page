@@ -1,0 +1,34 @@
+ID,Area,Requirement / potential requirement,Why it may apply,Relevant jurisdiction / activity,Current status,Evidence available,Professional adviser required,Next action,Priority
+LEG-01,Corporate,Formation docs / bylaws,Any institutional investment,Entity jurisdiction (TBD),PENDING,None,Corporate counsel,"See 03B: file formation + draft governing docs",P0
+LEG-02,Corporate,Current good standing,External investor diligence,Entity jurisdiction,PENDING,None,Corporate counsel,Request after formation,P1
+LEG-03,Securities,Offering structure,Any equity offering,Federal (US) + applicable states,PENDING,None,Securities counsel,"Engage before any external circulation",P0
+LEG-04,Securities,Investor-accreditation protocol,Private placement exemptions,Federal,PENDING,None,Securities counsel,Draft process,P0
+LEG-05,Product safety,Toy-safety testing (ASTM F963 / CPSC),Consumer product aimed at families / children,US + any international markets,PENDING,None,CPSC-accepted test lab,Engage before Kickstarter ships,P0
+LEG-06,Product safety,EN71 (if selling EU),EU distribution,EU,NOT APPLICABLE (today),—,EU-accepted lab,Reassess when EU distribution starts,P2
+LEG-07,Product safety,Age-grade statement,Children's editions,Per market,PENDING,None,Lab + marketing,Assess per SKU,P1
+LEG-08,Consumer protection,Refund / return / warranty policy,DTC + Kickstarter,US (per state),PENDING,Site currently has basic policy; needs review,Counsel,Review + update,P1
+LEG-09,Privacy,Privacy policy,Any customer data collection,US (CCPA/CPRA applicable if CA customers) + any international,IN PROGRESS,Site has a privacy policy; currency unknown,Privacy counsel,Review pre-launch,P1
+LEG-10,Privacy,COPPA considerations,Minimum age 13 per ADR-0005; parental-consent micro-charge per ADR-0006,US — digital companion,IN PROGRESS,ADR 0005 + 0006 shipped,Privacy counsel,Review policy against ADR decisions,P1
+LEG-11,Privacy,GDPR,Any EU data subject,EU,PENDING,,Privacy counsel,Assess based on actual EU user access,P2
+LEG-12,Consumer web,Terms of service,DTC + digital companion,US + applicable,IN PROGRESS,Site has ToS; currency unknown,Counsel,Review pre-launch,P1
+LEG-13,Consumer web,Cookie / tracking disclosure,Website,US / EU,PENDING,,Privacy counsel,Review,P2
+LEG-14,Consumer web,Accessibility,Public-facing website,US (ADA),PENDING,,Accessibility auditor,Audit,P2
+LEG-15,Payments,PCI DSS,Payment processing via Stripe,Indirect — SOK hosts no card data,NOT APPLICABLE (indirect via Stripe),Stripe is PCI-compliant,Payments counsel if scope changes,—,P2
+LEG-16,Cybersecurity,SOC 2,Not typical for consumer-product company pre-scale,—,NOT APPLICABLE (today),—,CISO / vCISO later,Reassess post-scale,P3
+LEG-17,Cybersecurity,ISO 27001,Not typical for consumer-product company pre-scale,—,NOT APPLICABLE (today),—,CISO / vCISO later,Reassess post-scale,P3
+LEG-18,Cybersecurity,HIPAA,Not applicable — no health data,—,NOT APPLICABLE,—,—,—,—
+LEG-19,Cybersecurity,CMMC,Not applicable — no US defense contracts,—,NOT APPLICABLE,—,—,—,—
+LEG-20,Cybersecurity,Incident-response plan,Any system handling customer data / IP,US,PENDING,None,CTO + counsel,Draft at Stage 1,P1
+LEG-21,Cybersecurity,Vulnerability assessment,Pre-launch for DTC + digital companion,US,PENDING,None,Third-party assessor,Commission pre-launch,P1
+LEG-22,Cybersecurity,Backups + MFA + access reviews,Operational controls,Internal,IN PROGRESS,Managed hosting + Stripe + Mongo,CTO,Formalize policy,P2
+LEG-23,IP,Patent / trademark / copyright,Protect brand + hardware + software + artwork,US + priority countries,PENDING,See 03E Register,IP counsel,See 03E,P0
+LEG-24,Employment / contractor,IP assignment agreements,Clear chain of title,US,PENDING,None,Employment counsel,Chase past contractors + template,P0
+LEG-25,Employment / contractor,Contractor agreements going forward,Ongoing engagements,US,PROPOSED,Template needed,Counsel,Draft template,P1
+LEG-26,Manufacturing safety,OSHA program,Manufacturing operations,US — per site,NOT APPLICABLE (today),,Safety consultant,Required at Stage 2,P2
+LEG-27,Environmental,Permits for polymer emissions / metal powder,Manufacturing operations,US — per site,NOT APPLICABLE (today),,Environmental consultant,Gate for Stage 2-3,P2
+LEG-28,Insurance,General liability,Any business with operations / contracts,US,PENDING,None,Insurance broker,Bind before Kickstarter,P1
+LEG-29,Insurance,Product liability,Any consumer product shipping,US,PENDING,None,Insurance broker,Bind before Kickstarter fulfillment,P0
+LEG-30,Insurance,Cyber insurance,DTC + customer data,US,PROPOSED,,Insurance broker,Evaluate at Stage 2,P2
+LEG-31,Insurance,Premises / equipment,Facility + equipment,US — per site,PROPOSED,,Insurance broker,Bind at Stage 2,P2
+LEG-32,International,Export compliance,Any international distribution,US,PROPOSED,,International trade counsel,Assess when expanding,P3
+LEG-33,International,Product safety per market,International distribution,Per market,PROPOSED,,International counsel + labs,Assess per market,P3
