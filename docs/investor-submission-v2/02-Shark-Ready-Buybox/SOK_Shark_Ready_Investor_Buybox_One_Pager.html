@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Sphere of Kings — Shark Ready Investor Buybox One-Pager</title>
+<link rel="stylesheet" href="../../../nextjs/app/fonts.css" />
+<style>
+  :root {
+    --navy: #14243A;
+    --charcoal: #202833;
+    --gold: #B89554;
+    --gold-soft: #d0b17a;
+    --paper: #F7F6F2;
+    --grey: #E7E9ED;
+    --ink: #202833;
+    --ink-soft: #596575;
+    --ok: #2F7A5A;
+    --warn: #B87A1F;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    font-size: 9pt;
+    line-height: 1.38;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'ss01','cv11','tnum' 1;
+  }
+  h1, h2, h3 { font-weight: 600; color: var(--navy); letter-spacing: 0.005em; }
+
+  @page { size: A4 landscape; margin: 0; }
+  @media screen {
+    body { background: #d1d5db; padding: 20px 0; }
+    .page { box-shadow: 0 2px 20px rgba(0,0,0,0.15); }
+  }
+
+  .page {
+    width: 297mm;
+    height: 210mm;
+    margin: 0 auto;
+    padding: 10mm 11mm;
+    background: var(--paper);
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 3.5mm;
+    overflow: hidden;
+  }
+
+  /* ========== ZONE 1 — IDENTITY & HOOK ========== */
+  .zone-1 {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 85mm;
+    gap: 6mm;
+    background: linear-gradient(135deg, var(--navy) 0%, #0b1a30 100%);
+    color: #fff;
+    border-radius: 2mm;
+    padding: 6mm 8mm;
+    position: relative;
+  }
+  .zone-1 .lead .eyebrow {
+    font-size: 7pt;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--gold-soft);
+    margin-bottom: 1mm;
+  }
+  .zone-1 .lead h1 {
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: 24pt;
+    color: #fff;
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+  .zone-1 .lead .subtitle {
+    font-size: 10pt;
+    color: var(--gold-soft);
+    font-family: 'Cinzel', serif;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    margin-top: 1mm;
+  }
+  .zone-1 .lead .meta {
+    display: flex;
+    gap: 7mm;
+    margin-top: 2.5mm;
+    font-size: 7pt;
+    color: rgba(255,255,255,0.72);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .zone-1 .lead .meta b { color: #fff; letter-spacing: 0.04em; text-transform: none; font-family: 'Inter', sans-serif; font-weight: 500; font-size: 7.5pt; }
+  .zone-1 .lead .hook {
+    font-family: 'Cinzel', serif;
+    font-size: 11pt;
+    color: #fff;
+    line-height: 1.32;
+    margin-top: 3mm;
+    padding-top: 3mm;
+    border-top: 1px solid rgba(255,255,255,0.14);
+  }
+  .zone-1 .lead .hook .hi { color: var(--gold-soft); font-style: italic; }
+
+  .zone-1 .raise {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(184,149,84,0.4);
+    border-radius: 2mm;
+    padding: 4mm 5mm;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .zone-1 .raise .tag {
+    font-size: 6.5pt;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold-soft);
+  }
+  .zone-1 .raise .amount {
+    font-family: 'Cinzel', serif;
+    font-size: 36pt;
+    color: #fff;
+    line-height: 1;
+    margin: 1mm 0 1mm;
+  }
+  .zone-1 .raise .amount small {
+    font-family: 'Inter', sans-serif;
+    font-size: 8pt;
+    color: var(--gold-soft);
+    letter-spacing: 0.15em;
+    font-weight: 500;
+    vertical-align: top;
+    margin-left: 2mm;
+  }
+  .zone-1 .raise .stages {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1mm;
+    font-size: 6pt;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.72);
+    text-align: center;
+  }
+  .zone-1 .raise .stages div { padding: 1mm 0; border-top: 2px solid var(--gold); }
+  .zone-1 .raise .stages div b { display: block; font-family: 'Cinzel', serif; font-size: 8pt; color: #fff; font-weight: 600; letter-spacing: 0.02em; }
+  .zone-1 .raise .status {
+    font-size: 6.5pt;
+    color: rgba(255,255,255,0.65);
+    letter-spacing: 0.08em;
+    margin-top: 2mm;
+  }
+  .zone-1 .raise .status b { color: var(--gold-soft); text-transform: uppercase; letter-spacing: 0.15em; }
+
+  /* ========== ZONE 2 — 10 BEATS ========== */
+  .zone-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4mm;
+    min-height: 0;
+  }
+  .col { display: grid; grid-template-rows: repeat(5, 1fr); gap: 2mm; min-height: 0; }
+  .beat {
+    position: relative;
+    padding: 2.5mm 3.5mm 2.5mm 11mm;
+    background: #fff;
+    border: 1px solid var(--grey);
+    border-radius: 1.5mm;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .beat::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3pt;
+    background: var(--gold);
+  }
+  .beat .num {
+    position: absolute;
+    left: 2.5mm; top: 2.5mm;
+    width: 6mm; height: 6mm;
+    background: var(--navy); color: var(--gold-soft);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cinzel', serif; font-size: 8.5pt; font-weight: 700;
+  }
+  .beat h2 {
+    font-size: 7.5pt;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--navy);
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    margin-bottom: 1.2mm;
+  }
+  .beat .hook-text {
+    font-family: 'Cinzel', serif;
+    font-size: 8.5pt;
+    color: var(--navy);
+    line-height: 1.3;
+    margin-bottom: 1mm;
+  }
+  .beat .hook-text .hi { color: var(--gold); font-style: italic; }
+  .beat ul { list-style: none; padding: 0; margin: 0; }
+  .beat ul li {
+    font-size: 7.5pt;
+    line-height: 1.35;
+    margin-bottom: 0.6mm;
+    padding-left: 2.5mm;
+    position: relative;
+  }
+  .beat ul li::before {
+    content: '';
+    position: absolute; left: 0; top: 3pt;
+    width: 3pt; height: 3pt;
+    background: var(--gold);
+    border-radius: 50%;
+  }
+  .beat ul.sol li { padding-left: 2.5mm; }
+  .beat ul.sol li .arrow { color: var(--gold); font-weight: 700; margin: 0 1mm; }
+  .beat b { color: var(--navy); font-weight: 600; }
+  .beat .tag {
+    display: inline-block;
+    padding: 0.5pt 3pt;
+    font-size: 6pt; text-transform: uppercase; letter-spacing: 0.12em;
+    font-weight: 700;
+    border-radius: 6pt;
+    background: var(--grey); color: var(--charcoal);
+    vertical-align: 1pt;
+    margin-left: 2pt;
+  }
+  .beat .tag.pending { background: #f4e6c7; color: var(--warn); }
+  .beat .tag.proposed { background: #e5dcf2; color: #5a3b94; }
+  .beat .tag.confirmed { background: #d8ecde; color: var(--ok); }
+  .beat .caveat {
+    font-size: 6.5pt;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-top: 1mm;
+    line-height: 1.3;
+  }
+  .beat.ask {
+    grid-row: span 1;
+    background: var(--navy);
+    color: #fff;
+  }
+  .beat.ask::before { background: var(--gold-soft); }
+  .beat.ask .num { background: var(--gold); color: var(--navy); }
+  .beat.ask h2 { color: var(--gold-soft); }
+  .beat.ask b { color: #fff; }
+  .beat.ask ul li { color: rgba(255,255,255,0.88); }
+  .beat.ask ul li::before { background: var(--gold-soft); }
+  .beat.ask .caveat { color: rgba(255,255,255,0.6); }
+
+  /* ========== ZONE 3 — FOOTER ========== */
+  .zone-3 {
+    border-top: 1px solid var(--grey);
+    padding-top: 2.5mm;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6mm;
+    font-size: 6.5pt;
+    color: var(--ink-soft);
+    line-height: 1.4;
+  }
+  .zone-3 .disclaimer { font-style: italic; }
+  .zone-3 .disclaimer b { color: var(--charcoal); font-style: normal; }
+  .zone-3 .ident {
+    text-align: right;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 6pt;
+  }
+  .zone-3 .ident b { color: var(--navy); font-family: 'Cinzel', serif; letter-spacing: 0.1em; font-weight: 600; font-size: 7pt; }
+</style>
+</head>
+<body>
+<section class="page">
+
+  <!-- ============ ZONE 1 — IDENTITY, HOOK, RAISE ============ -->
+  <header class="zone-1">
+    <div class="lead">
+      <div class="eyebrow">Creative Design Networks · Shark Ready 90-second Buybox</div>
+      <h1>Sphere of Kings</h1>
+      <div class="subtitle">The 7-in-1 Spherical Gaming System</div>
+      <div class="meta">
+        <div><b>James Scott Bowser</b> · Founder</div>
+        <div>Sphereofkings.com</div>
+        <div>jbowser727@gmail.com · 209-622-9391</div>
+      </div>
+      <!-- 01 — BIG STATEMENT / HOOK -->
+      <p class="hook"><span class="hi">Hello investors —</span> the global toy, board-game and puzzle category sells billions of flat, single-purpose products every year, yet consumers, creators and short-run industrial buyers are demanding customization, replayability and premium limited editions that legacy manufacturers cannot economically deliver. Sphere of Kings packages the answer inside one spherical hardware platform that drives both a consumer brand and an integrated manufacturing network.</p>
+    </div>
+    <div class="raise">
+      <div>
+        <div class="tag">Proposed capital raise</div>
+        <div class="amount">$100M<small>USD</small></div>
+        <div class="stages">
+          <div><b>$2M</b>Stage 1</div>
+          <div><b>$8M</b>Stage 2</div>
+          <div><b>$20M</b>Stage 3</div>
+          <div><b>$30M</b>Stage 4</div>
+          <div><b>$40M</b>Stage 5</div>
+        </div>
+      </div>
+      <div class="status"><b>Status</b> Proposed target · not committed · milestone-gated · subject to negotiation</div>
+    </div>
+  </header>
+
+  <!-- ============ ZONE 2 — 10 BEATS ============ -->
+  <main class="zone-2">
+    <!-- LEFT COLUMN: 01 (sits in Zone 1 as hook; beats 02-06) -->
+    <div class="col">
+
+      <!-- 02 PROBLEM -->
+      <div class="beat">
+        <div class="num">02</div>
+        <h2>Problem</h2>
+        <ul>
+          <li>Flat boards and single-use puzzles get played once and shelved.</li>
+          <li>Legacy toy and puzzle production cannot economically make one-off customized designs.</li>
+          <li>Independent artists and brands have no clean path from a design to a shelf-ready physical product.</li>
+          <li>Collectors want premium, numbered limited editions; mass-market manufacturers will not run short batches.</li>
+          <li>Short-run polymer and metal industrial work is underserved by both bureau shops and in-house capacity.</li>
+        </ul>
+      </div>
+
+      <!-- 03 SOLUTION -->
+      <div class="beat">
+        <div class="num">03</div>
+        <h2>Solution</h2>
+        <ul class="sol">
+          <li>Flat, play-once boards <span class="arrow">→</span> <b>one spherical hardware platform running seven distinct game and puzzle experiences</b> (Royal Checkers · Imperial Kings · Pre-designed Puzzle · Custom Upload Puzzle · DIY Paint Puzzle · Paintable Royal Checkers · Paintable Imperial Kings).</li>
+          <li>No cost-effective customization <span class="arrow">→</span> <b>customer-uploaded and paintable editions produced on an additive print farm</b>.</li>
+          <li>No path for creators <span class="arrow">→</span> <b>creator marketplace with a 50/50 net-profit royalty model</b>.</li>
+          <li>No short-run premium production <span class="arrow">→</span> <b>numbered limited editions, including future metal pieces</b>.</li>
+          <li>Short-run industrial work underserved <span class="arrow">→</span> <b>same polymer and metal capacity sold as contract manufacturing</b>.</li>
+        </ul>
+      </div>
+
+      <!-- 04 WHY NOW -->
+      <div class="beat">
+        <div class="num">04</div>
+        <h2>Why now</h2>
+        <ul>
+          <li>Prosumer additive hardware (Bambu Lab class) has brought per-unit polymer printing cost into range for consumer products.</li>
+          <li>Kickstarter remains the most efficient launch channel for distinctive consumer hardware — SOK's campaign is scheduled for <b>November 19, 2026</b>.</li>
+          <li>The creator economy has normalized royalty-based licensing of independent designs.</li>
+          <li>Metal additive manufacturing has matured enough that short-run specialty parts are commercially addressable.</li>
+        </ul>
+      </div>
+
+      <!-- 05 FOUNDER -->
+      <div class="beat">
+        <div class="num">05</div>
+        <h2>Founder credibility</h2>
+        <ul>
+          <li><b>James Scott Bowser</b> — Founder, Creative Design Networks. Conceived and designed the Sphere of Kings 7-in-1 system.</li>
+          <li>Built the Next.js consumer platform already in the repository: playable 3D spherical game, online multiplayer, phone-app shell, sponsor dashboard.</li>
+          <li>Leading product, brand, Kickstarter, manufacturing and partnership development through Creative Design Networks.</li>
+        </ul>
+        <div class="caveat">Prior-venture detail, full-time status and personal capital contribution <b>[PENDING FOUNDER CONFIRMATION]</b>.</div>
+      </div>
+
+      <!-- 06 TEAM -->
+      <div class="beat">
+        <div class="num">06</div>
+        <h2>Team credibility</h2>
+        <ul>
+          <li>Founder-led today. CFO, COO, CTO, Head of Industrial Sales, Metal Manufacturing Director planned through Stages 1–3.</li>
+          <li><b>Jellop</b> — Kickstarter marketing <span class="tag proposed">proposed · agreement pending</span></li>
+          <li><b>PostcardMania</b> — direct-mail <span class="tag proposed">exploration only</span></li>
+          <li><b>IP / licensing firms</b> — 90-day exclusive pilot <span class="tag proposed">terms pending</span></li>
+        </ul>
+        <div class="caveat">No third party is listed as an established partner until the agreement is executed.</div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: beats 07-10 + ASK -->
+    <div class="col">
+      <!-- 07 TRACTION -->
+      <div class="beat">
+        <div class="num">07</div>
+        <h2>Traction</h2>
+        <ul>
+          <li><b>Product shipped to repo:</b> playable 3D spherical game with online multiplayer, phone-app shell, sponsor dashboard, PWA install.</li>
+          <li><b>Full 7-in-1 product catalog designed</b> — 36 approved product images (complete 7-in-1, Imperial Kings, Royal Checkers with 3/5/10/20/50 packs, five themed puzzles, DIY/paintable variants, creator edition).</li>
+          <li><b>Kickstarter launch scheduled 2026-11-19;</b> public funding goal $10,000.</li>
+        </ul>
+        <div class="caveat">Sales, user, growth, waitlist, LOI and MOU metrics <b>pending</b> — not treated as achieved. The $30M figure is an internal stretch objective, not a published goal and not traction.</div>
+      </div>
+
+      <!-- 08 BUSINESS MODEL -->
+      <div class="beat">
+        <div class="num">08</div>
+        <h2>Business model</h2>
+        <ul>
+          <li>Flagship 7-in-1 ~<b>$179</b> retail · board-only ~<b>$129</b> · direct-cost target ~$30 <span style="color: var(--ink-soft); font-style: italic;">(BOM pending validation)</span>.</li>
+          <li>Expansion packs (×3 / ×5 / ×10 / ×20 / ×50) at $12–$79.</li>
+          <li>Creator marketplace — 50/50 net-profit royalty to creator.</li>
+          <li>Contract polymer &amp; metal manufacturing (B2B) — same equipment, independent demand.</li>
+          <li>Brand / sports / entertainment licensing — individually negotiated.</li>
+          <li>Digital companion play &amp; future tournaments. Future metal production.</li>
+        </ul>
+      </div>
+
+      <!-- 09 MARKET -->
+      <div class="beat">
+        <div class="num">09</div>
+        <h2>Market opportunity</h2>
+        <ul>
+          <li>Three addressable markets served from one product and one production stack: (i) consumer board-game, puzzle and collectible categories; (ii) creator-economy physical-product licensing; (iii) short-run polymer and metal contract manufacturing.</li>
+          <li>Expansion pathway: Kickstarter cohort → DTC &amp; retail → creator licensing → contract manufacturing → metal additive → selective international markets.</li>
+        </ul>
+        <div class="caveat">Specific TAM/SAM/SOM statistics <b>[SUPPORTING DOCUMENT REQUIRED]</b>. No fabricated market figures appear on this page.</div>
+      </div>
+
+      <!-- 10 THE ASK -->
+      <div class="beat ask">
+        <div class="num">10</div>
+        <h2>The ask</h2>
+        <ul>
+          <li><b>Proposed investment: $100 million</b>, staged over 60 months — milestone-gated, not released on a calendar.</li>
+          <li><b>Capital unlocks</b> four divisions: Sphere of Kings Gaming · Polymer Manufacturing &amp; Mass Production · Advanced Metal Manufacturing · Technology, Licensing &amp; Digital Platforms.</li>
+          <li><b>Stage 1 $2M</b> validates product economics and fulfills the first Kickstarter cohort. <b>Stage 2 $8M</b> opens a right-sized pilot warehouse and signs the first industrial pilot customer. <b>Stage 3 $20M</b> adds injection molding, CNC and the first metal additive cell. <b>Stage 4 $30M</b> expands qualified contract manufacturing. <b>Stage 5 $40M</b> scales proven operations internationally.</li>
+        </ul>
+        <div class="caveat">Investment terms, valuation, ownership, and timing remain subject to negotiation, documentation, and legal review. No investor commitment, equity percentage, or return is implied or guaranteed. Shark Ready and Rabbit Capital have neither approved nor endorsed this opportunity.</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ============ ZONE 3 — FOOTER ============ -->
+  <footer class="zone-3">
+    <div class="disclaimer">
+      <b>DD folder:</b> <code>[DD folder link — pending]</code> &nbsp;·&nbsp;
+      Investment figures, financial projections and expansion targets are proposed or illustrative and are not guarantees of future performance. Company, financial, commercial and intellectual property information remains subject to supporting documentation and due diligence. The $100M is a proposed capital-raising target, not confirmed funding. All figures are illustrative management targets unless expressly identified as verified.
+    </div>
+    <div class="ident">
+      <b>Sphere of Kings</b><br/>
+      Buybox v2.1 · 2026-11-04<br/>
+      Companion: Investor Master Blueprint v2.0
+    </div>
+  </footer>
+
+</section>
+</body>
+</html>
