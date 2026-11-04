@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Sphere of Kings — Investor Master Blueprint v2.0 (Shark Ready submission)</title>
+<title>Sphere of Kings — Investor Master Blueprint v2.1 (Shark Ready submission)</title>
 <link rel="stylesheet" href="../../../nextjs/app/fonts.css" />
 <style>
   :root {
@@ -267,7 +267,7 @@
     <div class="meta" style="margin-top: 14mm;">
       <div>
         <b>Document</b><br/>
-        <span style="letter-spacing: 0.1em;">Master Blueprint · v2.0 · 2026-11-04</span><br/>
+        <span style="letter-spacing: 0.1em;">Master Blueprint · v2.1 · 2026-11-04</span><br/>
         <span style="letter-spacing: 0.1em; font-size: 7.5pt;">Supersedes v1.0 · For Shark Ready submission</span>
       </div>
       <div class="right">
@@ -281,7 +281,7 @@
 
 <!-- =============================== CONFIDENTIALITY =============================== -->
 <section class="page">
-  <div class="running-header"><span class="brand">Sphere of Kings · Investor Master Blueprint</span><span>v2.0 · 2026-11-04</span></div>
+  <div class="running-header"><span class="brand">Sphere of Kings · Investor Master Blueprint</span><span>v2.1 · 2026-11-04</span></div>
   <div class="body">
     <h2>Confidentiality and document-status notice</h2>
 
@@ -314,7 +314,7 @@
 
 <!-- =============================== WHAT'S NEW IN v2.0 =============================== -->
 <section class="page">
-  <div class="running-header"><span class="brand">Sphere of Kings · Investor Master Blueprint</span><span>v2.0 · 2026-11-04</span></div>
+  <div class="running-header"><span class="brand">Sphere of Kings · Investor Master Blueprint</span><span>v2.1 · 2026-11-04</span></div>
   <div class="body">
     <h2>What is new in version 2.0</h2>
     <p>This v2.0 integrates three inputs that post-date v1.0 (2026-11-03): James Bowser's November-3 Corporate Information &amp; Investor Due-Diligence Response; the Shark Ready / Rabbit Capital AI Investor Blueprint and 10-beat Buybox v1.9; and a continued read of the Sphere of Kings codebase. The strategic framework from v1.0 is preserved. The changes below are the material differences a returning reader should know about.</p>
@@ -369,9 +369,68 @@
   <div class="running-footer"><span>Confidential · Creative Design Networks</span><span>Page 3</span></div>
 </section>
 
+<!-- =============================== WHAT IS ACTUALLY SHIPPED TODAY =============================== -->
+<section class="page">
+  <div class="running-header"><span class="brand">Sphere of Kings · Investor Master Blueprint</span><span>v2.1 · 2026-11-04</span></div>
+  <div class="body">
+    <h2>What is actually shipped today</h2>
+    <p>The Sphere of Kings consumer platform is not a plan — it is a running Next.js application with 15 days to go until its Kickstarter launch. The full evidence catalog is in the companion <em>Application Capabilities Inventory</em>; the summary below is what an engineer-led diligence team would confirm in two hours.</p>
+
+    <div class="stat-grid" style="margin-top: 4mm;">
+      <div class="stat-card"><div class="label">Source files (TS/TSX)</div><div class="value">406</div><div class="sub">~68,964 lines of code</div></div>
+      <div class="stat-card"><div class="label">Shipped routes</div><div class="value">99</div><div class="sub">65 pages · 34 API handlers</div></div>
+      <div class="stat-card"><div class="label">Admin pages</div><div class="value">24</div><div class="sub">Complete back-office</div></div>
+      <div class="stat-card"><div class="label">Product SKUs (approved prices)</div><div class="value">25</div><div class="sub">Stripe-ready in <code>products.ts</code></div></div>
+      <div class="stat-card"><div class="label">MongoDB collections (typed)</div><div class="value">23</div><div class="sub">Orders · players · matches · tournaments · more</div></div>
+      <div class="stat-card"><div class="label">Smoke / audit scripts</div><div class="value">10</div><div class="sub">Games · brackets · Glicko · a11y</div></div>
+    </div>
+
+    <h3>Digital gaming platform (shipped and tested)</h3>
+    <ul>
+      <li><strong>Royal Checkers</strong> and <strong>Imperial Kings</strong> — authoritative game engines implementing the owner-approved rules in <code>content/rules/</code>. AI opponents, Glicko-2 rating, covered by <code>game-smoke.mjs</code>, <code>ik-smoke.mjs</code>, <code>glicko-smoke.mjs</code>.</li>
+      <li><strong>Online multiplayer</strong> — Pusher channels + QStash scheduled jobs; full match lifecycle (invite → accept → join → move → chat → resign → ranked result) with 7 API handlers at <code>/api/matches/*</code>.</li>
+      <li><strong>Tournament engine</strong> — bracket math (free-only per ADR-0003) + public pages + registration. Covered by <code>bracket-smoke.mjs</code>.</li>
+      <li><strong>Playable 3D sphere</strong> — Three.js, sideways-phone layout, rotate tip, opt-in fullscreen. PWA-installable (<code>manifest.webmanifest</code>).</li>
+    </ul>
+
+    <h3>Commerce (production-grade)</h3>
+    <ul>
+      <li><strong>25-SKU product catalog</strong> with approved prices and Markdown descriptions. Flagship Royal Checkers at <strong>$179</strong>; Imperial Kings kit at <strong>$189</strong>; Puzzle Pre-Picks at <strong>$199</strong>; Custom-upload puzzle at <strong>$210</strong>. All <code>priceApproved: true</code>.</li>
+      <li><strong>Site-wide 20% discount</strong> approved by James 2026-10-21 — single-source pricing function in <code>products.ts</code> drives every price shown and every Stripe charge.</li>
+      <li><strong>Stripe integration</strong> — server adapter, checkout, webhook, finance reconciliation engine matching charges / refunds / payouts.</li>
+      <li><strong>Custom-upload puzzle</strong> flow with Vercel Blob storage and admin pipeline at <code>/admin/custom-spheres</code>.</li>
+      <li><strong>Wholesale B2B checkout</strong> at <code>/wholesale-checkout/[token]</code> + admin at <code>/admin/wholesale</code>.</li>
+      <li><strong>Fulfillment pipeline</strong> at <code>/admin/fulfillment</code> with carrier config.</li>
+    </ul>
+
+    <h3>Revenue programs beyond unit sales</h3>
+    <ul>
+      <li><strong>Sponsorship program (owner-signed pricing):</strong> 10 Silver Business Sponsor slots at <strong>$3,000</strong> + 5 Gold Business Sponsor slots at <strong>$10,000</strong>, Stripe-backed, with waitlist when sold out. Maximum sell-through before Kickstarter = <strong>$80,000</strong>. Source: <code>nextjs/lib/sponsorship.ts</code>.</li>
+      <li><strong>Affiliate / referral program</strong> — tiered, with apply flow, payout management, attributed-orders tracking, referral links <code>/r/[code]</code>, and withdrawal requests.</li>
+      <li><strong>Creator licensing</strong> infrastructure — license application flow + user-submitted sphere designs with public catalog at <code>/puzzles</code>.</li>
+      <li><strong>Sweepstakes</strong> with Alternate Means of Entry (AMOE) compliance flow.</li>
+      <li><strong>Subscriber / email system</strong> — confirm / unsubscribe / admin with token auth.</li>
+      <li><strong>Blog</strong> with per-post comments (5 seed posts).</li>
+      <li><strong>Donate</strong> page.</li>
+    </ul>
+
+    <h3>Compliance and safety (not usually seen at this stage)</h3>
+    <ul>
+      <li><strong>Child-safety policy</strong> (owner-approved 2026-10-19) covering COPPA, GDPR-K, UK Age Appropriate Design Code, PIPEDA — the operating standard for every surface a child under 18 could reach.</li>
+      <li><strong>Parental consent micro-charge</strong> flow per ADR-0006 (tokenized at <code>/consent/[token]</code>).</li>
+      <li><strong>Age gating + safety gates</strong> module; moderation; immutable audit log.</li>
+      <li><strong>Six owner-approved Architecture Decision Records</strong> (seams, 2D MVP, tournaments free-only, Pusher realtime, min-age 13, parental-consent micro-charge).</li>
+    </ul>
+
+    <h3>Why this matters for a $100M raise</h3>
+    <p>Most $100M industrial capital-raises assume a software stack still has to be built. Here the stack already exists — 99 shipped routes, 23 typed data collections, 24 admin pages, Stripe-ready commerce with site-wide discount economics, a full compliance framework. The $100M is for the <strong>physical-manufacturing</strong> and <strong>commercial</strong> expansion, not for a software build-out. See <code>03-Due-Diligence/APPLICATION_CAPABILITIES_INVENTORY.md</code> for every path an engineer can open to verify the above.</p>
+  </div>
+  <div class="running-footer"><span>Confidential · Creative Design Networks</span><span>Page 3b</span></div>
+</section>
+
 <!-- =============================== TABLE OF CONTENTS =============================== -->
 <section class="page">
-  <div class="running-header"><span class="brand">Sphere of Kings · Investor Master Blueprint</span><span>v2.0 · 2026-11-04</span></div>
+  <div class="running-header"><span class="brand">Sphere of Kings · Investor Master Blueprint</span><span>v2.1 · 2026-11-04</span></div>
   <div class="body toc">
     <h2>Table of contents</h2>
 
@@ -2495,6 +2554,7 @@
       <tbody>
         <tr><td>v1.0</td><td>2026-11-03</td><td>Initial Blueprint drafted from existing SOK materials and founder instruction; companion register, checklist, executive summary, and pitch-deck outline created.</td><td>Blueprint preparation team</td></tr>
         <tr><td>v2.0</td><td>2026-11-04</td><td>Integrated James Bowser's November-3 Corporate Information &amp; DD Response; adopted Shark Ready / Rabbit Capital 10-beat Buybox framework and status taxonomy; added new corporate-status callout (entity / EIN / cap table / financials); re-labeled Jellop, PostcardMania, and IP-firm relationships as PROPOSED with explicit pending language; added "What is new in v2.0" page; added DD-folder placeholder; new submission-folder structure (01–07); refreshed palette (navy #14243A, gold #B89554, paper #F7F6F2). Prepared for Shark Ready submission subject to P0 blockers in the Readiness Checklist.</td><td>Blueprint preparation team</td></tr>
+        <tr><td>v2.1</td><td>2026-11-04</td><td>Deep inspection of the Next.js codebase catalogued the shipped consumer platform — 406 source files, ~68,964 LOC, 99 shipped routes, 24 admin pages, 25-SKU product catalog with approved prices, site-wide 20% discount approved by James, Stripe + finance reconciliation, Pusher-based online multiplayer, tournament engine, Glicko-2 rating, affiliate program, blog, sweepstakes with AMOE, owner-signed sponsorship program ($3K Silver × 10 + $10K Gold × 5), child-safety policy covering COPPA/GDPR-K/UK-AADC/PIPEDA, six owner-approved ADRs, ten smoke-test scripts. Added "What is actually shipped today" page; upgraded 04C Readiness Dashboard (CONFIRMED rows +72, PENDING rows −45, P0 blockers 13 → 10); refreshed Buybox Traction beat with evidence-backed items. See 03-Due-Diligence/APPLICATION_CAPABILITIES_INVENTORY.md for the line-by-line evidence.</td><td>Blueprint preparation team</td></tr>
       </tbody>
     </table>
 

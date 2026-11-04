@@ -67,11 +67,12 @@
 
 ### 07 · Traction
 
-- **Product shipped to repo:** playable 3D spherical game with online multiplayer, phone-app shell, sponsor dashboard, PWA install.
-- **Full 7-in-1 product catalog designed** — 36 approved product images (complete 7-in-1, Imperial Kings, Royal Checkers with 3/5/10/20/50 packs, five themed puzzles, DIY/paintable variants, creator edition).
-- **Kickstarter launch scheduled 2026-11-19;** public funding goal $10,000.
+- **Full consumer platform shipped** — Next.js 15 app, ~69K lines of TypeScript / TSX, 25-SKU catalog with approved prices, Stripe checkout, 24-page admin back-office. **Kickstarter launch scheduled Nov 19, 2026** (15 days from the date of this doc).
+- **Two playable games** with AI opponents, Glicko-2 rating, online multiplayer (Pusher), tournaments with bracket engine, matchmaking — every engine covered by smoke tests on CI.
+- **Sponsorship program live** — 10 Silver tiers at $3,000 + 5 Gold tiers at $10,000, Stripe-backed, owner-signed in `nextjs/lib/sponsorship.ts`. Maximum sell-through to Kickstarter launch = $80,000.
+- **Child-safety policy on file** covering COPPA, GDPR-K, UK Age Appropriate Design Code, PIPEDA — the operating standard for every surface a child under 18 could reach; owner-approved 2026-10-19.
 
-*Sales, user, growth, waitlist, LOI and MOU metrics — evidence pending.* Not treated as achieved. The $30M figure is an internal stretch objective, not a published goal and not traction.
+*Paying customers, LOIs and MOUs pending the Kickstarter launch.* The $30M figure is an internal stretch objective, not the published campaign goal and not traction. See `03-Due-Diligence/APPLICATION_CAPABILITIES_INVENTORY.md` for the line-by-line evidence.
 
 ### 08 · Business model
 
