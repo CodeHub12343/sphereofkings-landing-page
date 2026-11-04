@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Sphere of Kings — Shark Ready Investor Buybox</title>
+<link rel="stylesheet" href="../../../nextjs/app/fonts.css" />
+<style>
+  :root {
+    --navy: #14243A;
+    --charcoal: #202833;
+    --gold: #B89554;
+    --gold-soft: #d0b17a;
+    --paper: #F7F6F2;
+    --grey: #E7E9ED;
+    --ink: #202833;
+    --ink-soft: #596575;
+    --ok: #2F7A5A;
+    --warn: #B87A1F;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--paper); color: var(--ink); font-family: 'Inter', system-ui, sans-serif; font-size: 10pt; line-height: 1.42; }
+  h1, h2, h3 { font-family: 'Cinzel', Georgia, serif; font-weight: 600; color: var(--navy); margin: 0; letter-spacing: 0.01em; }
+  .page {
+    width: 210mm; min-height: 297mm;
+    margin: 0 auto;
+    padding: 14mm 14mm 12mm;
+    background: var(--paper);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6mm 8mm;
+    position: relative;
+    page-break-after: always;
+  }
+  .page:last-child { page-break-after: auto; }
+  header.hdr {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, var(--navy), #0d1a2d);
+    color: #fff;
+    padding: 7mm 10mm;
+    border-radius: 2mm;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  header.hdr .brand { font-family: 'Cinzel', serif; font-size: 16pt; letter-spacing: 0.08em; color: var(--gold-soft); }
+  header.hdr .eyebrow { font-size: 7.5pt; color: rgba(255,255,255,0.65); letter-spacing: 0.25em; text-transform: uppercase; }
+  header.hdr h1 { color: #fff; font-size: 22pt; line-height: 1.1; margin-top: 2mm; }
+  header.hdr .right { text-align: right; font-size: 8pt; color: rgba(255,255,255,0.7); letter-spacing: 0.12em; text-transform: uppercase; }
+  header.hdr .right b { color: var(--gold-soft); font-family: 'Cinzel', serif; font-weight: 600; }
+
+  .beat {
+    background: #fff;
+    border: 1px solid var(--grey);
+    border-left: 3px solid var(--gold);
+    border-radius: 2mm;
+    padding: 4mm 5mm;
+    position: relative;
+  }
+  .beat .num {
+    position: absolute; top: -3mm; left: -3mm;
+    width: 7mm; height: 7mm;
+    background: var(--navy); color: var(--gold-soft);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cinzel', serif; font-size: 10pt; font-weight: 700;
+  }
+  .beat h2 {
+    font-size: 10pt; text-transform: uppercase; letter-spacing: 0.16em;
+    color: var(--navy); font-family: 'Inter', sans-serif; font-weight: 700;
+    margin-bottom: 2mm; padding-left: 5mm;
+  }
+  .beat .hook {
+    font-family: 'Cinzel', serif; font-size: 12pt; color: var(--navy); margin-bottom: 2mm;
+  }
+  .beat p { margin: 0 0 1.5mm; font-size: 9pt; }
+  .beat ul { margin: 0; padding-left: 4.5mm; font-size: 9pt; }
+  .beat ul li { margin-bottom: 1mm; }
+  .beat .arrow { color: var(--gold); font-weight: 700; }
+  .beat b { color: var(--navy); }
+  .beat .tag {
+    display: inline-block; padding: 1pt 5pt;
+    font-size: 6.5pt; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700;
+    border-radius: 6pt; background: var(--grey); color: var(--charcoal);
+    margin-left: 4pt; vertical-align: middle;
+  }
+  .beat .tag.pending { background: #f4e6c7; color: var(--warn); }
+  .beat .tag.proposed { background: #e5dcf2; color: #5a3b94; }
+  .beat .tag.confirmed { background: #d8ecde; color: var(--ok); }
+
+  .span-2 { grid-column: 1 / -1; }
+
+  footer.ftr {
+    grid-column: 1 / -1;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 7pt; color: var(--ink-soft);
+    border-top: 1px solid var(--grey); padding-top: 3mm; margin-top: 3mm;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  footer.ftr .r { text-align: right; }
+
+  .ninety {
+    position: absolute; top: 14mm; right: 14mm;
+    background: var(--gold); color: #fff;
+    font-family: 'Cinzel', serif; font-size: 8pt;
+    padding: 2mm 4mm; border-radius: 10pt; letter-spacing: 0.15em;
+  }
+  .disclaimer {
+    grid-column: 1 / -1;
+    font-size: 7.5pt; color: var(--ink-soft);
+    border-top: 1px dashed var(--grey); padding-top: 3mm;
+    line-height: 1.4;
+  }
+  @media screen { body { background: #d1d5db; padding: 20px 0; } .page { box-shadow: 0 2px 20px rgba(0,0,0,0.15); } }
+  @media print { @page { size: A4; margin: 0; } body { background: #fff; } .page { margin: 0; box-shadow: none; } }
+</style>
+</head>
+<body>
+
+<section class="page">
+
+  <header class="hdr">
+    <div>
+      <div class="eyebrow">Shark Ready · 90-Second Buybox</div>
+      <h1>Sphere of Kings</h1>
+      <div class="brand" style="font-size: 10pt; letter-spacing: 0.15em; margin-top: 1mm;">Creative Design Networks</div>
+    </div>
+    <div class="right">
+      <b>Capital sought</b><br/>
+      <span style="font-family: 'Cinzel', serif; font-size: 20pt; color: var(--gold-soft);">$100M</span><br/>
+      <span style="font-size: 7pt;">2026 · staged across 5 tranches</span>
+    </div>
+  </header>
+
+  <!-- 1 BIG STATEMENT / HOOK -->
+  <div class="beat span-2">
+    <div class="num">1</div>
+    <h2>Big statement</h2>
+    <p class="hook">Hello investors — the global toy, board-game and puzzle category sells billions of flat, single-purpose products every year, yet consumers are demanding more replayability, customization and creator-led design than legacy manufacturers can deliver. The physical-product opportunity now sits where additive manufacturing, a mature creator economy and a distinctive hardware form factor can meet in one product.</p>
+    <p style="font-size: 7.5pt; color: var(--ink-soft);"><b>Note:</b> market-size statistics require independently sourced research; the hook above is a defensible qualitative statement. See the Source Register.</p>
+  </div>
+
+  <!-- 2 PROBLEM -->
+  <div class="beat">
+    <div class="num">2</div>
+    <h2>Problem</h2>
+    <ul>
+      <li>Flat boards and single-use puzzles get played once and shelved.</li>
+      <li>Consumers want customization but legacy toy/puzzle production can't economically do one-off designs.</li>
+      <li>Independent artists and brands have no clean path from a design idea to a shelf-ready physical product.</li>
+      <li>Collectors want premium, limited editions but mass-market manufacturers won't run short batches.</li>
+      <li>Industrial contract-manufacturing shops can't efficiently handle low-volume prosumer work.</li>
+    </ul>
+  </div>
+
+  <!-- 3 SOLUTION -->
+  <div class="beat">
+    <div class="num">3</div>
+    <h2>Solution</h2>
+    <ul>
+      <li>Flat, play-once boards <span class="arrow">→</span> <b>one spherical hardware platform that runs seven distinct game and puzzle experiences</b>.</li>
+      <li>No cost-effective customization <span class="arrow">→</span> <b>customer-uploaded and paintable editions produced on an additive print farm</b>.</li>
+      <li>No path for creators <span class="arrow">→</span> <b>creator marketplace with 50/50 net-profit royalty terms</b>.</li>
+      <li>No short-run premium production <span class="arrow">→</span> <b>numbered limited editions, including future metal pieces</b>.</li>
+      <li>Industrial short-runs underserved <span class="arrow">→</span> <b>same polymer and metal capacity sold as contract manufacturing</b>.</li>
+    </ul>
+  </div>
+
+  <!-- 4 WHY NOW -->
+  <div class="beat">
+    <div class="num">4</div>
+    <h2>Why now</h2>
+    <ul>
+      <li>Prosumer additive hardware (Bambu Lab class) has brought per-unit polymer printing costs into range for consumer products.</li>
+      <li>Kickstarter remains the most efficient launch channel for distinctive consumer hardware.</li>
+      <li>The creator economy has normalized royalty-based licensing of independent designs.</li>
+      <li>Metal additive manufacturing has matured enough that short-run specialty parts are commercially addressable.</li>
+    </ul>
+  </div>
+
+  <!-- 5 FOUNDER CREDIBILITY -->
+  <div class="beat">
+    <div class="num">5</div>
+    <h2>Founder credibility</h2>
+    <p><b>James Scott Bowser</b> — Founder, Creative Design Networks. Conceived and designed the Sphere of Kings 7-in-1 system; built the Next.js consumer platform with playable 3D sphere, online multiplayer, and sponsor dashboard already shipped; leading product, brand, Kickstarter, and partnership development.</p>
+    <p style="font-size: 7.5pt; color: var(--ink-soft);">Prior-venture detail, full-time status, and personal capital contribution — <b>[PENDING FOUNDER CONFIRMATION]</b>.</p>
+  </div>
+
+  <!-- 6 TEAM CREDIBILITY -->
+  <div class="beat">
+    <div class="num">6</div>
+    <h2>Team credibility</h2>
+    <ul>
+      <li>Founder-led today. CFO, COO, CTO, Head of Industrial Sales, Metal Manufacturing Director planned through Stages 1–3.</li>
+      <li>Jellop — Kickstarter marketing <span class="tag proposed">proposed · agreement pending</span></li>
+      <li>PostcardMania — direct-mail <span class="tag proposed">exploration only</span></li>
+      <li>IP / licensing firms — 90-day exclusive pilot <span class="tag proposed">terms pending</span></li>
+    </ul>
+    <p style="font-size: 7.5pt; color: var(--ink-soft);">No third party is listed as an established team member until the agreement is executed.</p>
+  </div>
+
+  <!-- 7 TRACTION -->
+  <div class="beat">
+    <div class="num">7</div>
+    <h2>Traction</h2>
+    <ul>
+      <li><b>Product shipped to repo:</b> playable 3D spherical game with online multiplayer, phone-app shell, sponsor dashboard.</li>
+      <li><b>Full 7-in-1 product catalog designed</b> — 36 approved product images (complete 7-in-1, Imperial Kings, Royal Checkers with 3/5/10/20/50 packs, five themed puzzles, DIY/paintable variants, creator edition, kingdom supporter).</li>
+      <li><b>Kickstarter launch scheduled:</b> November 19, 2026; public funding goal $10,000.</li>
+    </ul>
+    <p style="font-size: 7.5pt; color: var(--ink-soft);">Sales, user, growth, waitlist, LOI and MOU metrics — <b>evidence pending</b> (do not treat as achieved). $30M is an internal stretch objective, not a published goal and not traction.</p>
+  </div>
+
+  <!-- 8 BUSINESS MODEL -->
+  <div class="beat">
+    <div class="num">8</div>
+    <h2>Business model</h2>
+    <ul>
+      <li>Flagship 7-in-1 at ~$179 retail · board-only ~$129 · direct-cost target ~$30 (BOM pending validation).</li>
+      <li>Expansion packs (×3 / ×5 / ×10 / ×20 / ×50) at $12–$79.</li>
+      <li>Creator marketplace — 50/50 net-profit royalty to creator.</li>
+      <li>Contract polymer &amp; metal manufacturing (B2B).</li>
+      <li>Brand / sports / entertainment licensing — individually negotiated.</li>
+      <li>Digital companion play &amp; future tournaments.</li>
+    </ul>
+  </div>
+
+  <!-- 9 MARKET OPPORTUNITY -->
+  <div class="beat">
+    <div class="num">9</div>
+    <h2>Market opportunity</h2>
+    <p>Three addressable markets served from one product and one production stack:</p>
+    <ul>
+      <li>Consumer board-game, puzzle, and collectible categories (large; TAM figures to be sourced).</li>
+      <li>Creator-economy physical-product licensing (growing; emerging).</li>
+      <li>Short-run polymer &amp; metal contract manufacturing (fragmented; specialty).</li>
+    </ul>
+    <p style="font-size: 7.5pt; color: var(--ink-soft);">Specific TAM/SAM/SOM statistics <b>[SUPPORTING DOCUMENT REQUIRED]</b>. No fabricated market figures appear in this document.</p>
+  </div>
+
+  <!-- 10 THE ASK -->
+  <div class="beat span-2">
+    <div class="num">10</div>
+    <h2>The ask</h2>
+    <p style="font-size: 10.5pt;"><b>Up to $100 million in staged equity capital, deployed over 60 months</b> — milestone-gated, not released on a calendar. Each stage unlocks a specific operational capability:</p>
+    <ul style="columns: 2; column-gap: 8mm; font-size: 9pt;">
+      <li><b>Stage 1 · $2M</b> — validate product economics, fulfill first Kickstarter cohort, hire CFO/CTO, engage counsel.</li>
+      <li><b>Stage 2 · $8M</b> — right-sized pilot warehouse, polymer print farm at scale, first industrial pilot customer, DTC reopens.</li>
+      <li><b>Stage 3 · $20M</b> — injection molding + CNC + first metal additive cell after anchor customer; creator marketplace live.</li>
+      <li><b>Stage 4 · $30M</b> — expand qualified contract manufacturing; secondary facility if business case supports.</li>
+      <li><b>Stage 5 · $40M</b> — scale proven operations; selective international markets; acquisition options.</li>
+    </ul>
+    <p style="font-size: 9pt; margin-top: 2mm;"><b>What the capital unlocks:</b> a vertically-integrated gaming-plus-manufacturing enterprise; a flagship consumer brand launching via Kickstarter; a contract-manufacturing revenue stream that absorbs facility overhead; a creator marketplace and brand-licensing engine; a software stack (quoting, MES, royalties) that coordinates the whole system.</p>
+    <p style="font-size: 7.5pt; color: var(--ink-soft);"><b>Investment status:</b> $100M is a proposed capital-raising target, not confirmed funding. All financial figures in this Buybox are management-reported planning targets. Investment terms, valuation, ownership, and timing remain subject to negotiation, documentation, and legal review. No investor commitment, equity percentage, or return is implied or guaranteed. Shark Ready and Rabbit Capital have neither approved nor endorsed this opportunity.</p>
+  </div>
+
+  <div class="disclaimer">
+    <b>Due diligence folder:</b> <code>[DD folder link — pending]</code> &nbsp; · &nbsp;
+    <b>Founder contact:</b> James Scott Bowser · jbowser727@gmail.com · 209-622-9391 · Sphereofkings.com &nbsp; · &nbsp;
+    <b>Document:</b> Shark Ready Buybox v2.0 · 2026-11-04 &nbsp; · &nbsp;
+    <b>Companion:</b> Investor Master Blueprint v2.0 (43-page full submission). &nbsp;
+    This Buybox is designed for ~90-second investor screening; it is not a substitute for the full Blueprint or the Due Diligence Questionnaire. Confidential.
+  </div>
+
+  <footer class="ftr">
+    <span>Confidential · Creative Design Networks</span>
+    <span class="r">Sphere of Kings · Shark Ready Buybox v2.0 · 2026-11-04</span>
+  </footer>
+
+</section>
+
+</body>
+</html>

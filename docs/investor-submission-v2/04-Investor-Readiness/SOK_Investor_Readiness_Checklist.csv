@@ -1,0 +1,63 @@
+Category,Requirement,Current Status,Source / Evidence,Missing Information,Responsible Party,Next Action,Priority
+Corporate formation,Confirm legal entity type (LLC / C-Corp / S-Corp),PENDING,James Nov-3 response (S3),Articles/certificate of formation,Founder + corp counsel,Confirm entity type and jurisdiction; file if not formed,P0
+Corporate formation,State of formation / jurisdiction,PENDING,,Certificate of good standing,Founder + corp counsel,Document on file,P0
+Corporate formation,Year founded / incorporated,PENDING,,Formation date,Founder,Confirm in DD folder,P0
+Corporate formation,Registered agent on file,PENDING,,Registered-agent contract,Founder + corp counsel,Appoint registered agent; document,P0
+Corporate formation,EIN confirmation letter,PENDING (no EIN yet),S3,IRS CP-575 letter,Founder,Apply for EIN via IRS,P0
+Corporate formation,Operating agreement / bylaws on file,PENDING,,Draft and executed copies,Founder + corp counsel,Draft; adopt by board/member resolution,P0
+Corporate formation,Articles of incorporation / certificate of formation,PENDING,,Filed copy,Founder + corp counsel,File with secretary of state,P0
+Ownership and capitalization,Finalized cap table (founders / options / SAFEs / commitments),PENDING,S3 'venture is founder-led',Fully-diluted cap table,Founder + corp counsel,Draft and execute founder stock allocation; compile outstanding commitments,P0
+Ownership and capitalization,Founder share allocation,PENDING,,Founder stock purchase agreement,Founder + corp counsel,Execute,P0
+Ownership and capitalization,Existing equity or option commitments,PENDING,,Any prior promises or grants,Founder,Disclose all prior promises in writing,P0
+Ownership and capitalization,ESOP pool sizing,PROPOSED,,Board resolution adopting ESOP,Founder + counsel,Adopt at Stage 1,P1
+Financial records,Bank statements last 12 months,PENDING,,Bank records,Founder + bookkeeper,Download and upload to DD folder,P0
+Financial records,Accounting / general ledger,PENDING,,QuickBooks (or equivalent) file,Founder + bookkeeper,Set up accounting system; back-populate,P0
+Financial records,Revenue to date (if any),PENDING,,P&L,Founder,Compile from bank + sales records,P0
+Financial records,Current cash reserves,PENDING,,Bank balance,Founder,Report as of DD date,P0
+Financial records,Outstanding obligations / liabilities,PENDING,,Debt schedule / vendor payables,Founder,Document,P0
+Financial records,Burn rate,PENDING,,Trailing 3-month operating outflow,Founder + bookkeeper,Document,P1
+Financial records,Runway,PENDING,,Cash / burn,Founder,Report,P1
+Financial records,Bottom-up five-year financial model,TO BUILD,v1 Blueprint has top-down targets only,Monthly P&L / cash / BS; 36 months,External financial consultant,Engage; build base/downside/upside,P0
+Product and technical evidence,Current product designs and CAD,MANAGEMENT-REPORTED,Repo product art,CAD files / specifications,Founder,Upload to DD folder,P1
+Product and technical evidence,Flagship 7-in-1 bill of materials,PENDING,,BOM with vendors and costs,Operations lead,Compile,P1
+Product and technical evidence,Prototype test reports,PENDING,,Durability / drop / assembly test logs,Operations lead,Commission,P1
+Product and technical evidence,Toy safety testing (ASTM F963 / EN71 etc),PENDING,,Lab test report,Operations lead + lab,Engage CPSC-accepted lab,P0 (pre-launch)
+Intellectual property,Signed IP assignments from past contractors,PENDING,,Assignment agreements,Founder + IP counsel,Chase and collect,P0
+Intellectual property,Freedom-to-operate memo for spherical game system,PENDING,,Memo,IP counsel,Commission,P0
+Intellectual property,Utility patent filings,PROPOSED,S3 strategy,Filing receipts,IP counsel,File provisional(s) before Kickstarter,P0
+Intellectual property,Design patent filings,PROPOSED,,Filing receipts,IP counsel,File concurrent with utility,P0
+Intellectual property,Trademark clearance - 'Sphere of Kings',PROPOSED,,Clearance letter + USPTO filing,IP counsel,Clear and file,P0
+Intellectual property,Copyright registrations (artwork / software),PROPOSED,,Registration certificates,IP counsel,Register key assets,P1
+Intellectual property,Licensed-in creator / brand agreements,PROPOSED,S3 'developing licensing opportunities',Executed agreements,Founder + IP counsel,Draft template; execute pilots,P1
+Manufacturing and operations,Current Bambu Lab printer inventory,PENDING,S3 initial focus,Equipment list,Founder,Count and report,P1
+Manufacturing and operations,Production cost per unit (direct),PENDING,,BOM + cycle + labor,Operations lead,Measure,P1
+Manufacturing and operations,Supplier list and terms,PENDING,,Supplier contracts,Operations lead,Compile,P1
+Manufacturing and operations,Quality control procedures,PROPOSED,,QC manual,Operations lead,Draft,P2
+Manufacturing and operations,Scale-up facility feasibility (not 150K sqft),PROPOSED,,Three-site feasibility study,Operations lead + broker,Commission,P1
+Kickstarter and traction,Prelaunch sign-up count,PENDING,,Kickstarter prelaunch dashboard,Founder,Export and report,P1
+Kickstarter and traction,Campaign launch confirmation (post 2026-11-19),PENDING,,Campaign URL + metrics,Founder,Confirm launch; share metrics,P1
+Kickstarter and traction,Fulfillment plan,PROPOSED,,Plan document,Operations lead,Draft,P1
+Kickstarter and traction,Jellop engagement letter,PENDING,S3,Engagement letter,Founder,Request and file,P1
+Kickstarter and traction,PostcardMania scope,PENDING,S3,Quote or agreement,Founder,Confirm 'exploration only' or 'executed',P1
+Partnerships and licensing,Jellop partnership status,PROPOSED,S3,Signed agreement,Founder,Convert or de-scope,P1
+Partnerships and licensing,PostcardMania status,PROPOSED,S3,Quote or agreement,Founder,Convert or de-scope,P1
+Partnerships and licensing,IP firm 90-day exclusive pilot terms,PROPOSED,S3,Term sheet,Founder + IP counsel,Negotiate and execute,P1
+Partnerships and licensing,Creator marketplace terms (50/50 net),PROPOSED,v1 Blueprint,Contract template,Legal counsel,Draft template; define 'net profit',P1
+Partnerships and licensing,Brand-licensing template,PROPOSED,,Template,Legal counsel,Draft,P2
+Market validation,Independently sourced TAM/SAM/SOM,PENDING,,Market research memo,External research,Commission or decline (use defensible qualitative framing),P2
+Market validation,Competitor map,PENDING,,Competitor memo,Marketing lead,Compile,P2
+Market validation,Customer-interview log,PENDING,,Interview notes,Founder,Collect,P2
+Legal and compliance,Securities-counsel engagement letter,PENDING,,Engagement letter,Founder + counsel,Engage BEFORE any external circulation,P0
+Legal and compliance,Privacy policy on Sphereofkings.com,CONFIRMED (needs review),Site content,Current-practice review,Counsel,Review for Kickstarter,P1
+Legal and compliance,Terms & conditions on Sphereofkings.com,CONFIRMED (needs review),Site content,Current-practice review,Counsel,Review for Kickstarter,P1
+Legal and compliance,Cybersecurity certifications applicable to SOK,NOT APPLICABLE (pre-launch consumer),,,Founder,Reassess post-scale,P3
+Legal and compliance,Product liability insurance,PENDING,,Policy,Founder + broker,Bind before Kickstarter fulfillment,P1
+Legal and compliance,Cyber insurance,PROPOSED,,Policy,Founder + broker,Evaluate at Stage 2,P2
+Investor documentation,Investor Master Blueprint v2.0,DRAFTED,This package,Management approval,Founder,Review and sign off,P0
+Investor documentation,Shark Ready Buybox one-pager,DRAFTED,This package,Management approval,Founder,Review and sign off,P0
+Investor documentation,Due Diligence Questionnaire,DRAFTED,This package,Management answers to PENDING items,Founder,Fill PENDING answers,P0
+Investor documentation,Source & Assumption Register,DRAFTED,This package,Ongoing updates,Doc team,Maintain,P1
+Investor documentation,Investor Readiness Checklist,DRAFTED (this file),This package,Ongoing updates,Doc team,Maintain,P1
+Investor documentation,Management Review Report,DRAFTED,This package,Management acknowledgment,Founder,Review,P0
+Investor documentation,Pitch deck (14 slides),PROPOSED,Outline exists,Build deck,Founder + designer,Build from Buybox and Blueprint,P1
+Investor documentation,Secure DD folder,PENDING,S3,Folder provisioned and shared,Founder,Set up Drive/Dropbox/data room,P0

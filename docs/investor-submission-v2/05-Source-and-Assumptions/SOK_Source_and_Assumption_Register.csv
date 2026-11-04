@@ -1,0 +1,54 @@
+ID,Category,Claim or figure,Source,Date,Status,Evidence required,Priority
+V1,Verified fact,"Next.js 15 project with Stripe, MongoDB, Pusher, Three.js",S5 nextjs/package.json,2026-11-04,CONFIRMED,,
+V2,Verified fact,Brand typography Cinzel + Inter locally hosted,S5 nextjs/app/fonts.css,2026-11-04,CONFIRMED,,
+V3,Verified fact,Brand palette gold #c9a227 on dark backgrounds,S5 nextjs/lib/theme.ts,2026-11-04,CONFIRMED,,
+V4,Verified fact,Kickstarter launch declared November 19 2026,S5 nextjs/app/layout.tsx,2026-11-04,CONFIRMED,,
+V5,Verified fact,36 product images on disk (full 7-in-1 lineup),S5 nextjs/public/images/products,2026-11-04,CONFIRMED,,
+V6,Verified fact,Playable 3D sphere + online multiplayer shipped,S7 git log,2026-11-04,CONFIRMED,,
+V7,Verified fact,Sponsorship program shipped (commit bc72406),S7 git log,2026-11-04,CONFIRMED,,
+V8,Verified fact,Site in Kickstarter-only mode (direct sales removed),S7 git log,2026-11-04,CONFIRMED,,
+V9,Verified fact,Platform policy ADRs 0001-0006 on file,S6 content/adr,2026-11-04,CONFIRMED,,
+V10,Verified fact,Founder contact and company name as stated,S3,2026-11-03,CONFIRMED,,
+M01,Corporate,SOK developed through Creative Design Networks,S3,2026-11-03,MANAGEMENT-REPORTED,Entity formation documents,P0
+M02,Corporate,Formal entity registration not yet confirmed/assembled,S3,2026-11-03,PENDING,Articles/bylaws/certificate of good standing,P0
+M03,Corporate,No EIN; founder uses personal tax ID,S3,2026-11-03,IN PROGRESS,EIN confirmation letter,P0
+M04,Ownership,Cap table not yet finalized; venture founder-led,S3,2026-11-03,PENDING,Fully-diluted cap table + shareholder agreements,P0
+M05,Financial,No verified historical financials,S3,2026-11-03,PENDING,Bank statements + accounting records,P0
+M06,Documentation,Secure DD folder not yet provided,S3,2026-11-03,PENDING,DD folder link (Drive/Dropbox/data room),P0
+M10,Partnership,Jellop Kickstarter marketing discussed/planned,S3,2026-11-03,PROPOSED,Jellop engagement letter,P1
+M11,Partnership,PostcardMania direct-mail being explored,S3,2026-11-03,PROPOSED,Scope confirmation or quote,P1
+M12,Partnership,"IP/licensing firms — 90-day exclusive pilot proposed",S3,2026-11-03,PROPOSED,Term sheet or pilot agreement,P1
+M13,Partnership,"Licensing opportunities being developed (creators, brands, sports, entertainment IP)",S3,2026-11-03,PROPOSED,Executed agreements,P2
+M20,IP,"Original 7-in-1 spherical gaming system; modular boards, custom puzzles",S3,2026-11-03,MANAGEMENT-REPORTED,,
+M21,IP,"Planned: utility/design patents, trademarks, copyrights, NDAs, invention assignments",S3,2026-11-03,PROPOSED,Filings/registrations + signed assignments,P0
+M22,IP,Patent filings/registrations require documentation,S3,2026-11-03,PENDING,Filing receipts/registrations,P0
+M30,Kickstarter,Public Kickstarter goal $10000,S3,2026-11-03,CONFIRMED,,
+M31,Kickstarter,Internal stretch objective $30M (aspirational),S3,2026-11-03,MANAGEMENT-REPORTED,,
+M32,Kickstarter,Launch planned November 19 2026,S3,2026-11-03,CONFIRMED (planned),Launch confirmation; initial traction report,P1
+M40,Manufacturing,Initial focus on Bambu Lab printers,S3,2026-11-03,MANAGEMENT-REPORTED,,
+M41,Manufacturing,"Current inventory, capacity, costs, suppliers all pending",S3,2026-11-03,PENDING,Equipment list + BOM + cycle times + unit costs,P1
+M42,Manufacturing,"Future: larger facility, print farm, metal manufacturing",S3,2026-11-03,PROPOSED,Capacity model + feasibility study,P2
+M50,Capital,$100M target staged 2/8/20/30/40,S2,2026-11-03,PROPOSED,Milestone-gated stage agreements,P0
+M51,Financial,Year-5 revenue ambition $250M (A100/B80/C50/D20),S2,2026-11-03,MANAGEMENT-REPORTED (illustrative),Bottom-up revenue model,P0
+M52,Financial,Year-5 EBITDA ambition $50M (20% margin),S2,2026-11-03,MANAGEMENT-REPORTED (illustrative),Operating cost model,P0
+M53,Pricing,Flagship $179 retail / $129 board-only / ~$30 direct cost target,S2,2026-11-03,MANAGEMENT-REPORTED,Validated BOM + cycle time + scrap rate,P1
+M54,Valuation,Hypothetical pre-money $300M = 25% for $100M investor,S2,2026-11-03,ILLUSTRATIVE,Independent valuation + term sheet,P0
+I1,Illustrative,"$100M gaming at $130 ASP = ~769,231 units/yr",Derived,2026-11-04,ILLUSTRATIVE,Channel-mix model,P1
+I2,Illustrative,420 industrial customers = $130M (illustrative mix),S2,2026-11-03,ILLUSTRATIVE,Sales pipeline evidence,P1
+I3,Illustrative,Year-5 FCF bridge $50M to ~$28M,S2,2026-11-03,ILLUSTRATIVE,Full operating model,P1
+I4,Illustrative,Valuation 6x-20x EBITDA = $300M-$1B EV,S2,2026-11-03,ILLUSTRATIVE,Comparable-companies analysis,P2
+I5,Illustrative,"Investor outcomes at 25% stake; $500M=25% ROI, $1B=150%, $2B=400%",S2,2026-11-03,ILLUSTRATIVE,Term sheet before this can be modeled with dilution,P2
+I6,Illustrative,"Make-or-buy break-even 10,000 units at $18/unit vs $180K tooling",S2,2026-11-03,ILLUSTRATIVE,,
+A01,Blocker,Rabbit Capital / Shark Ready documentary trail,S1+S3,2026-11-03,PENDING,Engagement letters + any correspondence,P0
+A02,Blocker,Confirm legal entity type and state of formation,S3,2026-11-03,PENDING,Certificate of formation/incorporation,P0
+A03,Blocker,EIN application status and timing,S3,2026-11-03,PENDING,EIN confirmation letter,P0
+A04,Blocker,Finalized cap table,S3,2026-11-03,PENDING,Fully-diluted cap table,P0
+A05,Blocker,IP ownership chain + FTO memo,S3,2026-11-03,PENDING,Signed IP assignments + patent filings + FTO,P0
+A06,Blocker,Jellop engagement letter,S3,2026-11-03,PENDING,Engagement letter,P1
+A07,Blocker,PostcardMania scope confirmation,S3,2026-11-03,PENDING,Quote or agreement,P1
+A08,Blocker,IP firm 90-day pilot terms,S3,2026-11-03,PENDING,Pilot term sheet,P1
+A09,Blocker,Current printer inventory + flagship BOM,S3,2026-11-03,PENDING,Inventory + BOM documents,P1
+A10,Blocker,Kickstarter launch status check (on/after 2026-11-19),S3,2026-11-03,PENDING,Campaign status + metrics,P1
+A11,Blocker,Secure DD folder provisioned,S3,2026-11-03,PENDING,Shared folder/data-room link,P0
+A12,Blocker,Independent accountant review of model,S2,2026-11-03,PENDING,Accountant memo,P1
+A13,Blocker,Securities-counsel engagement letter,S2,2026-11-03,PENDING,Engagement letter,P0
