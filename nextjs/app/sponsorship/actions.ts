@@ -328,3 +328,89 @@ export async function joinWaitlistAction(
     return { ok: false, message: "Could not save your signup. Please try again." };
   }
 }
+
+/* ---------------- Investment Partners inquiry --------------------- */
+
+export type InvestorInquiryInput = {
+  contactName: string;
+  contactEmail: string;
+  contactPhone?: string;
+  organization?: string;
+  website?: string;
+  investmentRange: string;
+  accredited?: string;
+  timeline?: string;
+  notes?: string;
+};
+
+export type InvestorInquiryResult =
+  | { ok: true }
+  | { ok: false; message: string };
+
+export async function requestInvestorInfoAction(
+  input: InvestorInquiryInput,
+): Promise<InvestorInquiryResult> {
+  const contactName = cleanStr(input.contactName, 180);
+  const contactEmail = cleanStr(input.contactEmail, 180).toLowerCase();
+  const contactPhone = cleanStr(input.contactPhone, 60) || undefined;
+  const organization = cleanStr(input.organization, 180) || undefined;
+  const website = cleanStr(input.website, 240) || undefined;
+  const investmentRange = cleanStr(input.investmentRange, 80);
+  const accredited = cleanStr(input.accredited, 40) || undefined;
+  const timeline = cleanStr(input.timeline, 120) || undefined;
+  const notes = cleanStr(input.notes, 4000) || undefined;
+
+  if (!contactName) return { ok: false, message: "Enter your name." };
+  if (!validEmail(contactEmail))
+    return { ok: false, message: "Enter a valid email address." };
+  if (!investmentRange)
+    return { ok: false, message: "Pick an investment range so we can route this." };
+
+  try {
+    await recordAuditEvent({
+      actor: { kind: "system" },
+      action: "sponsorship.investor_inquiry",
+      target: { collection: "sponsorships", id: contactEmail },
+      summary: `Investor inquiry — ${organization || contactName} — ${investmentRange}`,
+      details: {
+        contactEmail,
+        organization,
+        investmentRange,
+        accredited,
+        timeline,
+      },
+    }).catch(() => {});
+
+    const ownerEmail = process.env.SPONSORSHIP_NOTIFY_EMAIL;
+    if (ownerEmail) {
+      const esc = (s: string) => s.replace(/[&<>]/g, (c) =>
+        c === "&" ? "&amp;" : c === "<" ? "&lt;" : "&gt;",
+      );
+      await sendEmail({
+        to: ownerEmail,
+        subject: `Investment Partners inquiry · ${investmentRange} · ${organization || contactName}`,
+        html: `<p>New Investment Partners portal inquiry.</p>
+          <p>
+            <strong>Name:</strong> ${esc(contactName)}<br/>
+            <strong>Email:</strong> ${esc(contactEmail)}<br/>
+            ${contactPhone ? `<strong>Phone:</strong> ${esc(contactPhone)}<br/>` : ""}
+            ${organization ? `<strong>Organization:</strong> ${esc(organization)}<br/>` : ""}
+            ${website ? `<strong>Website:</strong> ${esc(website)}<br/>` : ""}
+            <strong>Investment range:</strong> ${esc(investmentRange)}<br/>
+            ${accredited ? `<strong>Accredited:</strong> ${esc(accredited)}<br/>` : ""}
+            ${timeline ? `<strong>Timeline:</strong> ${esc(timeline)}<br/>` : ""}
+          </p>
+          ${notes ? `<p><strong>Notes:</strong><br/>${esc(notes).replace(/\n/g, "<br/>")}</p>` : ""}
+          <p style="color:#888;font-size:12px">Reply to this email to contact the prospect directly.</p>`,
+        replyTo: contactEmail,
+      }).catch(() => {});
+    }
+
+    return { ok: true };
+  } catch {
+    return {
+      ok: false,
+      message: "Could not submit your inquiry. Please try again or email us directly.",
+    };
+  }
+}

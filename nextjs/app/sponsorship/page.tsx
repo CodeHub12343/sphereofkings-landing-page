@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Wrap } from "@/components/shared";
@@ -94,6 +95,97 @@ export default async function SponsorshipPage() {
         >
           <Wrap>
             <SponsorshipPanel availability={availability} tiers={tiers} />
+
+            <div
+              style={{
+                marginTop: 56,
+                padding: "32px clamp(24px, 4vw, 40px)",
+                background:
+                  "linear-gradient(180deg, rgba(201,162,39,0.08), #0e0c09)",
+                border: "1.5px solid #c9a227",
+                borderRadius: 14,
+                display: "flex",
+                flexDirection: "column",
+                gap: 16,
+                alignItems: "center",
+                textAlign: "center",
+                maxWidth: 820,
+                margin: "56px auto 0",
+              }}
+            >
+              <p
+                style={{
+                  color: "#c9a227",
+                  fontFamily: "'Cinzel', serif",
+                  fontSize: "0.72rem",
+                  letterSpacing: "0.22em",
+                  textTransform: "uppercase",
+                  margin: 0,
+                }}
+              >
+                Investment Partners · By Application
+              </p>
+              <h2
+                style={{
+                  margin: 0,
+                  fontFamily: "'Cinzel', Georgia, serif",
+                  color: "#f5f0e8",
+                  fontSize: "clamp(1.3rem, 2.4vw, 1.75rem)",
+                  fontWeight: 800,
+                  lineHeight: 1.25,
+                }}
+              >
+                Larger investments. Dividend-eligible. Bigger ROI.
+              </h2>
+              <p
+                style={{
+                  margin: 0,
+                  color: "#a89880",
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: "0.98rem",
+                  lineHeight: 1.6,
+                  maxWidth: 640,
+                }}
+              >
+                Beyond the Silver and Gold tiers above, Sphere of Kings runs a
+                private track for strategic investors and sponsorship partners
+                — equity, revenue-share and naming-rights structures with
+                dividend eligibility and bigger-ROI terms, negotiated directly
+                with James.
+              </p>
+              <Link
+                href="/sponsorship/investment-partners"
+                style={{
+                  display: "inline-block",
+                  background:
+                    "linear-gradient(90deg,#c9a227 0%,#f0c040 50%,#c9a227 100%)",
+                  color: "#1a1510",
+                  fontFamily: "'Cinzel', serif",
+                  fontWeight: 800,
+                  fontSize: "0.95rem",
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  padding: "14px 32px",
+                  borderRadius: 4,
+                  textDecoration: "none",
+                  boxShadow: "0 6px 24px rgba(201,162,39,0.25)",
+                }}
+              >
+                Portal for Investment Partners
+              </Link>
+              <p
+                style={{
+                  margin: 0,
+                  color: "#5a4a38",
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: "0.78rem",
+                }}
+              >
+                Apply to receive the Investment Partners deck and schedule a
+                direct call.
+              </p>
+            </div>
+
             <p
               style={{
                 textAlign: "center",
