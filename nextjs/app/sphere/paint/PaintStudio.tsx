@@ -43,6 +43,12 @@ export default function PaintStudio({
             </Link>
           </p>
         )}
+        <p style={{ color: "var(--text-muted,#a89880)", marginTop: 10, fontSize: 13 }}>
+          Want the full experience?{" "}
+          <Link href="/sphere/creation-station" style={{ color: "var(--gold-light,#f0c040)" }}>
+            Open the Creation Station →
+          </Link>
+        </p>
       </section>
     </div>
   );

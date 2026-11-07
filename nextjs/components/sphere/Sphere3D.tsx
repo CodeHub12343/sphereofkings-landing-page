@@ -47,13 +47,13 @@ function SpinningSphere({ grid, autoSpin }: { grid: string[][]; autoSpin: boolea
 
 export default function Sphere3D({ grid, autoSpin = true }: { grid: string[][]; autoSpin?: boolean }) {
   return (
-    <Canvas camera={{ position: [0, 0, 2.6], fov: 45 }}
+    <Canvas camera={{ position: [0, 0, 4.2], fov: 35 }}
             style={{ width: "100%", height: 420, background: "var(--bg2, #0d0b08)",
                      borderRadius: 10, border: "1px solid var(--border, #2a2218)" }}>
       <ambientLight intensity={0.6} />
       <directionalLight position={[3, 5, 3]} intensity={1.2} />
       <SpinningSphere grid={grid} autoSpin={autoSpin} />
-      <OrbitControls enablePan={false} minDistance={1.8} maxDistance={5} />
+      <OrbitControls enablePan={false} minDistance={2.5} maxDistance={8} />
     </Canvas>
   );
 }
