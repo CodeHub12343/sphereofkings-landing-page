@@ -81,6 +81,65 @@ export async function sendTestEmailAction(
   return { ok: true, id: result.id, to };
 }
 
+export type BroadcastTemplateResult =
+  | { ok: true; sent: number; failed: number; total: number }
+  | { ok: false; error: string };
+
+/**
+ * Fan the chosen template out to every CONSENTED subscriber. Requires
+ * the operator to type the exact consented count as confirmation so a
+ * stray click can't nuke the whole list. Serial dispatch to respect
+ * Resend rate limits; audit-logged as a single email.broadcast.sent /
+ * email.broadcast.failed event.
+ */
+export async function broadcastTemplateToConsentedAction(
+  template: EmailTemplate,
+  confirmationCount: number,
+): Promise<BroadcastTemplateResult> {
+  const subject = LIVE_SUBJECTS[template];
+  if (!subject) return { ok: false, error: "Unknown template." };
+
+  const { listSubscribers } = await import("@/lib/store/subscribers-store");
+  const subs = await listSubscribers().catch(() => []);
+  const consented = subs.filter((s) => s.status === "consented");
+  if (consented.length === 0) {
+    return { ok: false, error: "No consented subscribers to send to." };
+  }
+  if (confirmationCount !== consented.length) {
+    return {
+      ok: false,
+      error: `Confirmation mismatch — you entered ${confirmationCount}, the real list is ${consented.length}. The number keeps you from accidentally emailing the whole list.`,
+    };
+  }
+
+  const actor = await currentAdminActor();
+  let sent = 0;
+  let failed = 0;
+  const failures: { to: string; reason: string }[] = [];
+
+  for (const sub of consented) {
+    const react = sampleFor(template);
+    const result = await sendEmail({ to: sub.email, subject, react }).catch(
+      (e) => ({ ok: false, reason: (e as Error).message } as const),
+    );
+    if (result.ok) sent++;
+    else {
+      failed++;
+      failures.push({ to: sub.email, reason: result.reason });
+    }
+  }
+
+  await recordAuditEvent({
+    actor,
+    action: failed === 0 ? "email.broadcast.sent" : "email.broadcast.partial",
+    target: { collection: "emails", id: template },
+    summary: `Broadcast ${template}: ${sent}/${consented.length} sent (${failed} failed)`,
+    details: { template, sent, failed, total: consented.length, failures },
+  }).catch(() => {});
+
+  return { ok: true, sent, failed, total: consented.length };
+}
+
 /**
  * Send ONE email live (no [TEST] prefix) to an arbitrary recipient.
  * Backs the "Send live" button on /admin/emails for one-off outreach

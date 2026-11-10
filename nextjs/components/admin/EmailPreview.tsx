@@ -12,6 +12,7 @@ import SponsorshipInvite from "@/components/emails/SponsorshipInvite";
 import {
   sendTestEmailAction,
   sendLiveEmailAction,
+  broadcastTemplateToConsentedAction,
 } from "@/app/admin/emails/actions";
 
 type Template =
@@ -336,6 +337,31 @@ export default function EmailPreview() {
     });
   };
 
+  const broadcast = () => {
+    const typed = window.prompt(
+      `BROADCAST "${TEMPLATES[template].title}" to ALL consented subscribers.\n\n` +
+        `This sends the real message to every consented row in your /admin/subscribers list.\n\n` +
+        `Type the exact number of consented subscribers to confirm:`,
+      "",
+    );
+    const n = Number.parseInt(typed ?? "", 10);
+    if (!Number.isFinite(n)) return;
+    setTestStatus({ kind: "idle" });
+    startTransition(async () => {
+      const res = await broadcastTemplateToConsentedAction(template, n).catch(
+        () => ({ ok: false, error: "Network error" } as const),
+      );
+      if (res.ok) {
+        setTestStatus({
+          kind: "ok",
+          to: `${res.sent}/${res.total} sent${res.failed > 0 ? ` (${res.failed} failed — see /admin/audit)` : ""}`,
+        });
+      } else {
+        setTestStatus({ kind: "error", message: res.error });
+      }
+    });
+  };
+
   const sendLive = () => {
     const to = testTo.trim();
     if (!/.+@.+\..+/.test(to)) {
@@ -419,6 +445,13 @@ export default function EmailPreview() {
           >
             Send live
           </LiveBtn>
+          <BroadcastBtn
+            type="button"
+            onClick={broadcast}
+            title="Send to ALL consented subscribers. Requires typing the count to confirm."
+          >
+            Broadcast to all
+          </BroadcastBtn>
           {testStatus.kind === "ok" && (
             <TestMsg $tone="ok">Sent to {testStatus.to}.</TestMsg>
           )}
@@ -511,6 +544,24 @@ const LiveBtn = styled.button`
     background: rgba(198, 43, 68, 0.1);
     color: #ffffff;
     border-color: #ff6b7a;
+  }
+`;
+
+const BroadcastBtn = styled.button`
+  background: linear-gradient(135deg, #8a1e2e 0%, #c62b44 50%, #8a1e2e 100%);
+  color: #ffffff;
+  border: 0;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-family: "Inter", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+
+  &:hover {
+    box-shadow: 0 0 18px rgba(198, 43, 68, 0.35);
   }
 `;
 
