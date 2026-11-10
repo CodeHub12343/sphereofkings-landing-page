@@ -1,10 +1,6 @@
 // EDI orders store. Each row is one inbound 850 Purchase Order from a
 // retailer plus its lifecycle state (acknowledged, shipped, invoiced).
 // Mongo collection `ediOrders`, file fallback `.data/edi-orders.json`.
-//
-// Seeded on first read with two sample POs so /admin/edi is a working
-// dashboard before a real provider is wired up — remove the seed block
-// once a provider is live.
 
 import { promises as fs } from "node:fs";
 import { randomUUID } from "node:crypto";
@@ -20,79 +16,6 @@ const COLLECTION = "ediOrders";
 const DATA_DIR = path.join(process.cwd(), ".data");
 const STORE_PATH = path.join(DATA_DIR, "edi-orders.json");
 
-/* -------------------------- Sample seed ---------------------------- */
-
-function seedOrders(): EdiOrder[] {
-  const now = new Date();
-  const d = (daysAgo: number) =>
-    new Date(now.getTime() - daysAgo * 24 * 3600 * 1000).toISOString();
-  const lines1: EdiOrderLine[] = [
-    {
-      lineNumber: 1,
-      sku: "SOK-COMPLETE-7IN1",
-      upc: "860009234017",
-      description: "Sphere of Kings · Complete 7-in-1",
-      quantity: 144,
-      unitPrice: 89.5,
-      lineTotal: 144 * 89.5,
-    },
-    {
-      lineNumber: 2,
-      sku: "SOK-ROYAL-CHECKERS",
-      upc: "860009234024",
-      description: "Royal Checkers refill kit",
-      quantity: 72,
-      unitPrice: 39.5,
-      lineTotal: 72 * 39.5,
-    },
-  ];
-  const lines2: EdiOrderLine[] = [
-    {
-      lineNumber: 1,
-      sku: "SOK-COMPLETE-7IN1",
-      upc: "860009234017",
-      description: "Sphere of Kings · Complete 7-in-1",
-      quantity: 36,
-      unitPrice: 92.0,
-      lineTotal: 36 * 92.0,
-    },
-  ];
-  return [
-    {
-      id: `edi_${randomUUID().replace(/-/g, "").slice(0, 10)}`,
-      poNumber: "SAMPLE-PO-77314",
-      partnerId: "seed-target",
-      partnerName: "Target (sample)",
-      status: "received",
-      currency: "USD",
-      lines: lines1,
-      subtotal: lines1.reduce((s, l) => s + l.lineTotal, 0),
-      shipTo:
-        "Target DC 3808\n1200 Interchange Blvd\nShafter, CA 93263\nUnited States",
-      shipDateRequested: d(-14),
-      cancelDate: d(-21),
-      receivedISO: d(0),
-      providerDocumentId: "mock_850_sample_77314",
-    },
-    {
-      id: `edi_${randomUUID().replace(/-/g, "").slice(0, 10)}`,
-      poNumber: "SAMPLE-PO-77215",
-      partnerId: "seed-indie",
-      partnerName: "The Game Haven (sample)",
-      status: "acknowledged",
-      currency: "USD",
-      lines: lines2,
-      subtotal: lines2.reduce((s, l) => s + l.lineTotal, 0),
-      shipTo:
-        "The Game Haven\n418 Main Street\nColumbus, OH 43215\nUnited States",
-      shipDateRequested: d(-7),
-      receivedISO: d(2),
-      acknowledgedISO: d(1),
-      providerDocumentId: "mock_850_sample_77215",
-    },
-  ];
-}
-
 /* -------------------------- File backend --------------------------- */
 
 async function ensureFileStore(): Promise<void> {
@@ -100,7 +23,7 @@ async function ensureFileStore(): Promise<void> {
   try {
     await fs.access(STORE_PATH);
   } catch {
-    await fs.writeFile(STORE_PATH, JSON.stringify(seedOrders(), null, 2), "utf8");
+    await fs.writeFile(STORE_PATH, JSON.stringify([], null, 2), "utf8");
   }
 }
 
@@ -131,11 +54,6 @@ async function ensureMongoIndex(): Promise<void> {
     indexEnsured = false;
   });
   await col.createIndex({ poNumber: 1 }).catch(() => {});
-  // Seed Mongo on first use if empty.
-  const n = await col.estimatedDocumentCount().catch(() => 0);
-  if (n === 0) {
-    await col.insertMany(seedOrders()).catch(() => {});
-  }
 }
 
 /* -------------------------- Public API ----------------------------- */

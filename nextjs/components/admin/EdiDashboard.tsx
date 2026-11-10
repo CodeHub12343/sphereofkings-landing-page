@@ -14,7 +14,6 @@ import {
 } from "@/app/admin/edi/actions";
 
 const Wrap = styled.div`
-  padding: 32px 24px 80px;
   color: #f5f0e8;
 `;
 

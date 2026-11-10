@@ -11,7 +11,6 @@ import {
 } from "@/app/admin/edi/partners/actions";
 
 const Wrap = styled.div`
-  padding: 32px 24px 80px;
   color: #f5f0e8;
 `;
 const HeaderRow = styled.div`
