@@ -8,8 +8,14 @@ import LaunchAnnouncement from "@/components/emails/LaunchAnnouncement";
 import OrderConfirmationEmail from "@/components/emails/OrderConfirmationEmail";
 import DispatchNotice from "@/components/emails/DispatchNotice";
 import AffiliatePayoutStatement from "@/components/emails/AffiliatePayoutStatement";
+import SponsorshipPitch from "@/components/emails/SponsorshipPitch";
 
-export type EmailTemplate = "launch" | "order" | "dispatch" | "payout";
+export type EmailTemplate =
+  | "launch"
+  | "order"
+  | "dispatch"
+  | "payout"
+  | "sponsorship-pitch";
 
 export type SendTestResult =
   | { ok: true; id: string; to: string }
@@ -20,6 +26,18 @@ const SUBJECTS: Record<EmailTemplate, string> = {
   order: "[TEST] Order confirmed · Sphere of Kings",
   dispatch: "[TEST] Your Sphere is on its way · Sphere of Kings",
   payout: "[TEST] Your earnings statement · Sphere of Kings affiliate",
+  "sponsorship-pitch":
+    "[TEST] James Scott Bowser · SOK massive Kickstarter campaign!",
+};
+
+/** Live subjects (no [TEST] prefix) used by sendLiveEmailAction. */
+const LIVE_SUBJECTS: Record<EmailTemplate, string> = {
+  launch: "Christmas Early Bird preorders are open — Sphere of Kings",
+  order: "Order confirmed · Sphere of Kings",
+  dispatch: "Your Sphere is on its way · Sphere of Kings",
+  payout: "Your earnings statement · Sphere of Kings affiliate",
+  "sponsorship-pitch":
+    "James Scott Bowser · SOK massive Kickstarter campaign!",
 };
 
 export async function sendTestEmailAction(
@@ -57,8 +75,51 @@ export async function sendTestEmailAction(
   return { ok: true, id: result.id, to };
 }
 
+/**
+ * Send ONE email live (no [TEST] prefix) to an arbitrary recipient.
+ * Backs the "Send live" button on /admin/emails for one-off outreach
+ * (e.g. the Exploding Kittens sponsorship pitch). Every send is
+ * audit-logged so there's a paper trail for who dispatched what.
+ */
+export async function sendLiveEmailAction(
+  template: EmailTemplate,
+  to: string,
+): Promise<SendTestResult> {
+  if (!/.+@.+\..+/.test(to)) {
+    return { ok: false, error: "Enter a valid email address." };
+  }
+  const subject = LIVE_SUBJECTS[template];
+  if (!subject) return { ok: false, error: "Unknown template." };
+
+  const react = sampleFor(template);
+  const result = await sendEmail({ to, subject, react }).catch(
+    (e) => ({ ok: false, reason: (e as Error).message } as const),
+  );
+
+  const actor = await currentAdminActor();
+  await recordAuditEvent({
+    actor,
+    action: result.ok ? "email.live.sent" : "email.live.failed",
+    target: { collection: "emails", id: template },
+    summary: result.ok
+      ? `Live-sent ${template} to ${to}`
+      : `Live send of ${template} to ${to} failed: ${result.reason}`,
+    details: {
+      template,
+      to,
+      resendId: result.ok ? result.id : null,
+      reason: result.ok ? null : result.reason,
+    },
+  }).catch(() => {});
+
+  if (!result.ok) return { ok: false, error: result.reason };
+  return { ok: true, id: result.id, to };
+}
+
 function sampleFor(template: EmailTemplate) {
   switch (template) {
+    case "sponsorship-pitch":
+      return createElement(SponsorshipPitch, {});
     case "launch":
       return createElement(LaunchAnnouncement, { firstName: "Marion" });
     case "order":

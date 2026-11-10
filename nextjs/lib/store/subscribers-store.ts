@@ -230,6 +230,51 @@ export async function upsertPending(input: {
   return { kind: "created", record };
 }
 
+/**
+ * Insert an already-consented subscriber directly (admin-only).
+ * Bypasses the double-opt-in flow for lists the operator has imported
+ * from another system or hand-curated for outreach. Returns the stored
+ * record, or `undefined` if the email was already on file.
+ */
+export async function insertConsentedSubscriber(input: {
+  email: string;
+  firstName?: string;
+  source?: SubscriberSource;
+}): Promise<{ record: StoredSubscriber; existed: boolean }> {
+  const key = input.email.trim().toLowerCase();
+  if (!key) throw new Error("email required");
+  const now = new Date().toISOString();
+
+  const record: StoredSubscriber = {
+    email: key,
+    firstName: input.firstName?.trim() || undefined,
+    status: "consented",
+    source: input.source ?? "import",
+    createdISO: now,
+    confirmedISO: now,
+    confirmToken: newToken(),
+    unsubscribeToken: newToken(),
+  };
+
+  if (hasMongo()) {
+    await ensureMongoIndex();
+    const col = await getCollection<StoredSubscriber>(COLLECTION);
+    const existing = await col.findOne(
+      { email: key },
+      { projection: { _id: 0 } },
+    );
+    if (existing) return { record: existing, existed: true };
+    await col.insertOne(record);
+    return { record, existed: false };
+  }
+  const records = await fileReadAll();
+  const existing = records.find((r) => r.email === key);
+  if (existing) return { record: existing, existed: true };
+  records.push(record);
+  await fileWriteAll(records);
+  return { record, existed: false };
+}
+
 export async function markConsented(
   token: string,
 ): Promise<StoredSubscriber | undefined> {

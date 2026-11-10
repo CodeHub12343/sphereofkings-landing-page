@@ -7,9 +7,18 @@ import LaunchAnnouncement from "@/components/emails/LaunchAnnouncement";
 import OrderConfirmationEmail from "@/components/emails/OrderConfirmationEmail";
 import DispatchNotice from "@/components/emails/DispatchNotice";
 import AffiliatePayoutStatement from "@/components/emails/AffiliatePayoutStatement";
-import { sendTestEmailAction } from "@/app/admin/emails/actions";
+import SponsorshipPitch from "@/components/emails/SponsorshipPitch";
+import {
+  sendTestEmailAction,
+  sendLiveEmailAction,
+} from "@/app/admin/emails/actions";
 
-type Template = "launch" | "order" | "dispatch" | "payout";
+type Template =
+  | "launch"
+  | "order"
+  | "dispatch"
+  | "payout"
+  | "sponsorship-pitch";
 
 const Layout = styled.section`
   display: grid;
@@ -179,11 +188,18 @@ const TEMPLATES: Record<
     subtitle: "Monthly · to active affiliates",
     subject: "Your September earnings · Sphere of Kings affiliate",
   },
+  "sponsorship-pitch": {
+    title: "Sponsorship pitch",
+    subtitle: "One-off · strategic outreach to a named company",
+    subject: "James Scott Bowser · SOK massive Kickstarter campaign!",
+  },
 };
 
 function renderHtml(template: Template): string {
   const el = (() => {
     switch (template) {
+      case "sponsorship-pitch":
+        return <SponsorshipPitch />;
       case "launch":
         return <LaunchAnnouncement firstName="Marion" />;
       case "order":
@@ -310,6 +326,28 @@ export default function EmailPreview() {
     });
   };
 
+  const sendLive = () => {
+    const to = testTo.trim();
+    if (!/.+@.+\..+/.test(to)) {
+      setTestStatus({ kind: "error", message: "Enter a valid email first." });
+      return;
+    }
+    const confirmed = window.confirm(
+      `Send the LIVE "${TEMPLATES[template].title}" email to ${to}?\n\n` +
+        `This is the real message — no [TEST] prefix. ` +
+        `It will be audit-logged.`,
+    );
+    if (!confirmed) return;
+    setTestStatus({ kind: "idle" });
+    startTransition(async () => {
+      const res = await sendLiveEmailAction(template, to).catch(
+        () => ({ ok: false, error: "Network error" } as const),
+      );
+      if (res.ok) setTestStatus({ kind: "ok", to: res.to });
+      else setTestStatus({ kind: "error", message: res.error });
+    });
+  };
+
   const info = TEMPLATES[template];
 
   return (
@@ -361,9 +399,16 @@ export default function EmailPreview() {
               if (testStatus.kind !== "idle") setTestStatus({ kind: "idle" });
             }}
           />
-          <TestBtn type="button" onClick={sendTest}>
+          <TestBtn type="button" onClick={sendTest} title="Prefixes [TEST] to the subject line">
             Send test
           </TestBtn>
+          <LiveBtn
+            type="button"
+            onClick={sendLive}
+            title="Send the real message — no [TEST] prefix. Audit-logged."
+          >
+            Send live
+          </LiveBtn>
           {testStatus.kind === "ok" && (
             <TestMsg $tone="ok">Sent to {testStatus.to}.</TestMsg>
           )}
@@ -436,6 +481,26 @@ const TestBtn = styled.button`
 
   &:hover {
     box-shadow: 0 0 18px rgba(240, 192, 64, 0.3);
+  }
+`;
+
+const LiveBtn = styled.button`
+  background: transparent;
+  color: #ff6b7a;
+  border: 1px solid #c62b44;
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-family: "Inter", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(198, 43, 68, 0.1);
+    color: #ffffff;
+    border-color: #ff6b7a;
   }
 `;
 

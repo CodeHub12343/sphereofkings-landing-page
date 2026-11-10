@@ -2,11 +2,58 @@
 
 import { revalidatePath } from "next/cache";
 import { createElement } from "react";
-import { listSubscribers } from "@/lib/store/subscribers-store";
+import {
+  insertConsentedSubscriber,
+  listSubscribers,
+} from "@/lib/store/subscribers-store";
 import { sendEmail } from "@/lib/email/send";
 import LaunchAnnouncement from "@/components/emails/LaunchAnnouncement";
 import { recordAuditEvent } from "@/lib/db/collections/audit";
 import { currentAdminActor } from "@/lib/auth/current-actor";
+
+export type AddSubscriberResult =
+  | { ok: true; email: string; existed: boolean }
+  | { ok: false; error: string };
+
+/**
+ * Admin-only direct-insert of a consented subscriber. Used for hand-
+ * curated outreach lists (e.g. a sponsor contact the operator added
+ * from LinkedIn) that bypass the public double-opt-in flow. The record
+ * is marked `consented` immediately and audit-logged.
+ */
+export async function addConsentedSubscriberAction(
+  email: string,
+  firstName?: string,
+): Promise<AddSubscriberResult> {
+  const trimmed = email.trim();
+  if (!/.+@.+\..+/.test(trimmed)) {
+    return { ok: false, error: "Enter a valid email address." };
+  }
+  const actor = await currentAdminActor();
+  try {
+    const { record, existed } = await insertConsentedSubscriber({
+      email: trimmed,
+      firstName: firstName?.trim() || undefined,
+      source: "import",
+    });
+    await recordAuditEvent({
+      actor,
+      action: existed
+        ? "subscribers.add.already-exists"
+        : "subscribers.add.consented",
+      target: { collection: "subscribers", id: record.email },
+      summary: existed
+        ? `Add attempted but ${record.email} already on list (status: ${record.status})`
+        : `Added consented subscriber ${record.email}`,
+      details: { email: record.email, firstName: record.firstName, existed },
+    }).catch(() => {});
+    revalidatePath("/admin/subscribers");
+    revalidatePath("/admin");
+    return { ok: true, email: record.email, existed };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
 
 export type BroadcastResult =
   | {

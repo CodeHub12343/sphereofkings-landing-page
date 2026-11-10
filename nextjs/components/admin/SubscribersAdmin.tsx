@@ -6,6 +6,7 @@ import { formatSubRelative, SubSource } from "@/lib/sample-subscribers";
 import type { StoredSubscriber, SubscriberStatus } from "@/lib/store/subscribers-store";
 import { resendConfirmationAction } from "@/app/subscribe/actions";
 import {
+  addConsentedSubscriberAction,
   broadcastLaunchAnnouncementAction,
   sendLaunchToSubscriberAction,
 } from "@/app/admin/subscribers/actions";
@@ -87,6 +88,61 @@ const Card = styled.section`
   border: 1px solid #1e1a12;
   border-radius: 14px;
   overflow: hidden;
+`;
+
+const QuickAddCard = styled.section`
+  background: #0e0c09;
+  border: 1px solid #1e1a12;
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+`;
+
+const QuickAddHead = styled.div`
+  margin-bottom: 12px;
+
+  h2 {
+    font-family: "Cinzel", serif;
+    color: #f5f0e8;
+    font-size: 0.98rem;
+    margin: 0 0 4px;
+    font-weight: 700;
+  }
+  p {
+    font-family: "Inter", sans-serif;
+    font-size: 0.78rem;
+    color: #a89880;
+    margin: 0;
+    line-height: 1.5;
+  }
+  strong {
+    color: #f0c040;
+  }
+`;
+
+const QuickAddRow = styled.div`
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+`;
+
+const QuickAddInput = styled.input`
+  flex: 1 1 220px;
+  min-width: 180px;
+  background: #1a1612;
+  border: 1px solid #2e2618;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #f5f0e8;
+  font-family: "Inter", sans-serif;
+  font-size: 0.85rem;
+
+  &:focus {
+    outline: 0;
+    border-color: #c9a227;
+    box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.14);
+  }
 `;
 
 const Head = styled.header`
@@ -428,6 +484,8 @@ export default function SubscribersAdmin({
   const [filter, setFilter] = useState<Filter>("all");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [toast, setToast] = useState<Toast>({ kind: "idle" });
+  const [addEmail, setAddEmail] = useState("");
+  const [addFirst, setAddFirst] = useState("");
 
   const totals = useMemo(() => {
     return {
@@ -558,6 +616,32 @@ export default function SubscribersAdmin({
     });
   };
 
+  const addConsented = () => {
+    const email = addEmail.trim();
+    const first = addFirst.trim();
+    if (!/.+@.+\..+/.test(email)) {
+      setToast({ kind: "error", message: "Enter a valid email first." });
+      return;
+    }
+    startTransition(async () => {
+      const result = await addConsentedSubscriberAction(email, first).catch(
+        () => ({ ok: false, error: "Network error" } as const),
+      );
+      if (result.ok) {
+        setAddEmail("");
+        setAddFirst("");
+        setToast({
+          kind: "sent",
+          label: result.existed
+            ? `${result.email} already on the list.`
+            : `Added ${result.email} as consented.`,
+        });
+      } else {
+        setToast({ kind: "error", message: result.error });
+      }
+    });
+  };
+
   const copyToast = async (url: string) => {
     try {
       await navigator.clipboard.writeText(url);
@@ -595,6 +679,41 @@ export default function SubscribersAdmin({
           <TileD>Excluded from all sends</TileD>
         </Tile>
       </Totals>
+
+      <QuickAddCard>
+        <QuickAddHead>
+          <h2>Add a consented subscriber</h2>
+          <p>
+            Direct-insert someone the operator has curated (e.g. a sponsor
+            contact). Bypasses double opt-in and marks the record as{" "}
+            <strong>consented</strong> right away. Audit-logged.
+          </p>
+        </QuickAddHead>
+        <QuickAddRow>
+          <QuickAddInput
+            type="email"
+            placeholder="name@company.com"
+            value={addEmail}
+            onChange={(e) => setAddEmail(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") addConsented();
+            }}
+          />
+          <QuickAddInput
+            type="text"
+            placeholder="First name (optional)"
+            value={addFirst}
+            onChange={(e) => setAddFirst(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") addConsented();
+            }}
+            style={{ maxWidth: 200 }}
+          />
+          <Btn $primary type="button" onClick={addConsented}>
+            + Add consented
+          </Btn>
+        </QuickAddRow>
+      </QuickAddCard>
 
       <Card>
         <Head>
