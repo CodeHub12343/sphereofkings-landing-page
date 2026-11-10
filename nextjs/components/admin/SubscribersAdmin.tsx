@@ -8,6 +8,7 @@ import { resendConfirmationAction } from "@/app/subscribe/actions";
 import {
   addConsentedSubscriberAction,
   broadcastLaunchAnnouncementAction,
+  bulkImportConsentedSubscribersAction,
   sendLaunchToSubscriberAction,
 } from "@/app/admin/subscribers/actions";
 
@@ -137,6 +138,32 @@ const QuickAddInput = styled.input`
   color: #f5f0e8;
   font-family: "Inter", sans-serif;
   font-size: 0.85rem;
+
+  &:focus {
+    outline: 0;
+    border-color: #c9a227;
+    box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.14);
+  }
+`;
+
+const BulkDivider = styled.div`
+  height: 1px;
+  background: #1e1a12;
+  margin: 18px 0;
+`;
+
+const BulkTextarea = styled.textarea`
+  width: 100%;
+  min-height: 92px;
+  resize: vertical;
+  background: #1a1612;
+  border: 1px solid #2e2618;
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: #f5f0e8;
+  font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.82rem;
+  line-height: 1.5;
 
   &:focus {
     outline: 0;
@@ -486,6 +513,8 @@ export default function SubscribersAdmin({
   const [toast, setToast] = useState<Toast>({ kind: "idle" });
   const [addEmail, setAddEmail] = useState("");
   const [addFirst, setAddFirst] = useState("");
+  const [bulkText, setBulkText] = useState("");
+  const [bulkFirst, setBulkFirst] = useState("");
 
   const totals = useMemo(() => {
     return {
@@ -642,6 +671,32 @@ export default function SubscribersAdmin({
     });
   };
 
+  const bulkImport = () => {
+    const text = bulkText.trim();
+    if (!text) {
+      setToast({ kind: "error", message: "Paste at least one email first." });
+      return;
+    }
+    startTransition(async () => {
+      const result = await bulkImportConsentedSubscribersAction(
+        text,
+        bulkFirst,
+      ).catch(() => ({ ok: false, error: "Network error" } as const));
+      if (result.ok) {
+        setBulkText("");
+        setBulkFirst("");
+        setToast({
+          kind: "sent",
+          label:
+            `Imported ${result.added} new · ${result.existed} already on list` +
+            (result.invalid > 0 ? ` · ${result.invalid} invalid` : ""),
+        });
+      } else {
+        setToast({ kind: "error", message: result.error });
+      }
+    });
+  };
+
   const copyToast = async (url: string) => {
     try {
       await navigator.clipboard.writeText(url);
@@ -711,6 +766,35 @@ export default function SubscribersAdmin({
           />
           <Btn $primary type="button" onClick={addConsented}>
             + Add consented
+          </Btn>
+        </QuickAddRow>
+
+        <BulkDivider aria-hidden="true" />
+
+        <QuickAddHead>
+          <h2>Bulk import (paste a list)</h2>
+          <p>
+            Paste emails separated by commas, semicolons, spaces, or newlines.
+            Duplicates are skipped; invalid tokens are reported in the result.
+            All new rows are marked <strong>consented</strong> and audit-logged
+            as a single bulk event.
+          </p>
+        </QuickAddHead>
+        <BulkTextarea
+          placeholder="one@example.com, two@example.com&#10;three@example.com"
+          value={bulkText}
+          onChange={(e) => setBulkText(e.target.value)}
+        />
+        <QuickAddRow style={{ marginTop: 8 }}>
+          <QuickAddInput
+            type="text"
+            placeholder="First name for all (optional, e.g. Team)"
+            value={bulkFirst}
+            onChange={(e) => setBulkFirst(e.target.value)}
+            style={{ maxWidth: 260 }}
+          />
+          <Btn $primary type="button" onClick={bulkImport}>
+            Import batch
           </Btn>
         </QuickAddRow>
       </QuickAddCard>

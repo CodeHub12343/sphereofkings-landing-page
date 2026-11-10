@@ -55,6 +55,107 @@ export async function addConsentedSubscriberAction(
   }
 }
 
+export type BulkImportResult =
+  | {
+      ok: true;
+      added: number;
+      existed: number;
+      invalid: number;
+      total: number;
+    }
+  | { ok: false; error: string };
+
+/**
+ * Paste-and-import a batch of consented subscribers at once. Accepts any
+ * blob of text — emails separated by commas, semicolons, spaces, or
+ * newlines are all parsed. Every valid new address is direct-inserted
+ * as `consented`, duplicates are skipped silently, and the whole batch
+ * is audit-logged as a single event with the breakdown.
+ */
+export async function bulkImportConsentedSubscribersAction(
+  input: string,
+  firstName?: string,
+): Promise<BulkImportResult> {
+  if (!input || !input.trim()) {
+    return { ok: false, error: "Paste at least one email first." };
+  }
+  // Split on anything that isn't a valid email character.
+  const raw = input
+    .split(/[\s,;]+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const seen = new Set<string>();
+  const valid: string[] = [];
+  let invalid = 0;
+  for (const token of raw) {
+    const lower = token.toLowerCase();
+    if (seen.has(lower)) continue;
+    seen.add(lower);
+    if (/.+@.+\..+/.test(token)) {
+      valid.push(token);
+    } else {
+      invalid++;
+    }
+  }
+
+  if (valid.length === 0) {
+    return {
+      ok: false,
+      error: `No valid email addresses found (saw ${raw.length} tokens, ${invalid} invalid).`,
+    };
+  }
+
+  const actor = await currentAdminActor();
+  let added = 0;
+  let existed = 0;
+  const errors: string[] = [];
+  const addedEmails: string[] = [];
+
+  for (const email of valid) {
+    try {
+      const r = await insertConsentedSubscriber({
+        email,
+        firstName: firstName?.trim() || undefined,
+        source: "import",
+      });
+      if (r.existed) existed++;
+      else {
+        added++;
+        addedEmails.push(r.record.email);
+      }
+    } catch (e) {
+      errors.push(`${email}: ${(e as Error).message}`);
+    }
+  }
+
+  await recordAuditEvent({
+    actor,
+    action: "subscribers.import.bulk",
+    target: { collection: "subscribers", id: "bulk" },
+    summary: `Bulk-imported ${added} subscribers (${existed} already existed, ${invalid} invalid, ${errors.length} errors)`,
+    details: {
+      added,
+      existed,
+      invalid,
+      total: valid.length,
+      addedEmails,
+      errors,
+    },
+  }).catch(() => {});
+
+  revalidatePath("/admin/subscribers");
+  revalidatePath("/admin");
+
+  return {
+    ok: true,
+    added,
+    existed,
+    invalid,
+    total: valid.length,
+  };
+}
+
 export type BroadcastResult =
   | {
       ok: true;

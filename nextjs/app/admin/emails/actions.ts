@@ -9,13 +9,15 @@ import OrderConfirmationEmail from "@/components/emails/OrderConfirmationEmail";
 import DispatchNotice from "@/components/emails/DispatchNotice";
 import AffiliatePayoutStatement from "@/components/emails/AffiliatePayoutStatement";
 import SponsorshipPitch from "@/components/emails/SponsorshipPitch";
+import SponsorshipInvite from "@/components/emails/SponsorshipInvite";
 
 export type EmailTemplate =
   | "launch"
   | "order"
   | "dispatch"
   | "payout"
-  | "sponsorship-pitch";
+  | "sponsorship-pitch"
+  | "sponsorship-invite";
 
 export type SendTestResult =
   | { ok: true; id: string; to: string }
@@ -28,6 +30,8 @@ const SUBJECTS: Record<EmailTemplate, string> = {
   payout: "[TEST] Your earnings statement · Sphere of Kings affiliate",
   "sponsorship-pitch":
     "[TEST] James Scott Bowser · SOK massive Kickstarter campaign!",
+  "sponsorship-invite":
+    "[TEST] Partnership & Sponsorship Opportunity — Sphere of Kings · Starting at $1,000",
 };
 
 /** Live subjects (no [TEST] prefix) used by sendLiveEmailAction. */
@@ -38,6 +42,8 @@ const LIVE_SUBJECTS: Record<EmailTemplate, string> = {
   payout: "Your earnings statement · Sphere of Kings affiliate",
   "sponsorship-pitch":
     "James Scott Bowser · SOK massive Kickstarter campaign!",
+  "sponsorship-invite":
+    "Partnership & Sponsorship Opportunity — Sphere of Kings · Starting at $1,000",
 };
 
 export async function sendTestEmailAction(
@@ -118,6 +124,8 @@ export async function sendLiveEmailAction(
 
 function sampleFor(template: EmailTemplate) {
   switch (template) {
+    case "sponsorship-invite":
+      return createElement(SponsorshipInvite, {});
     case "sponsorship-pitch":
       return createElement(SponsorshipPitch, {});
     case "launch":

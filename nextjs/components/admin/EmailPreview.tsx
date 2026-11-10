@@ -8,6 +8,7 @@ import OrderConfirmationEmail from "@/components/emails/OrderConfirmationEmail";
 import DispatchNotice from "@/components/emails/DispatchNotice";
 import AffiliatePayoutStatement from "@/components/emails/AffiliatePayoutStatement";
 import SponsorshipPitch from "@/components/emails/SponsorshipPitch";
+import SponsorshipInvite from "@/components/emails/SponsorshipInvite";
 import {
   sendTestEmailAction,
   sendLiveEmailAction,
@@ -18,7 +19,8 @@ type Template =
   | "order"
   | "dispatch"
   | "payout"
-  | "sponsorship-pitch";
+  | "sponsorship-pitch"
+  | "sponsorship-invite";
 
 const Layout = styled.section`
   display: grid;
@@ -193,11 +195,19 @@ const TEMPLATES: Record<
     subtitle: "One-off · strategic outreach to a named company",
     subject: "James Scott Bowser · SOK massive Kickstarter campaign!",
   },
+  "sponsorship-invite": {
+    title: "Sponsorship invite ($1k+)",
+    subtitle: "Wide outreach · $1k / $3k / $10k / $20k+ tiers",
+    subject:
+      "Partnership & Sponsorship Opportunity — Sphere of Kings · Starting at $1,000",
+  },
 };
 
 function renderHtml(template: Template): string {
   const el = (() => {
     switch (template) {
+      case "sponsorship-invite":
+        return <SponsorshipInvite />;
       case "sponsorship-pitch":
         return <SponsorshipPitch />;
       case "launch":
