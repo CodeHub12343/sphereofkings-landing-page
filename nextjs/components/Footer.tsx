@@ -193,6 +193,7 @@ export default function Footer() {
           <Col>
             <Heading>Community</Heading>
             <Links>
+              <Link href="/mission">Mission &amp; giving back</Link>
               <Link href="/sweepstakes">Royal Sphere Giveaway</Link>
               <Link href="/me/referrals">Your referral link</Link>
               <Link href="/license">License your design</Link>

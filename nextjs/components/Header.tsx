@@ -370,6 +370,7 @@ const NAV: NavItem[] = [
   ]},
   { kind: "group", label: "About", children: [
     { href: "/our-story",    label: "Our story" },
+    { href: "/mission",      label: "Mission & giving" },
     { href: "/sponsorship",  label: "Sponsor" },
     { href: "/affiliate",    label: "Affiliate" },
     { href: "/donate",       label: "Donate" },
