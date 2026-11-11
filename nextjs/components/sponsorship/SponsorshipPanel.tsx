@@ -14,10 +14,11 @@ import {
   reserveSponsorshipAction,
 } from "@/app/sponsorship/actions";
 
-const Grid = styled.div`
+const Grid = styled.div<{ $single?: boolean }>`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: ${(p) => (p.$single ? "1fr" : "1fr 1fr")};
   gap: 24px;
+  ${(p) => (p.$single ? "max-width: 720px; margin: 0 auto;" : "")}
 
   @media (max-width: 880px) {
     grid-template-columns: 1fr;
@@ -425,16 +426,22 @@ export default function SponsorshipPanel({ availability, tiers }: Props) {
 
   return (
     <>
-      <Grid>
+      <Grid $single={tiers.length === 1}>
         {tiers.map((t) => {
           const avail = availability[t.id];
           const soldOut = avail.remaining <= 0;
           const open = activeDetails === t.id;
-          const isGold = t.id === "gold";
+          // Render a single-tier offer with the premium (gold) styling —
+          // it's the only thing on the page, so make it look premium.
+          const isGold = t.id === "gold" || tiers.length === 1;
           return (
             <Card key={t.id} $gold={isGold}>
               <Eyebrow $gold={isGold}>
-                {isGold ? "Premium Partnership" : "Promotional Partnership"}
+                {tiers.length === 1
+                  ? "Premier Sponsorship"
+                  : isGold
+                  ? "Premium Partnership"
+                  : "Promotional Partnership"}
               </Eyebrow>
               <TierName>{t.name}</TierName>
               <Tagline>{t.summary}</Tagline>

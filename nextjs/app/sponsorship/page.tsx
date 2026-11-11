@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Official Kickstarter Sponsorship · Sphere of Kings",
   description:
-    "Become an official Sphere of Kings Kickstarter sponsor. Silver ($3,000) and Gold Premier ($10,000) 90-day promotional partnerships available for purchase.",
+    "Become an official Sphere of Kings sponsor. One flat $5,000 Premier Sponsorship with 10 available slots — a 90–120-day promotional partnership with a 1,000,000 view commitment across Jellop Kickstarter advertising, PostcardMania retail outreach and our own social media.",
 };
 
 export default async function SponsorshipPage() {
@@ -75,14 +75,22 @@ export default async function SponsorshipPage() {
                   margin: 0,
                 }}
               >
-                A 90-day promotional partnership built around our Kickstarter
-                launch on <strong style={{ color: "#f5f0e8" }}>
+                One flat <strong style={{ color: "#f5f0e8" }}>$5,000</strong>{" "}
+                Premier Sponsorship with{" "}
+                <strong style={{ color: "#f5f0e8" }}>
+                  {tiers[0].totalSlots} slots
+                </strong>{" "}
+                available. A 90–120-day multi-channel partnership built around
+                our Kickstarter launch on{" "}
+                <strong style={{ color: "#f5f0e8" }}>
                   {KICKSTARTER_LAUNCH_DATE}
                 </strong>
-                . Only {tiers[0].totalSlots} Silver and {tiers[1].totalSlots} Gold
-                Premier slots are available — pick a tier, pay, and we'll
-                reach out to confirm your brand assets within one business
-                day.
+                , with a{" "}
+                <strong style={{ color: "#f5f0e8" }}>
+                  1,000,000 promotional-view commitment
+                </strong>{" "}
+                across Jellop Kickstarter advertising, PostcardMania retail
+                outreach, and our own social channels.
               </p>
             </div>
           </Wrap>
@@ -147,11 +155,11 @@ export default async function SponsorshipPage() {
                   maxWidth: 640,
                 }}
               >
-                Beyond the Silver and Gold tiers above, Sphere of Kings runs a
-                private track for strategic investors and sponsorship partners
-                — equity, revenue-share and naming-rights structures with
-                dividend eligibility and bigger-ROI terms, negotiated directly
-                with James.
+                Beyond the $5,000 Premier Sponsorship above, Sphere of Kings
+                runs a private track for strategic investors and sponsorship
+                partners — equity, revenue-share and naming-rights structures
+                with dividend eligibility and bigger-ROI terms, negotiated
+                directly with James.
               </p>
               <Link
                 href="/sponsorship/investment-partners"

@@ -40,11 +40,11 @@ const Lede = styled.p`
   }
 `;
 
-const Grid = styled.div`
+const Grid = styled.div<{ $single?: boolean }>`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: ${(p) => (p.$single ? "1fr" : "1fr 1fr")};
   gap: 20px;
-  max-width: 1000px;
+  max-width: ${(p) => (p.$single ? "640px" : "1000px")};
   margin: 0 auto;
 
   @media (max-width: 820px) {
@@ -239,33 +239,36 @@ export default function SponsorshipBandClient({
           <SectionEyebrow>Official Kickstarter Sponsorship</SectionEyebrow>
           <Heading>Partner with the launch.</Heading>
           <Lede>
-            Our Kickstarter launches <strong>{launchDate}</strong>. A limited
-            number of businesses can lock in a <strong>90-day promotional
-            partnership</strong> that runs through launch and beyond — social
-            shoutouts, branded videos, website placement, retail opportunities.
-            Only <strong>{tiers[0].totalSlots} Silver</strong> and{" "}
-            <strong>{tiers[1].totalSlots} Gold Premier</strong> slots are
+            Our Kickstarter launches <strong>{launchDate}</strong>. One flat{" "}
+            <strong>$5,000 Premier Sponsorship</strong> — a 90–120-day
+            multi-channel partnership with a{" "}
+            <strong>1,000,000 promotional-view commitment</strong> across Jellop
+            Kickstarter advertising, PostcardMania retail outreach, and our own
+            social media. Only <strong>{tiers[0].totalSlots} slots</strong>{" "}
             available.
           </Lede>
         </Head>
 
-        <Grid>
+        <Grid $single={tiers.length === 1}>
           {tiers.map((t) => {
             const a = availability[t.id];
             const soldOut = a.remaining <= 0;
-            const isGold = t.id === "gold";
+            // Single-tier offer renders in premium gold styling.
+            const isGold = t.id === "gold" || tiers.length === 1;
             return (
               <Card key={t.id} $gold={isGold}>
-                {isGold && <Ribbon>Most Visibility</Ribbon>}
+                {tiers.length === 1 && <Ribbon>1,000,000 Views</Ribbon>}
                 <Eyebrow $gold={isGold}>
-                  {isGold
+                  {tiers.length === 1
+                    ? "Premier Sponsorship"
+                    : isGold
                     ? "Premium Partnership"
                     : "Promotional Partnership"}
                 </Eyebrow>
                 <Name>{t.name}</Name>
                 <Price>
                   <Amount>{t.priceDisplay}</Amount>
-                  <PriceTag>· 90 days</PriceTag>
+                  <PriceTag>· 90–120 days</PriceTag>
                 </Price>
                 <Avail $soldOut={soldOut}>
                   <Dot $soldOut={soldOut} />

@@ -1,10 +1,12 @@
 // Sponsorship program configuration — single source of truth for the
-// public /sponsorship page, server actions, stripe webhook, and admin.
+// public /sponsorship page, server actions, Stripe webhook, and admin.
 //
-// James (owner) wants 10 Silver slots at $3,000 and 5 Gold slots at
-// $10,000, available for purchase from the website. When a tier is
-// sold out the buyer joins a notification waitlist that emails them
-// when a slot opens.
+// James (owner) decided on 2026-11-11 to collapse to a single
+// $5,000 Premier Sponsorship offer with 10 available slots. The old
+// Silver / Gold split is retired; the legacy ids remain in the type
+// union only so any DB rows, Stripe metadata, or admin tooling that
+// already recorded tier="silver" / tier="gold" from the previous
+// configuration continue to parse without a migration.
 
 export type SponsorshipTierId = "silver" | "gold";
 
@@ -22,177 +24,117 @@ export type SponsorshipTier = {
 
 export const KICKSTARTER_LAUNCH_DATE = "November 19, 2026";
 
+// The one live tier. The internal id stays "silver" to keep legacy
+// rows (if any ever get inserted before the DB is cleared) compatible.
+// Everything the shopper sees is the new Premier branding, price and
+// benefits.
+const PREMIER: SponsorshipTier = {
+  id: "silver",
+  name: "Premier Sphere of Kings Sponsorship",
+  priceDisplay: "$5,000",
+  priceMinor: 500_000,
+  totalSlots: 10,
+  tagline: "90–120-day multi-channel promotional partnership",
+  summary:
+    "One flat $5,000 sponsorship with a 1,000,000 combined promotional view commitment across Kickstarter advertising with Jellop, targeted retail outreach through PostcardMania, and our own social media channels.",
+  highlights: [
+    "1,000,000 combined promotional view commitment",
+    "90–120 days of marketing exposure",
+    "Jellop Kickstarter advertising on Meta, Google, YouTube, Reddit and email",
+    "PostcardMania direct-mail outreach to toy, hobby and board-game retailers",
+    "Up to 3 Sphere of Kings social posts per day across Facebook, Instagram, TikTok and YouTube",
+    "Official Sphere of Kings sponsor recognition on the website and campaign content",
+    "Campaign performance reporting with the agreed measurement metric",
+  ],
+  benefits: [
+    {
+      heading: "Jellop — Professional Kickstarter Advertising",
+      items: [
+        "Facebook advertising targeted at gaming enthusiasts, crowdfunding audiences and potential backers.",
+        "Instagram advertising aimed at tabletop gamers, families and entertainment audiences.",
+        "Google Search advertising reaching people actively searching for games, puzzles and crowdfunding projects.",
+        "Google Display advertising across eligible websites and placements.",
+        "YouTube video advertising showcasing Sphere of Kings to relevant viewers.",
+        "Reddit advertising inside relevant gaming, tabletop and crowdfunding communities.",
+        "Permission-based email marketing to relevant audiences.",
+        "Retargeting campaigns that re-engage interested viewers across eligible platforms.",
+        "Audience optimization using live performance data to improve efficiency.",
+        "Kickstarter conversion marketing directing warm traffic to our campaign.",
+      ],
+    },
+    {
+      heading: "PostcardMania — Targeted Retail Outreach",
+      items: [
+        "Direct-mail campaigns to toy stores and independent toy retailers.",
+        "Outreach to board-game stores, hobby shops and tabletop gaming stores.",
+        "Mailing to specialty game stores, puzzle stores and educational-toy retailers.",
+        "Postcards sent to family entertainment retailers, comic/collectible stores and gift shops.",
+        "Independent retailers, regional retail chains, game distributors and wholesale buyers.",
+        "Customized business mailing lists built with PostcardMania targeting store owners, purchasing departments and retail decision-makers.",
+        "Postcards promote Sphere of Kings, the Kickstarter campaign and participating sponsors where included in the approved creative.",
+      ],
+    },
+    {
+      heading: "Sphere of Kings Social Media Marketing",
+      items: [
+        "Facebook posts, videos and reels.",
+        "Instagram posts, stories and reels.",
+        "TikTok promotional videos.",
+        "YouTube videos and Shorts.",
+        "Kickstarter campaign updates.",
+        "Influencer and creator collaborations.",
+        "Promotional partnerships and sponsor recognition.",
+        "Planned publishing cadence of up to three posts per day across selected platforms.",
+      ],
+    },
+    {
+      heading: "What Our $5,000 Sponsors Receive",
+      items: [
+        "Commitment to deliver at least 1,000,000 combined promotional content views. If the target is not reached during the initial campaign period, we intend to continue the agreed promotional activities until it is.",
+        "90–120 days of marketing exposure through our planned campaign activities.",
+        "Recognition as an official Sphere of Kings sponsor — website, promotional content and campaign placements as agreed.",
+        "Exposure opportunities tied to our digital, social, Kickstarter and direct-mail strategy.",
+        "Opportunities to introduce your business to gamers, families, crowdfunding supporters and prospective retail partners.",
+        "Updates on measurable promotional performance, including reported content views and applicable advertising metrics.",
+      ],
+    },
+    {
+      heading: "Campaign Terms & Verification",
+      items: [
+        "Advertising impressions, video views and unique viewers are different metrics; only the agreed metric will count toward the 1,000,000-view commitment.",
+        "Retail outreach does not guarantee retail placement or distribution.",
+        "Specific sponsor placements, advertising budgets, campaign schedules, measurement methods and view-guarantee remedies are set out in the final written sponsorship agreement delivered after payment.",
+        "Jellop advertises primarily through Meta, Google, Reddit, YouTube and email; PostcardMania builds the customized retail mailing lists for toy, hobby and board-game outreach.",
+      ],
+    },
+  ],
+};
+
+// Legacy tier kept only so lookups against old data don't throw.
+// Never shown publicly, never sold, never reserved.
+const RETIRED_GOLD: SponsorshipTier = {
+  id: "gold",
+  name: "Gold Premier Business Sponsor (retired)",
+  priceDisplay: "$10,000",
+  priceMinor: 1_000_000,
+  totalSlots: 0,
+  tagline: "Retired — see the $5,000 Premier Sponsorship",
+  summary:
+    "The old $10,000 Gold Premier tier has been retired. The current sponsorship offer is a single $5,000 Premier Sponsorship with 10 slots.",
+  highlights: [],
+  benefits: [],
+};
+
 export const SPONSORSHIP_TIERS: Record<SponsorshipTierId, SponsorshipTier> = {
-  silver: {
-    id: "silver",
-    name: "Silver Business Sponsor",
-    priceDisplay: "$3,000",
-    priceMinor: 300_000,
-    totalSlots: 10,
-    tagline: "90-day regional promotional partnership",
-    summary:
-      "A regional and digital advertising partnership for retailers, hobby stores, family entertainment businesses, and growing companies.",
-    highlights: [
-      "30 branded social media shoutouts",
-      "12 professionally edited promotional videos",
-      "30 boosted promotional posts",
-      "6 business spotlight features",
-      "90 days of website logo placement",
-      "Monthly campaign performance reports",
-    ],
-    benefits: [
-      {
-        heading: "Social Media Marketing",
-        items: [
-          "30 branded social media shoutouts throughout the campaign.",
-          "12 professionally edited short-form promotional videos featuring sponsor recognition.",
-          "30 boosted promotional posts, subject to an agreed advertising budget.",
-          "12 dedicated sponsor appreciation posts.",
-          "6 business spotlight features highlighting your company, products, or services.",
-          "Sponsor mentions in applicable product launch announcements.",
-          "Sponsor tagging and website links wherever supported.",
-        ],
-      },
-      {
-        heading: "Website Advertising",
-        items: [
-          "90 days of business logo placement on the Sphere of Kings sponsorship page.",
-          "Dedicated sponsor profile with business description, contact details, and website link.",
-          "Clickable logo directing visitors to your business website.",
-          "Sponsor recognition in applicable campaign updates.",
-          "Silver Sponsor digital recognition badge for your business to use in its marketing.",
-        ],
-      },
-      {
-        heading: "Video and Content Marketing",
-        items: [
-          "Sponsor recognition in 12 promotional videos.",
-          "Two of those videos dedicated to highlighting the sponsor's business.",
-          "Branded sponsor introduction graphics.",
-          "Permission to repost the sponsor-specific videos on your own business channels.",
-        ],
-      },
-      {
-        heading: "Retail and Customer Engagement",
-        items: [
-          "Customized promotional flyer featuring Sphere of Kings and your business logo.",
-          "Digital promotional materials suitable for in-store display.",
-          "QR-code campaign graphics linking customers to our Kickstarter page.",
-          "Co-branded giveaway promotion, subject to agreed prizes and rules.",
-          "Opportunity to discuss future Sphere of Kings retail sales.",
-        ],
-      },
-      {
-        heading: "Reporting",
-        items: [
-          "Monthly campaign activity report.",
-          "Social media reach and engagement summaries where available.",
-          "Video publication and promotional activity records.",
-          "End-of-campaign sponsorship summary.",
-        ],
-      },
-    ],
-  },
-  gold: {
-    id: "gold",
-    name: "Gold Premier Business Sponsor",
-    priceDisplay: "$10,000",
-    priceMinor: 1_000_000,
-    totalSlots: 5,
-    tagline: "90-day premium promotional partnership",
-    summary:
-      "A comprehensive premium promotional partnership designed to deliver frequent business exposure, targeted advertising, retail engagement, and exclusive sponsor opportunities.",
-    highlights: [
-      "150 branded social media shoutouts",
-      "45 professionally edited promotional videos",
-      "90 boosted social media posts",
-      "15 business spotlight features",
-      "Premium website logo and banner placement",
-      "Priority retail partnership discussions",
-      "Category exclusivity consideration",
-      "Dedicated sponsorship coordinator",
-    ],
-    benefits: [
-      {
-        heading: "High-Volume Social Media Promotion",
-        items: [
-          "150 branded social media shoutouts over 90 days.",
-          "45 professionally edited promotional videos featuring sponsor recognition.",
-          "90 boosted social media posts, subject to an agreed advertising budget.",
-          "30 dedicated sponsor appreciation and recognition posts.",
-          "15 dedicated business spotlight features.",
-          "Sponsor recognition in applicable major Kickstarter launch announcements.",
-          "Co-branded product and business promotional campaigns.",
-        ],
-      },
-      {
-        heading: "Premium Website Branding",
-        items: [
-          "90 days of premium logo placement on the Sphere of Kings website.",
-          "Featured Gold Sponsor profile with business description, photos, and website links.",
-          "Prominent sponsor placement on applicable campaign landing pages.",
-          "Clickable promotional banner linking to your business.",
-          "Gold Premier Sponsor digital badge.",
-          "QR-code promotional graphics linking customers directly to your business.",
-          "Priority placement above standard sponsorship listings.",
-        ],
-      },
-      {
-        heading: "Premium Video Advertising",
-        items: [
-          "45 short-form promotional videos incorporating sponsor recognition.",
-          "10 dedicated business promotional videos highlighting your company.",
-          "Sponsor recognition in selected Kickstarter promotional productions.",
-          "Branded introductions, closing graphics, and sponsor acknowledgments.",
-          "Approved video assets available for the sponsor's own marketing.",
-        ],
-      },
-      {
-        heading: "Business Lead Generation",
-        items: [
-          "Dedicated sponsor landing page with a direct website link.",
-          "QR-code advertising campaigns directing viewers to your business.",
-          "Co-branded promotional offers encouraging customers to visit your store or website.",
-          "Trackable referral links where supported.",
-          "Monthly reporting of available traffic, clicks, and engagement.",
-        ],
-      },
-      {
-        heading: "Retail Marketing and Promotion",
-        items: [
-          "Co-branded Sphere of Kings retail marketing materials.",
-          "Customized digital store display graphics.",
-          "Sponsor-branded promotional flyers and postcards.",
-          "Priority discussions regarding future retail availability.",
-          "Opportunity to explore regional product distribution arrangements.",
-        ],
-      },
-      {
-        heading: "Exclusivity & Kickstarter Launch Recognition",
-        items: [
-          "Opportunity to negotiate category exclusivity for the 90-day campaign.",
-          "Priority recognition within the sponsor's approved business category.",
-          "Gold Premier Sponsor recognition in applicable Kickstarter launch materials.",
-          "Featured sponsor appreciation announcement.",
-          "First opportunity to discuss renewal of premium sponsorship placement.",
-        ],
-      },
-      {
-        heading: "Premium Reporting & Account Management",
-        items: [
-          "Dedicated sponsorship coordinator.",
-          "Monthly sponsor performance summaries.",
-          "Website referral and click tracking where available.",
-          "End-of-campaign performance report and final partnership review.",
-        ],
-      },
-    ],
-  },
+  silver: PREMIER,
+  gold: RETIRED_GOLD,
 };
 
 // Per-tier numeric commitments. Used by the sponsor dashboard to show
 // "shoutouts delivered X of Y" progress rings against each kind of
-// deliverable. Keep in sync with the benefits copy above.
+// deliverable. Kept for back-compat with existing dashboards; the new
+// Premier sponsorship is tracked primarily against its 1M-view
+// commitment rather than individual deliverable counts.
 export type SponsorshipCommitments = {
   shoutouts: number;
   videos: number;
@@ -204,31 +146,36 @@ export type SponsorshipCommitments = {
 
 export const COMMITMENTS: Record<SponsorshipTierId, SponsorshipCommitments> = {
   silver: {
-    shoutouts: 30,
-    videos: 12,
-    boostedPosts: 30,
-    appreciationPosts: 12,
-    spotlights: 6,
-    dedicatedVideos: 2,
+    shoutouts: 0,
+    videos: 0,
+    boostedPosts: 0,
+    appreciationPosts: 0,
+    spotlights: 0,
+    dedicatedVideos: 0,
   },
   gold: {
-    shoutouts: 150,
-    videos: 45,
-    boostedPosts: 90,
-    appreciationPosts: 30,
-    spotlights: 15,
-    dedicatedVideos: 10,
+    shoutouts: 0,
+    videos: 0,
+    boostedPosts: 0,
+    appreciationPosts: 0,
+    spotlights: 0,
+    dedicatedVideos: 0,
   },
 };
 
-export const CAMPAIGN_DAYS = 90;
+export const CAMPAIGN_DAYS = 120;
+
+// Headline promotional-view commitment carried by the Premier offer.
+export const PROMOTIONAL_VIEW_COMMITMENT = 1_000_000;
 
 export function tier(id: SponsorshipTierId): SponsorshipTier {
   return SPONSORSHIP_TIERS[id];
 }
 
+// Public-facing list — only the live Premier tier. Legacy Gold is
+// deliberately excluded.
 export function allTiers(): SponsorshipTier[] {
-  return [SPONSORSHIP_TIERS.silver, SPONSORSHIP_TIERS.gold];
+  return [PREMIER];
 }
 
 export function isTierId(x: unknown): x is SponsorshipTierId {
