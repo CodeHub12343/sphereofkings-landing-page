@@ -415,7 +415,8 @@ export default function MissionPage() {
             <HeroLede>
               A charitable giving commitment from Creative Design Networks —
               dedicating <strong style={{ color: "#f0c040" }}>10%</strong> of Sphere
-              of Kings Kickstarter net earnings to two causes that matter.
+              of Kings Kickstarter net earnings to House of Rest Church — a
+              cause that matters.
             </HeroLede>
             <LaunchChip>Kickstarter launch · November 19, 2026</LaunchChip>
           </Wrap>
@@ -436,16 +437,10 @@ export default function MissionPage() {
 
             <PledgeGrid>
               <PledgeCard>
-                <div className="label">Beneficiary 01</div>
-                <div className="pct">5%</div>
+                <div className="label">Beneficiary</div>
+                <div className="pct">10%</div>
                 <h3>House of Rest Church</h3>
                 <p>Modesto, California — ministry, outreach &amp; community support.</p>
-              </PledgeCard>
-              <PledgeCard>
-                <div className="label">Beneficiary 02</div>
-                <div className="pct">5%</div>
-                <h3>Sarah&apos;s Foundation</h3>
-                <p>Uganda — orphanage development toward a self-sustaining community.</p>
               </PledgeCard>
               <PledgeCard $accent>
                 <div className="label">Total</div>
@@ -462,21 +457,21 @@ export default function MissionPage() {
           <Wrap>
             <SectionTitle>Where the Giving Goes</SectionTitle>
             <SectionLede>
-              Two beneficiaries. One shared purpose: investing in people and
-              communities whose work extends far beyond what any single game
-              campaign can achieve.
+              One beneficiary. One shared purpose: investing in a community
+              whose work extends far beyond what any single game campaign can
+              achieve.
             </SectionLede>
 
             {/* House of Rest */}
             <Beneficiary>
               <BeneficiaryAside>
-                <div className="pct">5%</div>
+                <div className="pct">10%</div>
                 <div className="region">Modesto, California</div>
               </BeneficiaryAside>
               <BeneficiaryBody>
                 <h3>House of Rest Church</h3>
                 <p>
-                  We are committing <strong>5% of our Kickstarter net earnings</strong> to
+                  We are committing <strong>10% of our Kickstarter net earnings</strong> to
                   House of Rest Church in Modesto, California — to help strengthen
                   the church, support its ministry, and expand its ability to
                   serve individuals and families throughout the community.
@@ -497,71 +492,6 @@ export default function MissionPage() {
               </BeneficiaryBody>
             </Beneficiary>
 
-            {/* Sarah's Foundation */}
-            <Beneficiary>
-              <BeneficiaryAside>
-                <div className="pct">5%</div>
-                <div className="region">Uganda, Africa</div>
-              </BeneficiaryAside>
-              <BeneficiaryBody>
-                <h3>Sarah&apos;s Foundation</h3>
-                <p>
-                  We are also committing <strong>5% of our Kickstarter net earnings</strong> to
-                  support Sarah&apos;s Foundation in Uganda — an orphanage
-                  initiative working toward formal registration and the
-                  development of a self-sustaining community.
-                </p>
-                <p>
-                  Our vision goes beyond temporary financial assistance. We want
-                  to help Sarah&apos;s Foundation develop the resources,
-                  infrastructure, and economic opportunities needed to become
-                  increasingly self-sufficient. Long-term goals include:
-                </p>
-                <BulletList>
-                  <li><strong>Legal registration</strong> — appropriate structure, accountability, and sustainable operations.</li>
-                  <li><strong>Safe housing</strong> — secure, comfortable living environments for vulnerable children.</li>
-                  <li><strong>Food security</strong> — gardens, farming projects, and agricultural programs for nutritious food.</li>
-                  <li><strong>Clean water</strong> — reliable access to drinking water, sanitation, and storage.</li>
-                  <li><strong>Renewable energy</strong> — solar power and other affordable solutions.</li>
-                  <li><strong>Education</strong> — schooling, learning materials, technology, and practical skills training.</li>
-                  <li><strong>Healthcare &amp; wellness</strong> — essential medical services, hygiene supplies, and healthy living.</li>
-                  <li><strong>Small-business development</strong> — locally managed enterprises that generate income.</li>
-                  <li><strong>Vocational training</strong> — agriculture, construction, technology, manufacturing, and entrepreneurship.</li>
-                  <li><strong>Long-term sustainability</strong> — a community meeting more of its own needs through locally led activity.</li>
-                </BulletList>
-                <p>
-                  All projects involving children will prioritize their safety,
-                  well-being, education, and appropriate local oversight.
-                </p>
-              </BeneficiaryBody>
-            </Beneficiary>
-          </Wrap>
-        </Section>
-
-        {/* GLOBAL VISION */}
-        <Section>
-          <Wrap>
-            <SectionTitle>Our Global Vision — One Orphanage at a Time</SectionTitle>
-            <Prose>
-              <p>
-                We envision a future where orphanages and child-serving
-                communities around the world can develop sustainable systems
-                that reduce their dependence on continuous charitable donations.
-              </p>
-              <p>
-                <strong>Our model is simple:</strong> help one community · build
-                sustainable infrastructure · develop local economic opportunities
-                · learn from the experience · then help the next community.
-              </p>
-              <p>
-                As Creative Design Networks grows, we hope to expand this
-                mission into additional countries — supporting projects that
-                combine charitable giving with entrepreneurship, education,
-                agriculture, renewable energy, and sustainable development. Our
-                dream is to create a replicable model of community development
-                that empowers people to build a stronger future.
-              </p>
-            </Prose>
           </Wrap>
         </Section>
 
@@ -584,8 +514,7 @@ export default function MissionPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr><td>House of Rest Church — Modesto, California</td><td>5%</td></tr>
-                  <tr><td>Sarah&apos;s Foundation — Uganda</td><td>5%</td></tr>
+                  <tr><td>House of Rest Church — Modesto, California</td><td>10%</td></tr>
                   <tr><td><strong>Total charitable commitment</strong></td><td><strong>10%</strong></td></tr>
                 </tbody>
               </Table>
@@ -705,13 +634,11 @@ export default function MissionPage() {
             </CtaRow>
             <FinePrint style={{ margin: "28px auto 0", textAlign: "left" }}>
               <strong style={{ color: "#a89880" }}>A note on this commitment:</strong>{" "}
-              This page describes our intended charitable giving. Before contributions
-              are distributed, we will confirm that each organization is able to
-              receive the funds, finalize the exact net-earnings accounting method,
-              and document how transfers will be made. Since Sarah&apos;s Foundation
-              is still working toward formal registration, we will verify its legal
-              status and the appropriate way to receive funds before the first
-              distribution.
+              This page describes our intended charitable giving. Before
+              contributions are distributed, we will confirm that House of Rest
+              Church is able to receive the funds, finalize the exact
+              net-earnings accounting method, and document how transfers will
+              be made.
             </FinePrint>
           </Wrap>
         </ClosingBanner>
