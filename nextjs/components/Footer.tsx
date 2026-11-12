@@ -199,6 +199,7 @@ export default function Footer() {
               <Link href="/me/referrals">Your referral link</Link>
               <Link href="/license">License your design</Link>
               <Link href="/blog">Blog</Link>
+              <Link href="/company">Creative Design Networks</Link>
             </Links>
           </Col>
 
@@ -221,7 +222,7 @@ export default function Footer() {
 
         <Divider />
         <Bottom>
-          <Copy>© 2026 Sphere of Kings. All rights reserved. Sphere of Kings 7-in-1™</Copy>
+          <Copy>© 2026 Creative Design Networks / Sphere of Kings. All rights reserved. Sphere of Kings 7-in-1™</Copy>
           <Legal>
             <LegalLink href="#">Privacy Policy</LegalLink>
             <LegalLink href="#">Terms of Service</LegalLink>

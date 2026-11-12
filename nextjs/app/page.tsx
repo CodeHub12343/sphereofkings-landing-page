@@ -18,6 +18,7 @@ import SmoothScroll from "@/components/SmoothScroll";
 import GiveawayBand from "@/components/GiveawayBand";
 import PlayGamesBand from "@/components/PlayGamesBand";
 import CreateAndEarnBand from "@/components/CreateAndEarnBand";
+import CompanyBand from "@/components/CompanyBand";
 
 // Section order (commerce-forward):
 // Hero → Collection → Early Bird promo → Features & Story → Seven-in-one
@@ -36,6 +37,7 @@ export default function Home() {
       {/* ChristmasPanel removed — Kickstarter-only mode (James, 2026-10-29) */}
       <Features />
       <Story />
+      <CompanyBand />
       <Showcase />
       <Video />
       <BecomeKingdom />

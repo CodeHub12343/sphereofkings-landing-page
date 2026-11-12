@@ -369,6 +369,7 @@ const NAV: NavItem[] = [
     { href: "/wholesale",    label: "Wholesale" },
   ]},
   { kind: "group", label: "About", children: [
+    { href: "/company",      label: "Creative Design Networks" },
     { href: "/our-story",    label: "Our story" },
     { href: "/mission",      label: "Mission & giving" },
     { href: "/sponsorship",  label: "Sponsor" },
