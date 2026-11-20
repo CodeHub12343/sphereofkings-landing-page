@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Sphere of Kings 7-in-1",
     description: "Spherical strategy games — Royal Checkers, Imperial Kings, and the full 7-in-1 experience.",
-    images: ["/icon"],
+    images: ["/images/sphere-of-kings-logo.png"],
     type: "website",
   },
   // Apple-specific hints — tells iOS "treat this as a standalone web

@@ -467,8 +467,8 @@ export default function Header({ kickstarterBar = false }: { kickstarterBar?: bo
           <Logo href="/" aria-label="Sphere of Kings — back to top">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/images/b17be116-af38-47af-9813-ffa3c2aec5e7.jpg"
-              alt="Sphere of Kings 7 in 1"
+              src="/images/sphere-of-kings-logo.png"
+              alt="Sphere of Kings Game Boards"
             />
           </Logo>
           <DesktopNav aria-label="Page sections">

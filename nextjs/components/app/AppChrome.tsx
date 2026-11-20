@@ -91,7 +91,7 @@ export default function AppChrome({ children }: { children: React.ReactNode }) {
             ) : null}
             <Brand href="/play" aria-label="Sphere of Kings — game home" $compact={!!back || !!player}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/images/b17be116-af38-47af-9813-ffa3c2aec5e7.jpg" alt="" />
+              <img src="/images/sphere-of-kings-logo.png" alt="" />
               <span>Sphere of Kings</span>
             </Brand>
           </Left>
