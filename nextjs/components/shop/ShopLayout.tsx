@@ -286,9 +286,11 @@ const Grid = styled.div`
     to   { opacity: 1; transform: translateY(0); }
   }
 
+  /* Phones: two cards per row (James, 2026-11-20). Reward cards stay
+     readable at half-width because the body copy clamps to 2 lines. */
   @media (max-width: 600px) {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 `;
 
