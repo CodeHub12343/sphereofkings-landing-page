@@ -2,12 +2,12 @@
 
 import styled from "styled-components";
 import Link from "next/link";
-import { Product, availability, formatMoney, pricing } from "@/lib/products";
-import { useCart } from "@/lib/cart";
+import { Product, formatMoney } from "@/lib/products";
 
-// Kickstarter-only mode: all reward cards route to the campaign
-// (James, 2026-10-29). addItem/useCart stays imported for backwards
-// compatibility with other consumers but is not wired into the CTA.
+// Kickstarter-only mode (James, 2026-11-20 chat): every reward card is a
+// preview of what is on the Kickstarter campaign. The card shows the
+// Kickstarter pledge amount only — no retail/sale split, no inventory
+// bar — and the CTA links straight to the campaign.
 const KICKSTARTER_URL =
   process.env.NEXT_PUBLIC_KICKSTARTER_URL ?? "/#signup";
 
@@ -75,11 +75,6 @@ const Pill = styled.span<{ $tone: "gold" | "warn" | "muted" }>`
     "background: rgba(255,255,255,0.04); color: #a89880;"}
 `;
 
-const Delivery = styled.span`
-  font-size: 0.7rem;
-  color: #a89880;
-`;
-
 const Body = styled.div`
   padding: 10px 16px 0;
   display: flex;
@@ -140,64 +135,10 @@ const Price = styled.span<{ $muted?: boolean }>`
   font-variant-numeric: tabular-nums;
 `;
 
-const Retail = styled.span`
-  font-family: "Inter", sans-serif;
-  font-weight: 500;
-  font-size: 0.95rem;
-  color: #7a6a52;
-  text-decoration: line-through;
-  margin-right: 8px;
-  font-variant-numeric: tabular-nums;
-`;
-
-const SaleBadge = styled.span`
-  display: inline-block;
-  margin-left: 8px;
-  background: linear-gradient(135deg, #b91c3c 0%, #ef4461 100%);
-  color: #fff;
-  font-family: "Inter", sans-serif;
-  font-weight: 700;
-  font-size: 0.65rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: 4px;
-  vertical-align: middle;
-`;
-
 const PriceNote = styled.span`
   font-size: 0.7rem;
   color: #a89880;
   font-weight: 500;
-`;
-
-const Bar = styled.div`
-  height: 4px;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 999px;
-  overflow: hidden;
-`;
-
-const BarFill = styled.div<{ $pct: number; $tone: "gold" | "warn" | "muted" }>`
-  height: 100%;
-  width: ${(p) => Math.min(100, Math.max(0, p.$pct))}%;
-  background: ${(p) =>
-    p.$tone === "warn"
-      ? "#e0a94a"
-      : p.$tone === "muted"
-      ? "#5a4a38"
-      : "#c9a227"};
-  border-radius: 999px;
-  transition: width 0.4s ease;
-`;
-
-const BarMeta = styled.div<{ $tone: "default" | "warn" }>`
-  display: flex;
-  justify-content: space-between;
-  font-family: "Inter", sans-serif;
-  font-size: 0.72rem;
-  font-weight: ${(p) => (p.$tone === "warn" ? 600 : 500)};
-  color: ${(p) => (p.$tone === "warn" ? "#e0a94a" : "#a89880")};
 `;
 
 const actionCss = `
@@ -219,12 +160,6 @@ const actionCss = `
     opacity: 0.55;
     cursor: not-allowed;
   }
-`;
-
-const PrimaryAction = styled.button`
-  ${actionCss}
-  background: linear-gradient(135deg, #b8901e 0%, #f0c040 50%, #b8901e 100%);
-  color: #0a0a0a;
 `;
 
 const SecondaryAction = styled.a`
@@ -251,16 +186,10 @@ export default function ProductCard({
   product: Product;
   featured?: boolean;
 }) {
-  const { addItem } = useCart();
-  const avail = availability(product);
-  const sold = product.unitsSold;
-  const cap = product.inventoryCap;
-  const pct = (sold / cap) * 100;
-
-  const soldOut = avail.kind === "sold-out";
-  const lowStock = avail.kind === "low-stock";
-  const barTone = soldOut ? "muted" : lowStock ? "warn" : "gold";
-  const canAdd = !soldOut && product.purchasable;
+  const priceLabel = product.price
+    ? formatMoney(product.price.amount, product.price.currency)
+    : "Pledge TBD";
+  const isExternal = KICKSTARTER_URL.startsWith("http");
 
   return (
     <Card $featured={featured}>
@@ -271,20 +200,15 @@ export default function ProductCard({
         </Link>
       </Media>
       <Eyebrow>
-        {soldOut ? (
-          <Pill $tone="muted">Sold out</Pill>
-        ) : (
-          <Pill $tone="gold">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-              <path
-                d="M5 1 6.2 3.6 9 4l-2 2 .5 2.8L5 7.5 2.5 8.8 3 6 1 4l2.8-.4L5 1Z"
-                fill="currentColor"
-              />
-            </svg>
-            Early Bird
-          </Pill>
-        )}
-        <Delivery>{soldOut ? "—" : "Ships from Dec 1"}</Delivery>
+        <Pill $tone="gold">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+            <path
+              d="M5 1 6.2 3.6 9 4l-2 2 .5 2.8L5 7.5 2.5 8.8 3 6 1 4l2.8-.4L5 1Z"
+              fill="currentColor"
+            />
+          </svg>
+          Kickstarter Reward
+        </Pill>
       </Eyebrow>
       <Body>
         <Name>
@@ -294,53 +218,16 @@ export default function ProductCard({
       </Body>
       <Foot>
         <PriceRow>
-          {(() => {
-            const p = pricing(product);
-            if (!product.priceApproved || !p) {
-              return <Price $muted>{"$—"}</Price>;
-            }
-            return (
-              <span>
-                <Retail aria-label={`Retail ${p.retailFormatted}`}>
-                  {p.retailFormatted}
-                </Retail>
-                <Price>{p.saleFormatted}</Price>
-                <SaleBadge aria-label={`${p.discountPct} percent off`}>
-                  {p.discountPct}% off
-                </SaleBadge>
-              </span>
-            );
-          })()}
-          <PriceNote>
-            {product.priceApproved
-              ? `${sold.toLocaleString()} / ${cap.toLocaleString()} sold`
-              : "Price pending"}
-          </PriceNote>
+          <Price>{priceLabel}</Price>
+          <PriceNote>Kickstarter pledge</PriceNote>
         </PriceRow>
-        <Bar aria-hidden="true">
-          <BarFill $pct={pct} $tone={barTone} />
-        </Bar>
-        <BarMeta $tone={lowStock ? "warn" : "default"}>
-          <span>{sold.toLocaleString()} sold</span>
-          <span>
-            {soldOut
-              ? `${cap.toLocaleString()} of ${cap.toLocaleString()}`
-              : lowStock
-              ? `${avail.remaining} left of ${cap.toLocaleString()}`
-              : `of ${cap.toLocaleString()}`}
-          </span>
-        </BarMeta>
-        {soldOut ? (
-          <SecondaryAction href="/#signup">Notify me</SecondaryAction>
-        ) : (
-          <SecondaryAction
-            href={KICKSTARTER_URL}
-            target={KICKSTARTER_URL.startsWith("http") ? "_blank" : undefined}
-            rel={KICKSTARTER_URL.startsWith("http") ? "noreferrer" : undefined}
-          >
-            Back on Kickstarter →
-          </SecondaryAction>
-        )}
+        <SecondaryAction
+          href={KICKSTARTER_URL}
+          target={isExternal ? "_blank" : undefined}
+          rel={isExternal ? "noreferrer" : undefined}
+        >
+          View on Kickstarter →
+        </SecondaryAction>
       </Foot>
     </Card>
   );

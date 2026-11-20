@@ -105,28 +105,30 @@ export default function ShopLayout({ products }: { products: Product[] }) {
                     Rewards
                     <Count $active={view === "rewards"}>{rewards.length}</Count>
                   </Tab>
-                  <Tab
-                    role="tab"
-                    type="button"
-                    aria-selected={view === "addons"}
-                    tabIndex={view === "addons" ? 0 : -1}
-                    $active={view === "addons"}
-                    onClick={() => switchTo("addons")}
-                  >
-                    <TabIcon aria-hidden="true">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M12 5v14M5 12h14" />
-                      </svg>
-                    </TabIcon>
-                    Add-ons
-                    <Count $active={view === "addons"}>{addons.length}</Count>
-                  </Tab>
+                  {addons.length > 0 && (
+                    <Tab
+                      role="tab"
+                      type="button"
+                      aria-selected={view === "addons"}
+                      tabIndex={view === "addons" ? 0 : -1}
+                      $active={view === "addons"}
+                      onClick={() => switchTo("addons")}
+                    >
+                      <TabIcon aria-hidden="true">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 5v14M5 12h14" />
+                        </svg>
+                      </TabIcon>
+                      Add-ons
+                      <Count $active={view === "addons"}>{addons.length}</Count>
+                    </Tab>
+                  )}
                 </Tabs>
 
                 <TabHint $tone={view}>
                   {view === "rewards"
-                    ? "The 12 Kickstarter rewards, in the order the owner set."
-                    : "Add any of these to the reward you pick. Priced to stack."}
+                    ? `All ${rewards.length} Kickstarter reward tiers. Pick one and back it on Kickstarter — no purchase happens on this site.`
+                    : "Add any of these to the reward you pick on Kickstarter."}
                 </TabHint>
 
                 <Grid
@@ -142,9 +144,9 @@ export default function ShopLayout({ products }: { products: Product[] }) {
             )}
 
             <Legal>
-              Inventory numbers shown reflect current demand. Final prices,
-              shipping fees and taxes are configured before any charge is
-              taken. We ship Early Bird orders in the sequence they are paid.
+              All pledges, payments, shipping, and fulfillment happen on
+              Kickstarter — not on this site. Pledge amounts, estimated
+              delivery, and any add-ons are managed through the campaign.
             </Legal>
           </Wrap>
         </Section>
