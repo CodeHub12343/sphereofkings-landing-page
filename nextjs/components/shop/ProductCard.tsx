@@ -49,6 +49,10 @@ const Eyebrow = styled.div`
   align-items: center;
   padding: 14px 16px 0;
   gap: 8px;
+
+  @media (max-width: 600px) {
+    padding: 10px 10px 0;
+  }
 `;
 
 const Pill = styled.span<{ $tone: "gold" | "warn" | "muted" }>`
@@ -63,6 +67,7 @@ const Pill = styled.span<{ $tone: "gold" | "warn" | "muted" }>`
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  white-space: nowrap;
 
   ${(p) =>
     p.$tone === "gold" &&
@@ -73,6 +78,13 @@ const Pill = styled.span<{ $tone: "gold" | "warn" | "muted" }>`
   ${(p) =>
     p.$tone === "muted" &&
     "background: rgba(255,255,255,0.04); color: #a89880;"}
+
+  @media (max-width: 600px) {
+    height: 20px;
+    padding: 0 8px;
+    font-size: 0.6rem;
+    letter-spacing: 0.03em;
+  }
 `;
 
 const Body = styled.div`
@@ -81,6 +93,11 @@ const Body = styled.div`
   flex-direction: column;
   gap: 6px;
   flex: 1;
+
+  @media (max-width: 600px) {
+    padding: 8px 10px 0;
+    gap: 4px;
+  }
 `;
 
 const Name = styled.h3`
@@ -99,6 +116,17 @@ const Name = styled.h3`
   a:hover {
     color: #f0c040;
   }
+
+  /* Two-column phone grid: smaller type and clamp to 2 lines so the
+     rightmost column doesn't push the card into a column of its own. */
+  @media (max-width: 600px) {
+    font-size: 0.88rem;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 `;
 
 const Desc = styled.p`
@@ -111,6 +139,11 @@ const Desc = styled.p`
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+
+  /* Hide the lede on narrow screens — title + price carry the card. */
+  @media (max-width: 600px) {
+    display: none;
+  }
 `;
 
 const Foot = styled.div`
@@ -118,6 +151,11 @@ const Foot = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
+
+  @media (max-width: 600px) {
+    padding: 10px 10px 12px;
+    gap: 8px;
+  }
 `;
 
 const PriceRow = styled.div`
@@ -125,6 +163,10 @@ const PriceRow = styled.div`
   justify-content: space-between;
   align-items: baseline;
   gap: 10px;
+
+  @media (max-width: 600px) {
+    gap: 6px;
+  }
 `;
 
 const Price = styled.span<{ $muted?: boolean }>`
@@ -133,12 +175,21 @@ const Price = styled.span<{ $muted?: boolean }>`
   font-size: 1.4rem;
   color: ${(p) => (p.$muted ? "#5a4a38" : "#f5f0e8")};
   font-variant-numeric: tabular-nums;
+
+  @media (max-width: 600px) {
+    font-size: 1.1rem;
+  }
 `;
 
 const PriceNote = styled.span`
   font-size: 0.7rem;
   color: #a89880;
   font-weight: 500;
+
+  /* Button already says "View on Kickstarter" — note is redundant here. */
+  @media (max-width: 600px) {
+    display: none;
+  }
 `;
 
 const actionCss = `
@@ -155,10 +206,17 @@ const actionCss = `
   text-decoration: none;
   display: inline-block;
   transition: background 0.2s, border-color 0.2s, color 0.2s;
+  white-space: nowrap;
 
   &:disabled, &[aria-disabled="true"] {
     opacity: 0.55;
     cursor: not-allowed;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 0.78rem;
+    padding: 9px 8px;
+    letter-spacing: 0;
   }
 `;
 
