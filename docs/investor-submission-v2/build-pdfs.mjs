@@ -35,6 +35,13 @@ const jobs = [
     label: "Shark Ready Buybox One-Pager (landscape)",
     landscape: true,
   },
+  // DD Questionnaire — designed Shark Ready format
+  {
+    html: path.join(here, "03-Due-Diligence", "SOK_Updated_Due_Diligence_Questionnaire.html"),
+    pdf:  path.join(here, "03-Due-Diligence", "SOK_Updated_Due_Diligence_Questionnaire.pdf"),
+    label: "DD Questionnaire (designed)",
+    landscape: false,
+  },
 ];
 
 const browser = await chromium.launch();
