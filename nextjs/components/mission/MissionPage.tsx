@@ -418,7 +418,7 @@ export default function MissionPage() {
               of Kings Kickstarter net earnings to House of Rest Church — a
               cause that matters.
             </HeroLede>
-            <LaunchChip>Kickstarter launch · November 19, 2026</LaunchChip>
+            <LaunchChip>Kickstarter launch · December 15, 2026</LaunchChip>
           </Wrap>
         </Hero>
 

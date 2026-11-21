@@ -161,7 +161,7 @@ export default function Footer() {
               loading="lazy"
             />
             <Tagline>
-              A revolutionary 360° board game. Launching on Kickstarter November 19, 2026.
+              A revolutionary 360° board game. Launching on Kickstarter December 15, 2026.
             </Tagline>
             <SalesNote>Sales open after the Kickstarter campaign concludes.</SalesNote>
           </Brand>

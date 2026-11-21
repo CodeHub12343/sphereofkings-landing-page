@@ -38,7 +38,7 @@ export default function FinalCTA() {
         <Heading>Join the Kingdom Before Day One</Heading>
         <Sub>
           Early subscribers are the first to know when the campaign goes live on Kickstarter
-          on November 19, 2026.
+          on December 15, 2026.
         </Sub>
         <FormWrap>
           <SignupForm source="final" finePrint="No spam. Unsubscribe anytime." />

@@ -627,7 +627,7 @@ export default function ProductDetail({ product, children }: { product: Product;
             <dt>Delivery</dt>
             <dd>Starts December 1, 2026 · shipped in paid order</dd>
             <dt>Kickstarter</dt>
-            <dd>Separate channel · deliveries expected mid-December 2026</dd>
+            <dd>Separate channel · deliveries expected June 2027</dd>
             <dt>Returns</dt>
             <dd style={{ color: "#a89880" }}>Policy pending owner approval</dd>
           </FactList>

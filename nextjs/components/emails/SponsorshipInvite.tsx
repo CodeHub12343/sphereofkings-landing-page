@@ -20,7 +20,7 @@ import {
  */
 export default function SponsorshipInvite() {
   return (
-    <EmailShell previewText="Partnership & sponsorship opportunity — Sphere of Kings · Starting at $1,000 · Kickstarter launch Nov 19, 2026.">
+    <EmailShell previewText="Partnership & sponsorship opportunity — Sphere of Kings · Starting at $1,000 · Kickstarter launch Dec 15, 2026.">
       <EyebrowBar>◆ Sponsorship &amp; Partnership Invitation</EyebrowBar>
       <h1 style={H1}>
         Partner with Sphere of Kings — starting at{" "}
@@ -28,7 +28,7 @@ export default function SponsorshipInvite() {
       </h1>
       <div style={{ fontSize: 14, color: palette.muted, lineHeight: 1.5, marginBottom: 14 }}>
         Kickstarter launches{" "}
-        <strong style={{ color: palette.goldSoft }}>November 19, 2026</strong>.
+        <strong style={{ color: palette.goldSoft }}>December 15, 2026</strong>.
         Sponsor slots are limited.
       </div>
 
@@ -42,7 +42,7 @@ export default function SponsorshipInvite() {
       </p>
       <p style={Lead}>
         We&apos;re preparing to launch our Kickstarter campaign on{" "}
-        <strong style={{ color: palette.goldSoft }}>November 19, 2026</strong>,
+        <strong style={{ color: palette.goldSoft }}>December 15, 2026</strong>,
         and we&apos;re inviting select gaming companies, app developers,
         publishers, and innovative brands to become part of this opportunity.
       </p>
@@ -274,7 +274,7 @@ export default function SponsorshipInvite() {
       <p style={Fine}>
         You are receiving this because your company was identified as a
         potential partner or sponsor for Sphere of Kings. Kickstarter launch:
-        November 19, 2026.
+        December 15, 2026.
       </p>
     </EmailShell>
   );

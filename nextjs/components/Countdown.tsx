@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Wrap, SectionEyebrow } from "./shared";
 
-const LAUNCH = new Date("2026-11-19T12:00:00-05:00").getTime();
+const LAUNCH = new Date("2026-12-15T12:00:00-05:00").getTime();
 
 const Section = styled.section`
   background: #0d0b08;
@@ -127,7 +127,7 @@ export default function Countdown() {
     <Section>
       <Wrap>
         <SectionEyebrow>Kickstarter Launches In</SectionEyebrow>
-        <DateLine>November 19, 2026 · 12:00 PM EST</DateLine>
+        <DateLine>December 15, 2026 · 12:00 PM EST</DateLine>
         <Grid>
           <Cell>
             <Num>{t ? d : "--"}</Num>

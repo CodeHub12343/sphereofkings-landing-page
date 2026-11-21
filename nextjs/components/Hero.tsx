@@ -375,7 +375,7 @@ export default function Hero() {
                   </svg>
                 </KsIcon>
                 Back on Kickstarter
-                <KsHint>Launches Nov 19, 2026</KsHint>
+                <KsHint>Launches Dec 15, 2026</KsHint>
               </KsBtn>
             </KickstarterStrip>
             <Benefits>

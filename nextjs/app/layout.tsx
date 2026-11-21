@@ -6,9 +6,9 @@ import AppChrome from "@/components/app/AppChrome";
 import "./fonts.css";
 
 export const metadata: Metadata = {
-  title: "Sphere of Kings 7-in-1 — Coming to Kickstarter November 19, 2026",
+  title: "Sphere of Kings 7-in-1 — Coming to Kickstarter December 15, 2026",
   description:
-    "A revolutionary 360° board game where strategy, creativity, and imagination collide. Launching on Kickstarter November 19, 2026.",
+    "A revolutionary 360° board game where strategy, creativity, and imagination collide. Launching on Kickstarter December 15, 2026.",
   // The icon + apple-icon routes in /app auto-register, but we also
   // declare them explicitly so the <link rel="shortcut icon"> is set
   // for older browsers and crawlers.

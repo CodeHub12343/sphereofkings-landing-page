@@ -165,7 +165,7 @@ export default function Tiers() {
           first to hear about important campaign updates. The pledge tiers
           below are a preview — they go live when the campaign opens.
         </Intro>
-        <LaunchDate>Launching November 19, 2026</LaunchDate>
+        <LaunchDate>Launching December 15, 2026</LaunchDate>
         <Grid>
           {TIERS.map((t) => (
             <Card key={t.title}>
@@ -182,7 +182,7 @@ export default function Tiers() {
           ))}
         </Grid>
         <BottomNote>
-          Kickstarter deliveries are expected around mid-December 2026 — an
+          Kickstarter deliveries are expected around June 2027 — an
           expectation, not a guarantee. All rewards are fulfilled exclusively
           through the campaign.
         </BottomNote>

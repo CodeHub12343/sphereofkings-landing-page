@@ -35,7 +35,7 @@ export default function SponsorshipPitch({
   sponsorshipAmount = "$20,000",
   revenueSharePct = 5,
   siteUrl = "https://sphereofkings.com",
-  previewText = "A strategic $20,000 sponsorship opportunity — Sphere of Kings · Kickstarter launches November 19, 2026.",
+  previewText = "A strategic $20,000 sponsorship opportunity — Sphere of Kings · Kickstarter launches December 15, 2026.",
 }: SponsorshipPitchProps = {}) {
   return (
     <EmailShell previewText={previewText}>
@@ -51,7 +51,7 @@ export default function SponsorshipPitch({
         founder of Creative Design Networks and creator of{" "}
         <strong style={{ color: palette.goldSoft }}>Sphere of Kings</strong> —
         an innovative 7-in-1 spherical game board launching on Kickstarter on{" "}
-        <strong style={{ color: palette.goldSoft }}>November 19, 2026</strong>.
+        <strong style={{ color: palette.goldSoft }}>December 15, 2026</strong>.
       </p>
 
       <Panel tone="gold">
@@ -220,7 +220,7 @@ export default function SponsorshipPitch({
       <h2 style={{ ...H2, marginTop: 10 }}>Let&apos;s discuss this opportunity</h2>
       <p style={Lead}>
         Our Kickstarter launches on{" "}
-        <strong style={{ color: palette.goldSoft }}>November 19</strong>, and we
+        <strong style={{ color: palette.goldSoft }}>December 15</strong>, and we
         would love to schedule a brief conversation with your marketing or
         business development leadership as soon as possible. We are also open
         to structuring a customized agreement that provides additional value to
@@ -276,7 +276,7 @@ export default function SponsorshipPitch({
       </div>
 
       <p style={Fine}>
-        Kickstarter launch: November 19, 2026. All figures and projections in
+        Kickstarter launch: December 15, 2026. All figures and projections in
         this message are proposed terms, not guaranteed outcomes.
       </p>
     </EmailShell>

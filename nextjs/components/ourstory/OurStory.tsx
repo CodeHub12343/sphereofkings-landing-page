@@ -1052,7 +1052,7 @@ export default function OurStory() {
             </TlItem>
             <TlItem $state="future">
               <TlHead>
-                <TlDate $state="future">November 19, 2026</TlDate>
+                <TlDate $state="future">December 15, 2026</TlDate>
                 <TlChip $tone="ok">Confirmed</TlChip>
               </TlHead>
               <TlTitle>Kickstarter launch</TlTitle>

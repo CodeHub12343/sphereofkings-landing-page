@@ -60,9 +60,9 @@ export default function LaunchAnnouncement({
       <p style={Lead}>
         If you prefer the Kickstarter route, the campaign launches on{" "}
         <strong style={{ color: palette.goldSoft }}>
-          November 19, 2026
+          December 15, 2026
         </strong>
-        . Kickstarter deliveries are expected around mid-December 2026 —
+        . Kickstarter deliveries are expected around June 2027 —
         an expectation, not a guarantee.
       </p>
       <p style={Lead}>

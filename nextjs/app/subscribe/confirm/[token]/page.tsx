@@ -49,7 +49,7 @@ export default async function ConfirmPage({
     <Shell
       tone="ok"
       heading="Welcome to the Kingdom."
-      body={`We confirmed ${record.email}. You will hear from us when the Christmas Early Bird shop opens and when the Kickstarter campaign launches on November 19, 2026.`}
+      body={`We confirmed ${record.email}. You will hear from us when the Christmas Early Bird shop opens and when the Kickstarter campaign launches on December 15, 2026.`}
       primary={{ href: "/shop", label: "Explore the collection" }}
       unsubscribeHref={unsubUrl}
     />

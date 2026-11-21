@@ -74,7 +74,7 @@ export default function Video() {
         <ShareRow>
           <ShareButton
             title="Sphere of Kings — official trailer"
-            text="Watch Sphere of Kings in action — one spherical board, seven games. Launching on Kickstarter November 19."
+            text="Watch Sphere of Kings in action — one spherical board, seven games. Launching on Kickstarter December 15."
             hash="trailer-october-20"
           />
         </ShareRow>

@@ -125,9 +125,9 @@ export default function DeliveryNotice({
       </Ico>
       <Body>
         <Eye $variant="kickstarter">Kickstarter pledges</Eye>
-        <Title>Deliveries expected mid-December 2026</Title>
+        <Title>Deliveries expected June 2027</Title>
         <Line>
-          Backers of the Kickstarter campaign (launching November 19, 2026) ship
+          Backers of the Kickstarter campaign (launching December 15, 2026) ship
           on a separate schedule.
         </Line>
         <Fine>

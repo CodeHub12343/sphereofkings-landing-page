@@ -22,7 +22,7 @@ export type SponsorshipTier = {
   benefits: Array<{ heading: string; items: string[] }>;
 };
 
-export const KICKSTARTER_LAUNCH_DATE = "November 19, 2026";
+export const KICKSTARTER_LAUNCH_DATE = "December 15, 2026";
 
 // The one live tier. The internal id stays "silver" to keep legacy
 // rows (if any ever get inserted before the DB is cleared) compatible.

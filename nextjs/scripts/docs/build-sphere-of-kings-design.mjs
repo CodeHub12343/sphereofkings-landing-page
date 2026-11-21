@@ -302,7 +302,7 @@ const sec01 = [
 const sec02 = [
   H1("02  Product context & brand"),
   P(
-    "The physical Sphere of Kings 7-in-1 funds through a Kickstarter campaign (launching November 19, 2026). The game app is positioned to run a second, separate Kickstarter — same brand, independent release path, iOS + Android + web.",
+    "The physical Sphere of Kings 7-in-1 funds through a Kickstarter campaign (launching December 15, 2026). The game app is positioned to run a second, separate Kickstarter — same brand, independent release path, iOS + Android + web.",
   ),
   P(
     "Brand palette: dark background (#0A0806 / #170809), gold trim (#C9A227, #F0C040), crimson accents (#C62B44), ivory type. The physical set is a black-and-white magnetic sphere framed in a gold crown-and-shield motif; the digital surfaces mirror that frame around every board.",
