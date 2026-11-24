@@ -262,7 +262,7 @@ export default function Showcase() {
     <Section id="showcase">
       <Wrap>
         <SectionEyebrow>One Board. Seven Worlds.</SectionEyebrow>
-        <Heading>7-in-1 Showcase</Heading>
+        <Heading>Game Boards Showcase</Heading>
         <Lede>
           One spherical board transforms into seven distinct experiences. Choose your game,
           or master them all.

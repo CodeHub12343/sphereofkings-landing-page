@@ -219,7 +219,7 @@ function renderHtml(template: Template): string {
             firstName="Marion"
             orderRef="SOK-004218"
             lines={[
-              { name: "Complete 7-in-1", qty: 1, totalDisplay: "$—" },
+              { name: "Complete Game Boards Set", qty: 1, totalDisplay: "$—" },
               {
                 name: "Royal Checkers refill",
                 qty: 2,
@@ -242,7 +242,7 @@ function renderHtml(template: Template): string {
             carrier="DHL Express"
             trackingNumber="1Z999AA10123456784"
             trackingUrl="https://www.dhl.com/track"
-            itemsSummary="1 × Complete 7-in-1 and 2 × Royal Checkers refill"
+            itemsSummary="1 × Complete Game Boards Set and 2 × Royal Checkers refill"
             shipTo={"Marion Clarke\n12 Grove Lane, Flat 3\nLondon SW1A 1AA\nUnited Kingdom"}
           />
         );

@@ -20,7 +20,7 @@ export type DispatchNoticeProps = {
   trackingNumber?: string;
   trackingUrl?: string;
   shipTo: string;
-  itemsSummary: string; // "1 × Complete 7-in-1 · 2 × Royal Checkers refill"
+  itemsSummary: string; // "1 × Complete Game Boards Set · 2 × Royal Checkers refill"
 };
 
 export default function DispatchNotice({

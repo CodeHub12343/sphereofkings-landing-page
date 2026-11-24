@@ -18,9 +18,9 @@ const TIERS: Tier[] = [
     title: "Royal Triple Pack",
     price: "Price at launch",
     priceIsItalic: true,
-    body: "3 complete 7-in-1 Sphere of Kings sets. Perfect for gifting or a family collection.",
+    body: "3 complete Sphere of Kings Game Boards sets. Perfect for gifting or a family collection.",
     img: "/images/b537bf89-3632-4281-aab5-1d928a83effd.jpg",
-    alt: "Royal Triple Pack — 3 complete 7-in-1 Sphere of Kings game boards",
+    alt: "Royal Triple Pack — 3 complete Sphere of Kings game boards",
   },
   {
     title: "Kingdom 5-Pack",

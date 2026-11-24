@@ -430,7 +430,7 @@ export default function MissionPage() {
               At Creative Design Networks, we believe success should be measured
               not only by the products we create or the revenue we generate, but
               also by the lives we change along the way. Through the Sphere of
-              Kings 7-in-1 spherical game board, we&apos;re building a mission-driven
+              Kings Game Boards platform, we&apos;re building a mission-driven
               business that combines creativity, entrepreneurship, faith,
               community development, and charitable giving.
             </SectionLede>
@@ -625,7 +625,7 @@ export default function MissionPage() {
             <h2>One Game. One Mission. One Community at a Time.</h2>
             <p>
               When you support Sphere of Kings, you&apos;re helping bring a new
-              7-in-1 gaming platform to life while supporting a business committed
+              spherical gaming platform to life while supporting a business committed
               to sharing a portion of its success with meaningful causes.
             </p>
             <CtaRow>

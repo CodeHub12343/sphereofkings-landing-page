@@ -40,9 +40,9 @@ export const SAMPLE_QUOTES: SampleQuote[] = [
     autoTierPct: 20,
     neededBy: "December 20, 2026",
     notes:
-      "Looking to stock 24 complete 7-in-1 units plus 12 Royal Checkers refills for the Christmas window.",
+      "Looking to stock 24 complete Game Boards sets plus 12 Royal Checkers refills for the Christmas window.",
     lines: [
-      { productSlug: "complete-7-in-1", productName: "Complete 7-in-1", qty: 24 },
+      { productSlug: "complete-7-in-1", productName: "Complete Game Boards Set", qty: 24 },
       {
         productSlug: "royal-checkers-refill",
         productName: "Royal Checkers refill",
@@ -63,7 +63,7 @@ export const SAMPLE_QUOTES: SampleQuote[] = [
     notes:
       "Requesting the 40% tier for 220 units across the sphere range to seed a club network.",
     lines: [
-      { productSlug: "complete-7-in-1", productName: "Complete 7-in-1", qty: 120 },
+      { productSlug: "complete-7-in-1", productName: "Complete Game Boards Set", qty: 120 },
       {
         productSlug: "royal-triple-pack",
         productName: "Royal Triple Pack",
@@ -92,7 +92,7 @@ export const SAMPLE_QUOTES: SampleQuote[] = [
     lines: [
       {
         productSlug: "complete-7-in-1",
-        productName: "Complete 7-in-1",
+        productName: "Complete Game Boards Set",
         qty: 32,
       },
     ],
@@ -131,7 +131,7 @@ export const SAMPLE_QUOTES: SampleQuote[] = [
     lines: [
       {
         productSlug: "complete-7-in-1",
-        productName: "Complete 7-in-1",
+        productName: "Complete Game Boards Set",
         qty: 300,
       },
     ],
@@ -149,7 +149,7 @@ export const SAMPLE_QUOTES: SampleQuote[] = [
     lines: [
       {
         productSlug: "complete-7-in-1",
-        productName: "Complete 7-in-1",
+        productName: "Complete Game Boards Set",
         qty: 60,
       },
     ],

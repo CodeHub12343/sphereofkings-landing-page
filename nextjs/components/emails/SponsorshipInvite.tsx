@@ -37,7 +37,7 @@ export default function SponsorshipInvite() {
         My name is <strong style={{ color: palette.goldSoft }}>James Scott Bowser</strong>,
         Founder of Creative Design Networks and creator of{" "}
         <strong style={{ color: palette.goldSoft }}>Sphere of Kings</strong> — an
-        innovative 7-in-1 spherical board game that brings a new dimension to
+        innovative spherical board game that brings a new dimension to
         tabletop gaming, puzzles, creativity, and entertainment.
       </p>
       <p style={Lead}>
@@ -103,7 +103,7 @@ export default function SponsorshipInvite() {
         >
           Why Partner With Sphere of Kings
         </div>
-        <Benefit title="Innovative 7-in-1 game">
+        <Benefit title="Innovative spherical game">
           A unique spherical platform combining strategy, puzzles, and creative
           experiences.
         </Benefit>

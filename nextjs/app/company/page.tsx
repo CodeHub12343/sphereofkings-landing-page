@@ -455,7 +455,7 @@ export default function CompanyPage() {
                 </CardTitle>
                 <CardBody>
                   CDN designs, engineers, and manufactures the physical
-                  7-in-1 spherical game board — from initial concept
+                  Sphere of Kings Game Boards spherical game board — from initial concept
                   sketches through 3D printing and precision production.
                 </CardBody>
                 <CardList>
@@ -550,7 +550,7 @@ export default function CompanyPage() {
 
             <VisionGrid>
               <VisionItem>
-                <VisionNumber>7-in-1</VisionNumber>
+                <VisionNumber>7</VisionNumber>
                 <VisionLabel>
                   Games in one spherical board
                 </VisionLabel>

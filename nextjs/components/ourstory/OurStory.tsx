@@ -745,7 +745,7 @@ export default function OurStory() {
       <Section>
         <Head>
           <HeadNo>02</HeadNo>
-          <HeadT>Introducing the 7-in-1 experience</HeadT>
+          <HeadT>Introducing the Sphere of Kings Game Boards experience</HeadT>
         </Head>
         <SectionLede>
           Seven gaming experiences on one spherical platform. Something for

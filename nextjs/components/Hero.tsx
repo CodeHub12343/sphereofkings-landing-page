@@ -312,7 +312,7 @@ export default function Hero() {
       <Wrap>
         <Row>
           <Left>
-            <Eye>Sphere of Kings · The 7-in-1 Spherical Board Game</Eye>
+            <Eye>Sphere of Kings · The Spherical Board Game Collection</Eye>
             <Title>Strategy Has a New Dimension.</Title>
             <Sub>
               A revolutionary spherical board game where classic strategy,

@@ -11,7 +11,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Sphere of Kings",
     short_name: "Sphere of Kings",
     description:
-      "Spherical strategy games — Royal Checkers, Imperial Kings, and more. The companion app to the Sphere of Kings 7-in-1 board game.",
+      "Spherical strategy games — Royal Checkers, Imperial Kings, and more. The companion app to the Sphere of Kings Game Boards.",
     // The installed app opens on the game home, not the marketing page.
     // `id` pins the app's identity so changing start_url later doesn't
     // make browsers treat it as a different app.

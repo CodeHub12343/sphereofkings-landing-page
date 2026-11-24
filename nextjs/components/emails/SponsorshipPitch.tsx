@@ -50,7 +50,7 @@ export default function SponsorshipPitch({
         My name is <strong style={{ color: palette.goldSoft }}>James Scott Bowser</strong>,
         founder of Creative Design Networks and creator of{" "}
         <strong style={{ color: palette.goldSoft }}>Sphere of Kings</strong> —
-        an innovative 7-in-1 spherical game board launching on Kickstarter on{" "}
+        an innovative spherical game board launching on Kickstarter on{" "}
         <strong style={{ color: palette.goldSoft }}>December 15, 2026</strong>.
       </p>
 

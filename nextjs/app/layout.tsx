@@ -6,7 +6,7 @@ import AppChrome from "@/components/app/AppChrome";
 import "./fonts.css";
 
 export const metadata: Metadata = {
-  title: "Sphere of Kings 7-in-1 — Coming to Kickstarter December 15, 2026",
+  title: "Sphere of Kings Game Boards — Coming to Kickstarter December 15, 2026",
   description:
     "A revolutionary 360° board game where strategy, creativity, and imagination collide. Launching on Kickstarter December 15, 2026.",
   // The icon + apple-icon routes in /app auto-register, but we also
@@ -21,8 +21,8 @@ export const metadata: Metadata = {
   // Open Graph / social preview — same brand mark looks good in link
   // previews on iMessage, WhatsApp, Discord, etc.
   openGraph: {
-    title: "Sphere of Kings 7-in-1",
-    description: "Spherical strategy games — Royal Checkers, Imperial Kings, and the full 7-in-1 experience.",
+    title: "Sphere of Kings Game Boards",
+    description: "Spherical strategy games — Royal Checkers, Imperial Kings, and the full Sphere of Kings Game Boards experience.",
     images: ["/images/sphere-of-kings-logo.png"],
     type: "website",
   },

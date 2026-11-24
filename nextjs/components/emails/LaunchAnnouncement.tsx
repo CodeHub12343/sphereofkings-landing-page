@@ -32,7 +32,7 @@ export default function LaunchAnnouncement({
       <p style={Lead}>{greeting}</p>
       <p style={Lead}>
         The Christmas Early Bird shop is open. You can now preorder the
-        Sphere of Kings 7-in-1 — a spherical, customizable board game with
+        Sphere of Kings Game Boards — a spherical, customizable board game with
         seven ways to play — in time for Christmas morning.
       </p>
       <Panel tone="gold">

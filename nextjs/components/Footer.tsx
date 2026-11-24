@@ -171,7 +171,7 @@ export default function Footer() {
             <Links>
               <Link href="#story">Story</Link>
               <Link href="#different">Why It&apos;s Different</Link>
-              <Link href="#showcase">7-in-1 Showcase</Link>
+              <Link href="#showcase">Game Boards Showcase</Link>
               <Link href="#tiers">Pledge Tiers</Link>
               <Link href="#video">Video</Link>
               <Link href="#contact">Contact</Link>
@@ -222,7 +222,7 @@ export default function Footer() {
 
         <Divider />
         <Bottom>
-          <Copy>© 2026 Creative Design Networks / Sphere of Kings. All rights reserved. Sphere of Kings 7-in-1™</Copy>
+          <Copy>© 2026 Creative Design Networks / Sphere of Kings. All rights reserved. Sphere of Kings Game Boards™</Copy>
           <Legal>
             <LegalLink href="#">Privacy Policy</LegalLink>
             <LegalLink href="#">Terms of Service</LegalLink>

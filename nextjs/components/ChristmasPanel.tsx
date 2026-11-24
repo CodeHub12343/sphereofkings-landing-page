@@ -227,7 +227,7 @@ export default function ChristmasPanel() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/0426fb4f-6550-4e4d-b8c2-42ce56f2a2ef.jpg"
-              alt="Complete 7-in-1 Sphere of Kings game set"
+              alt="Complete Sphere of Kings Game Boards set"
               loading="lazy"
             />
           </Media>

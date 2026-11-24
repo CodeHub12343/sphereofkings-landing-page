@@ -652,7 +652,7 @@ export default function ProductEditDrawer({
                 id="pe-name"
                 type="text"
                 value={draft.name}
-                placeholder="e.g. Complete 7-in-1"
+                placeholder="e.g. Complete Game Boards Set"
                 onChange={(e) => {
                   const name = e.target.value;
                   // Only auto-sync the slug on create, and only until the

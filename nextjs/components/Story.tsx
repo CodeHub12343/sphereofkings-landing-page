@@ -187,7 +187,7 @@ export default function Story() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/e732ab4d-acf4-43fd-b4b1-a1708e5bf027.jpg"
-              alt="Complete 7-in-1 Sphere of Kings game showing all game modes and accessories"
+              alt="Complete Sphere of Kings Game Boards set showing all game modes and accessories"
               loading="lazy"
               width={560}
               height={560}
